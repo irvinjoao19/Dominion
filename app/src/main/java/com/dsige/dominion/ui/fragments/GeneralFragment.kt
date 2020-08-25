@@ -42,6 +42,7 @@ import javax.inject.Inject
 private const val ARG_PARAM1 = "param1"
 private const val ARG_PARAM2 = "param2"
 private const val ARG_PARAM3 = "param3"
+private const val ARG_PARAM4 = "param4"
 
 class GeneralFragment : DaggerFragment(), View.OnClickListener {
 
@@ -77,6 +78,7 @@ class GeneralFragment : DaggerFragment(), View.OnClickListener {
     private var otId: Int = 0
     private var usuarioId: Int = 0
     private var tipo: Int = 0
+    private var empresaId: Int = 0
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -87,6 +89,7 @@ class GeneralFragment : DaggerFragment(), View.OnClickListener {
             otId = it.getInt(ARG_PARAM1)
             usuarioId = it.getInt(ARG_PARAM2)
             tipo = it.getInt(ARG_PARAM3)
+            empresaId = it.getInt(ARG_PARAM4)
         }
     }
 
@@ -135,12 +138,13 @@ class GeneralFragment : DaggerFragment(), View.OnClickListener {
 
     companion object {
         @JvmStatic
-        fun newInstance(param1: Int, param2: Int, param3: Int) =
+        fun newInstance(param1: Int, param2: Int, param3: Int, param4: Int) =
             GeneralFragment().apply {
                 arguments = Bundle().apply {
                     putInt(ARG_PARAM1, param1)
                     putInt(ARG_PARAM2, param2)
                     putInt(ARG_PARAM3, param3)
+                    putInt(ARG_PARAM4, param4)
                 }
             }
     }
@@ -161,6 +165,7 @@ class GeneralFragment : DaggerFragment(), View.OnClickListener {
                 t.fechaAsignacion = Util.getFecha()
                 t.fechaRegistro = Util.getFecha()
                 t.horaAsignacion = Util.getHora()
+                t.empresaId = empresaId
                 t.estado = 2
                 otViewModel.validateOt(t)
             }

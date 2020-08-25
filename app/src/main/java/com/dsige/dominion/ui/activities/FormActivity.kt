@@ -14,11 +14,11 @@ class FormActivity : DaggerAppCompatActivity() {
         setContentView(R.layout.activity_form)
         val b = intent.extras
         if (b != null) {
-            bind(b.getInt("otId"), b.getInt("usuarioId"), b.getInt("tipo"))
+            bind(b.getInt("otId"), b.getInt("usuarioId"), b.getInt("tipo"),b.getInt("empresaId"))
         }
     }
 
-    private fun bind(otId: Int, usuarioId: Int, tipo: Int) {
+    private fun bind(otId: Int, usuarioId: Int, tipo: Int,empresaId:Int) {
 
         setSupportActionBar(toolbar)
         supportActionBar!!.title = "Registro"
@@ -41,7 +41,7 @@ class FormActivity : DaggerAppCompatActivity() {
 
         val tabLayoutAdapter =
             TabLayoutAdapter.TabLayoutForm(
-                supportFragmentManager, tabLayout.tabCount, otId, usuarioId, tipo
+                supportFragmentManager, tabLayout.tabCount, otId, usuarioId, tipo,empresaId
             )
         viewPager.adapter = tabLayoutAdapter
         viewPager.addOnPageChangeListener(TabLayout.TabLayoutOnPageChangeListener(tabLayout))

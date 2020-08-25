@@ -34,9 +34,10 @@ class MainActivity : DaggerAppCompatActivity(), NavigationView.OnNavigationItemS
     lateinit var viewModelFactory: ViewModelFactory
     lateinit var usuarioViewModel: UsuarioViewModel
     lateinit var builder: AlertDialog.Builder
-    var dialog: AlertDialog? = null
-    var usuarioId: Int = 0
-    var logout: String = "off"
+    private var dialog: AlertDialog? = null
+    private var usuarioId: Int = 0
+    private var empresaId: Int = 0
+    private var logout: String = "off"
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -101,13 +102,13 @@ class MainActivity : DaggerAppCompatActivity(), NavigationView.OnNavigationItemS
         when (item.title) {
             "Sincronizar" -> Util.toastMensaje(this, item.title.toString())
             "Lista de Ordenes" -> changeFragment(
-                MainFragment.newInstance(usuarioId, 1), item.title.toString()
+                MainFragment.newInstance(usuarioId, 1,empresaId), item.title.toString()
             )
             "Resumen de Ordenes de Trabajo por Proveedor" -> changeFragment(
-                MainFragment.newInstance(usuarioId, 2), item.title.toString()
+                MainFragment.newInstance(usuarioId, 2,empresaId), item.title.toString()
             )
             "OT fuera de Plazo" -> changeFragment(
-                MainFragment.newInstance(usuarioId, 3), item.title.toString()
+                MainFragment.newInstance(usuarioId, 3,empresaId), item.title.toString()
             )
             "Ubicacion del Personal" -> Util.toastMensaje(this, item.title.toString())
 //            R.id.reparacion -> changeFragment(
@@ -119,11 +120,6 @@ class MainActivity : DaggerAppCompatActivity(), NavigationView.OnNavigationItemS
         }
         drawerLayout.closeDrawer(GravityCompat.START)
         return true
-    }
-
-
-    private fun goActivity(i: Intent) {
-        startActivity(i)
     }
 
     private fun load(title: String) {
@@ -158,7 +154,7 @@ class MainActivity : DaggerAppCompatActivity(), NavigationView.OnNavigationItemS
     private fun fragmentByDefault() {
         supportFragmentManager
             .beginTransaction()
-            .replace(R.id.content_frame, MainFragment.newInstance(usuarioId, 1))
+            .replace(R.id.content_frame, MainFragment.newInstance(usuarioId, 1,empresaId))
             .commit()
         supportActionBar!!.title = "Reparación de Veredas"
 //        navigationView.menu.getItem(1).isChecked = true
@@ -169,6 +165,7 @@ class MainActivity : DaggerAppCompatActivity(), NavigationView.OnNavigationItemS
         header.textViewName.text = u.nombres
         header.textViewEmail.text = String.format("Cod : %s", u.usuarioId)
         usuarioId = u.usuarioId
+        empresaId = u.empresaId
     }
 
     private fun goLogin() {

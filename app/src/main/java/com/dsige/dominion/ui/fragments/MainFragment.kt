@@ -35,6 +35,7 @@ import javax.inject.Inject
 
 private const val ARG_PARAM1 = "param1"
 private const val ARG_PARAM2 = "param2"
+private const val ARG_PARAM3 = "param3"
 
 class MainFragment : DaggerFragment(), View.OnClickListener {
 
@@ -47,6 +48,7 @@ class MainFragment : DaggerFragment(), View.OnClickListener {
                     .putExtra("otId", otId)
                     .putExtra("usuarioId", usuarioId)
                     .putExtra("tipo", tipo)
+                    .putExtra("empresaId", empresaId)
             )
         }
     }
@@ -55,6 +57,7 @@ class MainFragment : DaggerFragment(), View.OnClickListener {
     lateinit var viewModelFactory: ViewModelFactory
     lateinit var otViewModel: OtViewModel
     private var usuarioId: Int = 0
+    private var empresaId: Int = 0
     private var tipo: Int = 0
     private var otId: Int = 0
 
@@ -63,6 +66,7 @@ class MainFragment : DaggerFragment(), View.OnClickListener {
         arguments?.let {
             usuarioId = it.getInt(ARG_PARAM1)
             tipo = it.getInt(ARG_PARAM2)
+            empresaId = it.getInt(ARG_PARAM3)
         }
     }
 
@@ -88,6 +92,7 @@ class MainFragment : DaggerFragment(), View.OnClickListener {
                         .putExtra("otId", o.otId)
                         .putExtra("usuarioId", o.usuarioId)
                         .putExtra("tipo", tipo)
+                        .putExtra("empresaId", o.empresaId)
                 )
             }
         })
@@ -164,11 +169,12 @@ class MainFragment : DaggerFragment(), View.OnClickListener {
 
     companion object {
         @JvmStatic
-        fun newInstance(param1: Int, param2: Int) =
+        fun newInstance(param1: Int, param2: Int, param3: Int) =
             MainFragment().apply {
                 arguments = Bundle().apply {
                     putInt(ARG_PARAM1, param1)
                     putInt(ARG_PARAM2, param2)
+                    putInt(ARG_PARAM3, param3)
                 }
             }
     }
