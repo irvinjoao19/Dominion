@@ -1,0 +1,37 @@
+<?xml version="1.0" encoding="utf-8"?>
+<menu xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    tools:showIn="navigation_view">
+
+    <group android:checkableBehavior="single">
+        <item
+            android:id="@+id/sync"
+            android:icon="@drawable/ic_sync"
+            android:title="Sincronizar" />
+        <item
+            android:id="@+id/ordenes"
+            android:icon="@drawable/ic_sync"
+            android:title="Lista de Ordenes" />
+        <item
+            android:id="@+id/proveedor"
+            android:icon="@drawable/ic_sync"
+            android:title="Resumen de OT por Proveedor" />
+        <item
+            android:id="@+id/plazo"
+            android:icon="@drawable/ic_sync"
+            android:title="Ot fuera de Plazo" />
+        <item
+            android:id="@+id/personal"
+            android:icon="@drawable/ic_sync"
+            android:title="Ubicacion del Personal" />
+    </group>
+
+    <item android:title="">
+        <menu>
+            <item
+                android:id="@+id/logout"
+                android:icon="@drawable/ic_exit"
+                android:title="@string/logout" />
+        </menu>
+    </item>
+</menu>

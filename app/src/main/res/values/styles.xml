@@ -1,0 +1,58 @@
+<resources>
+
+    <!-- Base application theme. -->
+    <style name="AppTheme" parent="Theme.MaterialComponents.Light.NoActionBar">
+        <!-- Customize your theme here. -->
+        <item name="colorPrimary">@color/colorPrimary</item>
+        <item name="colorPrimaryDark">@color/colorPrimaryDark</item>
+        <item name="colorAccent">@color/colorAccent</item>
+    </style>
+
+    <style name="TextAppearance.MyApp.Title.Collapsed" parent="android:TextAppearance">
+        <item name="android:textColor">@android:color/white</item>
+        <item name="android:textSize">18sp</item>
+    </style>
+
+    <style name="TextAppearance.MyApp.Title.Expanded" parent="android:TextAppearance">
+        <item name="android:textColor">@android:color/white</item>
+        <item name="android:textSize">14sp</item>
+    </style>
+
+    <style name="AppTheme.NoActionBar">
+        <item name="windowActionBar">false</item>
+        <item name="windowNoTitle">true</item>
+    </style>
+
+    <style name="NavigationView" parent="Widget.MaterialComponents.BottomNavigationView.Colored">
+        <item name="android:background">@color/colorPrimary</item>
+    </style>
+
+    <style name="AppTheme.AppBarOverlay" parent="ThemeOverlay.AppCompat.Dark.ActionBar" />
+
+    <style name="AppTheme.PopupOverlay" parent="ThemeOverlay.AppCompat.Light" />
+
+    <style name="TextInputLayoutColor" parent="Widget.MaterialComponents.TextInputLayout.OutlinedBox.Dense">
+        <item name="boxStrokeColor">@color/colorYellow</item>
+        <item name="colorControlNormal">@color/colorYellow</item>
+    </style>
+
+    <style name="TextInputLayoutColorGreen" parent="Widget.MaterialComponents.TextInputLayout.OutlinedBox.Dense">
+        <item name="boxStrokeColor">@color/colorGreen</item>
+        <item name="colorControlNormal">@color/colorGreen</item>
+    </style>
+
+    <style name="TextInputLayoutColorBlue" parent="Widget.MaterialComponents.TextInputLayout.OutlinedBox.Dense">
+        <item name="boxStrokeColor">@color/colorWhiteBlue</item>
+        <item name="colorControlNormal">@color/colorWhiteBlue</item>
+    </style>
+
+    <style name="TextInputLayoutColorOrange" parent="Widget.MaterialComponents.TextInputLayout.OutlinedBox.Dense">
+        <item name="boxStrokeColor">@color/colorOrange</item>
+        <item name="colorControlNormal">@color/colorOrange</item>
+    </style>
+
+    <style name="menu_labels_style">
+        <item name="android:background">@color/colorBlack</item>
+        <item name="android:textColor">@color/colorWhite</item>
+    </style>
+</resources>
