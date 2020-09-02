@@ -37,4 +37,12 @@ interface OnItemClickListener {
     interface MaterialListener {
         fun onItemClick(m: Material, view: View, position: Int)
     }
+
+    interface ServicioListener {
+        fun onItemClick(s: Servicio, view: View, position: Int)
+    }
+
+    interface ProveedorListener {
+        fun onItemClick(p: Proveedor, view: View, position: Int)
+    }
 }

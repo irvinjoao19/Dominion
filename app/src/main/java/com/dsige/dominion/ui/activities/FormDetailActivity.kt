@@ -6,6 +6,7 @@ import android.content.Intent
 import android.os.Bundle
 import android.provider.MediaStore
 import android.text.Editable
+import android.text.InputType
 import android.text.TextWatcher
 import android.view.LayoutInflater
 import android.view.View
@@ -42,7 +43,7 @@ class FormDetailActivity : DaggerAppCompatActivity(), View.OnClickListener, Text
             R.id.editTextMaterial -> spinnerDialog()
             R.id.fabCamara -> formRegistro("1")
             R.id.fabGaleria -> formRegistro("2")
-            R.id.fabSave -> otViewModel.closeDetalle(d)
+            R.id.fabSave -> formRegistro("3")
         }
     }
 
@@ -58,19 +59,43 @@ class FormDetailActivity : DaggerAppCompatActivity(), View.OnClickListener, Text
         val b = intent.extras
         if (b != null) {
             d = OtDetalle()
-            bindUI(b.getInt("otDetalleId"), b.getInt("otId"), b.getInt("usuarioId"))
+            bindUI(
+                b.getInt("otDetalleId"),
+                b.getInt("otId"),
+                b.getInt("usuarioId"),
+                b.getInt("tipo"),
+                b.getInt("tipoDesmonte")
+            )
         }
     }
 
-    private fun bindUI(detalleId: Int, otId: Int, u: Int) {
+    /**
+     * @tipo
+     * 6 ->	Medidas
+     * 7 ->	DESMONTE
+     * @tipoDesmonte
+     * 14 -> Desmonte Recojido
+     * 15 -> Genera Ot Desmonte
+     */
+    private fun bindUI(detalleId: Int, otId: Int, u: Int, tipo: Int, tipoDesmonte: Int) {
         setSupportActionBar(toolbar)
-        supportActionBar!!.title = "Ot Desmonte"
+        supportActionBar!!.title = when {
+            tipo == 6 -> "Ot Medidas"
+            tipoDesmonte == 14 -> "Desmonte Recojido"
+            else -> "Genera Ot Desmonte"
+        }
         supportActionBar!!.setDisplayHomeAsUpEnabled(true)
         toolbar.setNavigationOnClickListener { finish() }
 
         usuarioId = u
         d.otDetalleId = detalleId
         d.otId = otId
+        d.tipoTrabajoId = tipo
+        d.tipoDesmonteId = tipoDesmonte
+        d.nombreTipoDemonte = when (tipoDesmonte) {
+            14 -> "Desmonte Recojido"
+            else -> "Genera Ot Desmonte"
+        }
 
         otViewModel =
             ViewModelProvider(this, viewModelFactory).get(OtViewModel::class.java)
@@ -98,7 +123,11 @@ class FormDetailActivity : DaggerAppCompatActivity(), View.OnClickListener, Text
         otViewModel.getOtDetalleId(detalleId).observe(this, Observer {
             if (it != null) {
                 d = it
-                editTextMaterial.setText(it.nombreTipoMaterial)
+                if (it.tipoTrabajoId == 6) {
+                    editTextMaterial.setText(it.nombreTipoMaterial)
+                } else {
+                    editTextMaterial.setText(it.nroPlaca)
+                }
                 editTextAncho.setText(it.ancho.toString())
                 editTextLargo.setText(it.largo.toString())
                 editTextEspesor.setText(it.espesor.toString())
@@ -135,7 +164,23 @@ class FormDetailActivity : DaggerAppCompatActivity(), View.OnClickListener, Text
             }
         })
 
-        editTextMaterial.setOnClickListener(this)
+        if (tipo == 6) {
+            textView1.hint = "Tipo de Material"
+            editTextMaterial.setOnClickListener(this)
+            editTextMaterial.isFocusable = false
+        } else {
+            textView1.hint = "Placa Vehiculo"
+            editTextMaterial.setCompoundDrawables(
+                null, null, null, null
+            )
+            editTextMaterial.inputType = InputType.TYPE_CLASS_TEXT
+        }
+
+        if (tipoDesmonte == 15) {
+            textView1.visibility = View.GONE
+            editTextMaterial.visibility = View.GONE
+        }
+
         editTextAncho.addTextChangedListener(this)
         editTextLargo.addTextChangedListener(this)
         editTextEspesor.addTextChangedListener(this)
@@ -210,8 +255,14 @@ class FormDetailActivity : DaggerAppCompatActivity(), View.OnClickListener, Text
     }
 
     private fun formRegistro(tipo: String) {
-        d.nombreTipoMaterial = editTextMaterial.text.toString()
-        d.estado = 2
+        if (d.tipoTrabajoId == 6) {
+            d.nombreTipoMaterial = editTextMaterial.text.toString()
+        } else {
+            d.nroPlaca = editTextMaterial.text.toString()
+        }
+
+        d.estado = if (tipo == "3") 1 else 2
+
         when {
             editTextAncho.text.toString().isEmpty() -> d.ancho = 0.0
             else -> d.ancho = editTextAncho.text.toString().toDouble()

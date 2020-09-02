@@ -13,12 +13,12 @@
         android:theme="@style/AppTheme.AppBarOverlay"
         app:layout_constraintTop_toTopOf="parent">
 
+<!--        app:layout_scrollFlags="scroll|enterAlways|enterAlwaysCollapsed"-->
         <androidx.appcompat.widget.Toolbar
             android:id="@+id/toolbar"
             android:layout_width="match_parent"
             android:layout_height="?attr/actionBarSize"
             android:background="@drawable/side_nav_bar"
-            app:layout_scrollFlags="scroll|enterAlways|enterAlwaysCollapsed"
             app:popupTheme="@style/AppTheme.PopupOverlay" />
 
         <com.google.android.material.tabs.TabLayout

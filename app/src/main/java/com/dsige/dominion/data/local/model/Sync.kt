@@ -6,4 +6,5 @@ open class Sync {
     var estados: List<Estado> = ArrayList()
     var materials: List<Material> = ArrayList()
     var distritos: List<Distrito> = ArrayList()
+    var servicios: List<Servicio> = ArrayList()
 }

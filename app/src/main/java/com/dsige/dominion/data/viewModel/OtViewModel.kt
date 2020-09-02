@@ -28,6 +28,7 @@ class OtViewModel @Inject
 internal constructor(private val roomRepository: AppRepository, private val retrofit: ApiError) :
     ViewModel() {
 
+
     val mensajeError = MutableLiveData<String>()
     val mensajeSuccess = MutableLiveData<String>()
     val search: MutableLiveData<String> = MutableLiveData()
@@ -52,28 +53,42 @@ internal constructor(private val roomRepository: AppRepository, private val retr
             if (input == null || input.isEmpty()) {
                 roomRepository.getOts()
             } else {
-                roomRepository.getOts()
-//                val f = Gson().fromJson(search.value, Filtro::class.java)
-//                if (f.distritoId.isEmpty()) {
-//                    if (f.search.isNotEmpty()) {
-//                        roomRepository.getCliente(String.format("%s%s%s", "%", f.search, "%"))
-//                    } else {
-//                        roomRepository.getCliente()
-//                    }
-//                } else {
-//                    if (f.search.isEmpty()) {
-//                        roomRepository.getCliente(f.distritoId.toInt())
-//                    } else {
-//                        roomRepository.getCliente(
-//                            f.distritoId.toInt(), String.format("%s%s%s", "%", f.search, "%")
-//                        )
-//                    }
-//                }
+                val f = Gson().fromJson(search.value, Filtro::class.java)
+                if (f.servicioId == 0) {
+                    if (f.search.isNotEmpty()) {
+                        roomRepository.getOts(
+                            f.tipo, f.estadoId, String.format("%s%s%s", "%", f.search, "%")
+                        )
+                    } else {
+                        roomRepository.getOts(f.tipo, f.estadoId)
+                    }
+                } else {
+                    if (f.search.isEmpty()) {
+                        roomRepository.getOts(f.tipo, f.estadoId, f.servicioId)
+                    } else {
+                        roomRepository.getOts(
+                            f.tipo, f.estadoId, f.servicioId,
+                            String.format("%s%s%s", "%", f.search, "%")
+                        )
+                    }
+                }
             }
         }
     }
 
     fun validateOt(t: Ot) {
+        if (t.nroObra.isEmpty()) {
+            mensajeError.value = "Ingresar Nro OT/TD"
+            return
+        }
+        if (t.direccion.isEmpty()) {
+            mensajeError.value = "Ingresar Dirección"
+            return
+        }
+        if (t.distritoId == 0) {
+            mensajeError.value = "Seleccione Distrito"
+            return
+        }
         insertOrUpdateOt(t)
     }
 
@@ -100,8 +115,8 @@ internal constructor(private val roomRepository: AppRepository, private val retr
         return roomRepository.getOtById(otId)
     }
 
-    fun getOtDetalleById(otId: Int): LiveData<PagedList<OtDetalle>> {
-        return roomRepository.getOtDetalleById(otId)
+    fun getOtDetalleById(otId: Int, tipo: Int): LiveData<PagedList<OtDetalle>> {
+        return roomRepository.getOtDetalleById(otId, tipo)
     }
 
     fun getOtPhotoById(id: Int): LiveData<List<OtPhoto>> {
@@ -116,19 +131,32 @@ internal constructor(private val roomRepository: AppRepository, private val retr
         return roomRepository.getMateriales()
     }
 
+    fun getServicios(): LiveData<List<Servicio>> {
+        return roomRepository.getServicios()
+    }
+
     fun validateOtDetalle(d: OtDetalle, tipo: String) {
-        if (d.tipoMaterialId == 0) {
-            mensajeError.value = "Seleccione Tipo de Material"
+        if (d.tipoTrabajoId == 6) {
+            if (d.tipoMaterialId == 0) {
+                mensajeError.value = "Seleccione Tipo de Material"
+                return
+            }
+        } else {
+            if (d.tipoDesmonteId == 14) {
+                if (d.nroPlaca.isEmpty()) {
+                    mensajeError.value = "Nro de Placa"
+                    return
+                }
+            }
+        }
+
+        if (d.largo == 0.0) {
+            mensajeError.value = "Ingrese Largo"
             return
         }
 
         if (d.ancho == 0.0) {
             mensajeError.value = "Ingrese Ancho"
-            return
-        }
-
-        if (d.largo == 0.0) {
-            mensajeError.value = "Ingrese Largo"
             return
         }
 
@@ -145,7 +173,7 @@ internal constructor(private val roomRepository: AppRepository, private val retr
             .observeOn(AndroidSchedulers.mainThread())
             .subscribe(object : CompletableObserver {
                 override fun onComplete() {
-                    mensajeSuccess.value = tipo
+                    mensajeSuccess.value = if (tipo == "3") "Ok" else tipo
                 }
 
                 override fun onSubscribe(d: Disposable) {
@@ -168,25 +196,6 @@ internal constructor(private val roomRepository: AppRepository, private val retr
 
     fun getOtDetalleId(detalleId: Int): LiveData<OtDetalle> {
         return roomRepository.getOtDetalleId(detalleId)
-    }
-
-    fun closeDetalle(o: OtDetalle) {
-        roomRepository.closeDetalle(o)
-            .subscribeOn(Schedulers.io())
-            .observeOn(AndroidSchedulers.mainThread())
-            .subscribe(object : CompletableObserver {
-                override fun onComplete() {
-                    mensajeSuccess.value = "Ok"
-                }
-
-                override fun onSubscribe(d: Disposable) {
-
-                }
-
-                override fun onError(e: Throwable) {
-                    mensajeError.value = e.message
-                }
-            })
     }
 
     fun generarArchivo(nameImg: String, context: Context, data: Intent) {
@@ -244,5 +253,190 @@ internal constructor(private val roomRepository: AppRepository, private val retr
 
                 }
             })
+    }
+
+    fun deleteOtDetalle(o: OtDetalle, context: Context) {
+        roomRepository.deleteOtDetalle(o, context)
+            .subscribeOn(Schedulers.io())
+            .observeOn(AndroidSchedulers.mainThread())
+            .subscribe(object : CompletableObserver {
+                override fun onComplete() {
+                    mensajeError.value = "Foto Eliminada"
+                }
+
+                override fun onSubscribe(d: Disposable) {
+
+                }
+
+                override fun onError(e: Throwable) {
+
+                }
+            })
+    }
+
+    fun getProveedor(f: Filtro) {
+        roomRepository.clearProveedores()
+            .subscribeOn(Schedulers.io())
+            .observeOn(AndroidSchedulers.mainThread())
+            .subscribe(object : CompletableObserver {
+                override fun onComplete() {
+                    mensajeSuccess.value = "load"
+                    syncProveedor(f)
+                }
+
+                override fun onSubscribe(d: Disposable) {
+
+                }
+
+                override fun onError(e: Throwable) {
+
+                }
+            })
+    }
+
+    private fun syncProveedor(f: Filtro) {
+        roomRepository.getProveedor(f)
+            .delay(2000, TimeUnit.MILLISECONDS)
+            .subscribeOn(Schedulers.io())
+            .observeOn(AndroidSchedulers.mainThread())
+            .subscribe(object : Observer<List<Proveedor>> {
+                override fun onComplete() {
+                    mensajeSuccess.value = "finish"
+                }
+
+                override fun onSubscribe(d: Disposable) {
+
+                }
+
+                override fun onNext(t: List<Proveedor>) {
+                    insertProveedor(t)
+                }
+
+                override fun onError(e: Throwable) {
+                    mensajeSuccess.value = "finish"
+                }
+            })
+    }
+
+    private fun insertProveedor(t: List<Proveedor>) {
+        roomRepository.insertProveedor(t)
+            .subscribeOn(Schedulers.io())
+            .observeOn(AndroidSchedulers.mainThread())
+            .subscribe(object : CompletableObserver {
+                override fun onComplete() {
+
+                }
+
+                override fun onSubscribe(d: Disposable) {
+
+                }
+
+                override fun onError(e: Throwable) {
+
+                }
+            })
+    }
+
+    fun getProveedores(): LiveData<PagedList<Proveedor>> {
+        return roomRepository.getProveedores()
+    }
+
+
+    // TODO Empresas Ot Reporte
+
+    fun syncEmpresa(f: Filtro) {
+        roomRepository.getEmpresa(f)
+            .delay(2000, TimeUnit.MILLISECONDS)
+            .subscribeOn(Schedulers.io())
+            .observeOn(AndroidSchedulers.mainThread())
+            .subscribe(object : Observer<List<OtReporte>> {
+                override fun onComplete() {
+                    mensajeSuccess.value = "finish"
+                }
+
+                override fun onSubscribe(d: Disposable) {
+
+                }
+
+                override fun onNext(t: List<OtReporte>) {
+                    insertEmpresa(t)
+                }
+
+                override fun onError(e: Throwable) {
+                    mensajeSuccess.value = "finish"
+                }
+            })
+    }
+
+    private fun insertEmpresa(t: List<OtReporte>) {
+        roomRepository.insertEmpresa(t)
+            .subscribeOn(Schedulers.io())
+            .observeOn(AndroidSchedulers.mainThread())
+            .subscribe(object : CompletableObserver {
+                override fun onComplete() {
+
+                }
+
+                override fun onSubscribe(d: Disposable) {
+
+                }
+
+                override fun onError(e: Throwable) {
+
+                }
+            })
+    }
+
+    fun getEmpresas(): LiveData<List<OtReporte>> {
+        return roomRepository.getOtReporte()
+    }
+
+    // TODO Personal Jefe Cuadrilla
+
+    fun syncJefeCuadrilla(f: Filtro) {
+        roomRepository.getJefeCuadrilla(f)
+            .delay(2000, TimeUnit.MILLISECONDS)
+            .subscribeOn(Schedulers.io())
+            .observeOn(AndroidSchedulers.mainThread())
+            .subscribe(object : Observer<List<JefeCuadrilla>> {
+                override fun onComplete() {
+                    mensajeSuccess.value = "finish"
+                }
+
+                override fun onSubscribe(d: Disposable) {
+
+                }
+
+                override fun onNext(t: List<JefeCuadrilla>) {
+                    insertJefeCuadrilla(t)
+                }
+
+                override fun onError(e: Throwable) {
+                    mensajeSuccess.value = "finish"
+                }
+            })
+    }
+
+    private fun insertJefeCuadrilla(t: List<JefeCuadrilla>) {
+        roomRepository.insertJefeCuadrilla(t)
+            .subscribeOn(Schedulers.io())
+            .observeOn(AndroidSchedulers.mainThread())
+            .subscribe(object : CompletableObserver {
+                override fun onComplete() {
+
+                }
+
+                override fun onSubscribe(d: Disposable) {
+
+                }
+
+                override fun onError(e: Throwable) {
+
+                }
+            })
+    }
+
+    fun getJefeCuadrillas(): LiveData<List<JefeCuadrilla>> {
+        return roomRepository.getJefeCuadrillas()
     }
 }

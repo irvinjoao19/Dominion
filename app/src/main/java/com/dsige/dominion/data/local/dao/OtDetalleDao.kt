@@ -26,8 +26,8 @@ interface OtDetalleDao {
     @Query("DELETE FROM OtDetalle")
     fun deleteAll()
 
-    @Query("SELECT * FROM OtDetalle WHERE otId =:id")
-    fun getOtDetalleById(id: Int): DataSource.Factory<Int, OtDetalle>
+    @Query("SELECT * FROM OtDetalle WHERE otId =:id AND tipoTrabajoId =:tipo")
+    fun getOtDetalleById(id: Int,tipo:Int): DataSource.Factory<Int, OtDetalle>
 
     @Query("SELECT * FROM OtDetalle WHERE otDetalleId =:id")
     fun getOtDetalleIdTask(id: Int): OtDetalle

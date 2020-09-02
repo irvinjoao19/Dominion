@@ -52,8 +52,7 @@
                         android:id="@+id/editTextMaterial"
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
-                        android:drawableEnd="@drawable/ic_down"
-                        android:focusable="false" />
+                        android:drawableEnd="@drawable/ic_down" />
                 </com.google.android.material.textfield.TextInputLayout>
 
                 <com.google.android.material.textfield.TextInputEditText
@@ -86,7 +85,7 @@
                     android:layout_height="wrap_content"
                     android:layout_margin="8dp"
                     android:hint="@string/espesor"
-                    android:inputType="number"
+                    android:inputType="numberDecimal"
                     android:textColorHint="@color/colorPrimary"
                     app:layout_constraintEnd_toEndOf="parent"
                     app:layout_constraintStart_toEndOf="@+id/editTextAncho"

@@ -114,4 +114,5 @@
     <string name="c1">campo1</string>
     <string name="espesor">Espesor</string>
     <string name="tipo_material">Tipo de Material</string>
+    <string name="title_activity_general_maps">Map</string>
 </resources>

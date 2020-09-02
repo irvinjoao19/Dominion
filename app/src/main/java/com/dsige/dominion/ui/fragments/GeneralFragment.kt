@@ -43,6 +43,8 @@ private const val ARG_PARAM1 = "param1"
 private const val ARG_PARAM2 = "param2"
 private const val ARG_PARAM3 = "param3"
 private const val ARG_PARAM4 = "param4"
+private const val ARG_PARAM5 = "param5"
+private const val ARG_PARAM6 = "param6"
 
 class GeneralFragment : DaggerFragment(), View.OnClickListener {
 
@@ -79,6 +81,8 @@ class GeneralFragment : DaggerFragment(), View.OnClickListener {
     private var usuarioId: Int = 0
     private var tipo: Int = 0
     private var empresaId: Int = 0
+    private var servicioId: Int = 0
+    private var personalId: Int = 0
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -89,7 +93,8 @@ class GeneralFragment : DaggerFragment(), View.OnClickListener {
             otId = it.getInt(ARG_PARAM1)
             usuarioId = it.getInt(ARG_PARAM2)
             tipo = it.getInt(ARG_PARAM3)
-            empresaId = it.getInt(ARG_PARAM4)
+            servicioId = it.getInt(ARG_PARAM5)
+            personalId = it.getInt(ARG_PARAM6)
         }
     }
 
@@ -111,6 +116,7 @@ class GeneralFragment : DaggerFragment(), View.OnClickListener {
 
         otViewModel.getOtById(otId).observe(viewLifecycleOwner, Observer {
             if (it != null) {
+                t = it
                 editTextNumero.setText(it.nroObra)
                 editTextDireccion.setText(it.direccion)
                 editTextDistritos.setText(it.nombreDistritoId)
@@ -136,25 +142,19 @@ class GeneralFragment : DaggerFragment(), View.OnClickListener {
         imageViewDescripcion.setOnClickListener(this)
     }
 
-    companion object {
-        @JvmStatic
-        fun newInstance(param1: Int, param2: Int, param3: Int, param4: Int) =
-            GeneralFragment().apply {
-                arguments = Bundle().apply {
-                    putInt(ARG_PARAM1, param1)
-                    putInt(ARG_PARAM2, param2)
-                    putInt(ARG_PARAM3, param3)
-                    putInt(ARG_PARAM4, param4)
-                }
-            }
-    }
-
     private fun formOt() {
         val gps = Gps(context!!)
         if (gps.isLocationEnabled()) {
             if (gps.latitude.toString() != "0.0" || gps.longitude.toString() != "0.0") {
                 t.otId = otId
+                t.tipoOrdenId = tipo
+                t.nombreTipoOrden = when (tipo) {
+                    3 -> "ROTURA"
+                    4 -> "REPARACION"
+                    else -> "RECOJO"
+                }
                 t.usuarioId = usuarioId
+                t.personalJCId = usuarioId
                 t.nroObra = editTextNumero.text.toString()
                 t.descripcionOt = editTextDescripcion.text.toString()
                 t.direccion = editTextDireccion.text.toString()
@@ -166,6 +166,8 @@ class GeneralFragment : DaggerFragment(), View.OnClickListener {
                 t.fechaRegistro = Util.getFecha()
                 t.horaAsignacion = Util.getHora()
                 t.empresaId = empresaId
+                t.servicioId = servicioId
+                t.estadoId = 4
                 t.estado = 2
                 otViewModel.validateOt(t)
             }
@@ -285,5 +287,21 @@ class GeneralFragment : DaggerFragment(), View.OnClickListener {
                 editTextDescripcion.setText(y)
             }
         }
+    }
+
+
+    companion object {
+        @JvmStatic
+        fun newInstance(p1: Int, p2: Int, p3: Int, p4: Int, p5: Int, p6: Int) =
+            GeneralFragment().apply {
+                arguments = Bundle().apply {
+                    putInt(ARG_PARAM1, p1)
+                    putInt(ARG_PARAM2, p2)
+                    putInt(ARG_PARAM3, p3)
+                    putInt(ARG_PARAM4, p4)
+                    putInt(ARG_PARAM5, p5)
+                    putInt(ARG_PARAM6, p6)
+                }
+            }
     }
 }

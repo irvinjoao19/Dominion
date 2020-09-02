@@ -27,10 +27,9 @@ open class Ot {
     var personalJCId: Int = 0
     var nombreJO: String = ""
     var otOrigenId: Int = 0
-    var estado: Int = 0 // 1 -> para enviar , 2 -> incompleto
-    var nombreEstado: String = ""
-    var vencimiento: Int = 0
 
+    var nombreEstado: String = ""
+    var vencimiento: String = ""
 
     var observacion: String = ""
     var motivoPrioridadId: Int = 0
@@ -42,6 +41,10 @@ open class Ot {
     var usuarioId: Int = 0
 
     var identity: Int = 0
+
+    var estadoId: Int = 0 // 4 -> ejecutado  // 5 enviado aprobar
+    var estado: Int = 0 // 1 -> para enviar , 2 -> incompleto
+
 
     @Ignore
     var detalles: List<OtDetalle> = ArrayList()

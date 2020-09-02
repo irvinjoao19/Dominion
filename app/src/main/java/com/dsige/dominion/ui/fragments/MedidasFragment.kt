@@ -19,6 +19,7 @@ import com.dsige.dominion.ui.activities.FormDetailActivity
 import com.dsige.dominion.ui.adapters.OtDetalleAdapter
 import com.dsige.dominion.ui.listeners.OnItemClickListener
 import com.dsige.dsigeventas.data.viewModel.ViewModelFactory
+import com.google.android.material.dialog.MaterialAlertDialogBuilder
 import dagger.android.support.DaggerFragment
 import kotlinx.android.synthetic.main.fragment_medidas.*
 import javax.inject.Inject
@@ -37,7 +38,7 @@ class MedidasFragment : DaggerFragment(), View.OnClickListener {
                         .putExtra("otDetalleId", otDetalleId)
                         .putExtra("otId", otId)
                         .putExtra("usuarioId", usuarioId)
-                        .putExtra("tipo", tipo)
+                        .putExtra("tipo", 6)
                 )
             } else {
                 viewPager?.currentItem = 0
@@ -97,12 +98,16 @@ class MedidasFragment : DaggerFragment(), View.OnClickListener {
 
         val otDetalleAdapter = OtDetalleAdapter(object : OnItemClickListener.OtDetalleListener {
             override fun onItemClick(o: OtDetalle, view: View, position: Int) {
-                startActivity(
-                    Intent(context, FormDetailActivity::class.java)
-                        .putExtra("otDetalleId", o.otDetalleId)
-                        .putExtra("otDetalleId", o.otDetalleId)
-                        .putExtra("tipo", tipo)
-                )
+                when (view.id) {
+                    R.id.imgEdit -> startActivity(
+                        Intent(context, FormDetailActivity::class.java)
+                            .putExtra("otDetalleId", o.otDetalleId)
+                            .putExtra("otId", o.otId)
+                            .putExtra("usuarioId", usuarioId)
+                            .putExtra("tipo", o.tipoTrabajoId)
+                    )
+                    R.id.imgDelete -> confirmDelete(o)
+                }
             }
         })
 
@@ -111,10 +116,24 @@ class MedidasFragment : DaggerFragment(), View.OnClickListener {
         recyclerView.setHasFixedSize(true)
         recyclerView.adapter = otDetalleAdapter
 
-        otViewModel.getOtDetalleById(otId)
+        otViewModel.getOtDetalleById(otId, 6)
             .observe(viewLifecycleOwner, Observer(otDetalleAdapter::submitList))
 
         fab.setOnClickListener(this)
+    }
+
+    private fun confirmDelete(o: OtDetalle) {
+        val dialog = MaterialAlertDialogBuilder(context!!)
+            .setTitle("Mensaje")
+            .setMessage("Se eliminaran las fotos que estan incluidas en esta medida ?")
+            .setPositiveButton("Eliminar") { dialog, _ ->
+                otViewModel.deleteOtDetalle(o,context!!)
+                dialog.dismiss()
+            }
+            .setNegativeButton("Cancelar") { dialog, _ ->
+                dialog.cancel()
+            }
+        dialog.show()
     }
 
     companion object {

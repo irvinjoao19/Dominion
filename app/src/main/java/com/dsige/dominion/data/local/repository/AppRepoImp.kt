@@ -15,6 +15,7 @@ import io.reactivex.Completable
 import io.reactivex.Observable
 import okhttp3.MediaType
 import okhttp3.RequestBody
+import retrofit2.Call
 
 class AppRepoImp(private val apiService: ApiService, private val dataBase: AppDataBase) :
     AppRepository {
@@ -55,23 +56,36 @@ class AppRepoImp(private val apiService: ApiService, private val dataBase: AppDa
         }
     }
 
-    override fun deleteUsuario(): Completable {
+    override fun deleteSesion(): Completable {
         return Completable.fromAction {
             dataBase.usuarioDao().deleteAll()
             dataBase.accesosDao().deleteAll()
-        }
-    }
-
-    override fun deleteTotal(): Completable {
-        return Completable.fromAction {
-            dataBase.estadoDao().deleteAll()
             dataBase.grupoDao().deleteAll()
+            dataBase.estadoDao().deleteAll()
             dataBase.otDao().deleteAll()
+            dataBase.otDetalleDao().deleteAll()
+            dataBase.otPhotoDao().deleteAll()
+            dataBase.materialDao().deleteAll()
+            dataBase.distritoDao().deleteAll()
+            dataBase.servicioDao().deleteAll()
         }
     }
 
-    override fun getSync(e: Int, p: Int): Observable<Sync> {
-        val f = Filtro(e, p)
+    override fun deleteSync(): Completable {
+        return Completable.fromAction {
+            dataBase.grupoDao().deleteAll()
+            dataBase.estadoDao().deleteAll()
+            dataBase.otDao().deleteAll()
+            dataBase.otDetalleDao().deleteAll()
+            dataBase.otPhotoDao().deleteAll()
+            dataBase.materialDao().deleteAll()
+            dataBase.distritoDao().deleteAll()
+            dataBase.servicioDao().deleteAll()
+        }
+    }
+
+    override fun getSync(u: Int, e: Int, p: Int): Observable<Sync> {
+        val f = Filtro(u, e, p)
         val json = Gson().toJson(f)
         Log.i("TAG", json)
         val body = RequestBody.create(MediaType.parse("application/json; charset=utf-8"), json)
@@ -100,6 +114,13 @@ class AppRepoImp(private val apiService: ApiService, private val dataBase: AppDa
             if (m != null) {
                 dataBase.materialDao().insertMaterialListTask(m)
             }
+            val se: List<Servicio>? = s.servicios
+            if (se != null) {
+                dataBase.servicioDao().insertServicioListTask(se)
+                if (se.isNotEmpty()) {
+                    dataBase.usuarioDao().updateServicio(se[0].nombreServicio, se[0].servicioId)
+                }
+            }
         }
     }
 
@@ -121,6 +142,30 @@ class AppRepoImp(private val apiService: ApiService, private val dataBase: AppDa
         )
     }
 
+    override fun getOts(t: Int, e: Int): LiveData<PagedList<Ot>> {
+        return dataBase.otDao().getOts(t, e).toLiveData(
+            Config(pageSize = 20, enablePlaceholders = true)
+        )
+    }
+
+    override fun getOts(t: Int, e: Int, s: String): LiveData<PagedList<Ot>> {
+        return dataBase.otDao().getOts(t, e, s).toLiveData(
+            Config(pageSize = 20, enablePlaceholders = true)
+        )
+    }
+
+    override fun getOts(t: Int, e: Int, s: Int): LiveData<PagedList<Ot>> {
+        return dataBase.otDao().getOts(t, e, s).toLiveData(
+            Config(pageSize = 20, enablePlaceholders = true)
+        )
+    }
+
+    override fun getOts(t: Int, e: Int, sId: Int, s: String): LiveData<PagedList<Ot>> {
+        return dataBase.otDao().getOts(t, e, sId, s).toLiveData(
+            Config(pageSize = 20, enablePlaceholders = true)
+        )
+    }
+
     override fun insertOrUpdateOt(t: Ot): Completable {
         return Completable.fromAction {
             val o: Ot? = dataBase.otDao().getOtIdTask(t.otId)
@@ -135,8 +180,8 @@ class AppRepoImp(private val apiService: ApiService, private val dataBase: AppDa
         return dataBase.otDao().getOtById(otId)
     }
 
-    override fun getOtDetalleById(otId: Int): LiveData<PagedList<OtDetalle>> {
-        return dataBase.otDetalleDao().getOtDetalleById(otId).toLiveData(
+    override fun getOtDetalleById(otId: Int, tipo: Int): LiveData<PagedList<OtDetalle>> {
+        return dataBase.otDetalleDao().getOtDetalleById(otId, tipo).toLiveData(
             Config(pageSize = 20, enablePlaceholders = true)
         )
     }
@@ -153,6 +198,10 @@ class AppRepoImp(private val apiService: ApiService, private val dataBase: AppDa
         return dataBase.materialDao().getMateriales()
     }
 
+    override fun getServicios(): LiveData<List<Servicio>> {
+        return dataBase.servicioDao().getServicio()
+    }
+
     override fun insertOrUpdateOtDetalle(d: OtDetalle): Completable {
         return Completable.fromAction {
             val t: OtDetalle? = dataBase.otDetalleDao().getOtDetalleIdTask(d.otDetalleId)
@@ -160,6 +209,10 @@ class AppRepoImp(private val apiService: ApiService, private val dataBase: AppDa
                 dataBase.otDetalleDao().insertOtDetalleTask(d)
             else
                 dataBase.otDetalleDao().updateOtDetalleTask(d)
+
+            if (d.estado == 1) {
+                dataBase.otDao().closeOt(d.otId)
+            }
         }
     }
 
@@ -173,13 +226,6 @@ class AppRepoImp(private val apiService: ApiService, private val dataBase: AppDa
 
     override fun getOtDetalleId(id: Int): LiveData<OtDetalle> {
         return dataBase.otDetalleDao().getOtDetalleId(id)
-    }
-
-    override fun closeDetalle(o: OtDetalle): Completable {
-        return Completable.fromAction {
-            dataBase.otDao().closeOt(o.otId)
-            dataBase.otDetalleDao().closeDetalle(o.otDetalleId)
-        }
     }
 
     override fun insertPhoto(f: OtPhoto): Completable {
@@ -229,5 +275,83 @@ class AppRepoImp(private val apiService: ApiService, private val dataBase: AppDa
         return Completable.fromAction {
             dataBase.otDao().updateEnabledOt(t.codigoBase, t.codigoRetorno)
         }
+    }
+
+    override fun saveGps(body: RequestBody): Call<Mensaje> {
+        return apiService.saveGps(body)
+    }
+
+    override fun saveMovil(body: RequestBody): Call<Mensaje> {
+        return apiService.saveMovil(body)
+    }
+
+    override fun deleteOtDetalle(o: OtDetalle, context: Context): Completable {
+        return Completable.fromAction {
+            val photos: List<OtPhoto>? = dataBase.otPhotoDao().getOtPhotoIdTask(o.otDetalleId)
+            if (photos != null) {
+                for (p: OtPhoto in photos) {
+                    Util.deletePhoto(p.urlPhoto, context)
+                    dataBase.otPhotoDao().deleteOtPhotoTask(p)
+                }
+            }
+            dataBase.otDetalleDao().deleteOtDetalleTask(o)
+        }
+    }
+
+    override fun getProveedor(f: Filtro): Observable<List<Proveedor>> {
+        val json = Gson().toJson(f)
+        Log.i("TAG", json)
+        val body = RequestBody.create(MediaType.parse("application/json; charset=utf-8"), json)
+        return apiService.getProveedor(body)
+    }
+
+    override fun getProveedores(): LiveData<PagedList<Proveedor>> {
+        return dataBase.proveedorDao().getProveedores().toLiveData(
+            Config(pageSize = 20, enablePlaceholders = true)
+        )
+    }
+
+    override fun clearProveedores(): Completable {
+        return Completable.fromAction {
+            dataBase.proveedorDao().deleteAll()
+        }
+    }
+
+    override fun insertProveedor(t: List<Proveedor>): Completable {
+        return Completable.fromAction {
+            dataBase.proveedorDao().insertProveedorListTask(t)
+        }
+    }
+
+    override fun getEmpresa(f: Filtro): Observable<List<OtReporte>> {
+        val json = Gson().toJson(f)
+        Log.i("TAG", json)
+        val body = RequestBody.create(MediaType.parse("application/json; charset=utf-8"), json)
+        return apiService.getEmpresa(body)
+    }
+
+    override fun insertEmpresa(t: List<OtReporte>): Completable {
+        return Completable.fromAction {
+            dataBase.otReporteDao().insertOtReporteListTask(t)
+        }
+    }
+
+    override fun getOtReporte(): LiveData<List<OtReporte>> {
+        return dataBase.otReporteDao().getOtReportes()
+    }
+
+    override fun getJefeCuadrilla(f: Filtro): Observable<List<JefeCuadrilla>> {
+        val json = Gson().toJson(f)
+        Log.i("TAG", json)
+        val body = RequestBody.create(MediaType.parse("application/json; charset=utf-8"), json)
+        return apiService.getJefeCuadrilla(body)
+    }
+
+    override fun insertJefeCuadrilla(t: List<JefeCuadrilla>): Completable {
+        TODO("Not yet implemented")
+    }
+
+    override fun getJefeCuadrillas(): LiveData<List<JefeCuadrilla>> {
+        TODO("Not yet implemented")
     }
 }

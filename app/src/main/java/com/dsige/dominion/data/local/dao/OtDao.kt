@@ -23,6 +23,18 @@ interface OtDao {
     @Query("SELECT * FROM Ot")
     fun getOts(): DataSource.Factory<Int, Ot>
 
+    @Query("SELECT * FROM Ot WHERE tipoOrdenId=:t AND estadoId =:e AND direccion LIKE :s ")
+    fun getOts(t: Int, e: Int, s: String): DataSource.Factory<Int, Ot>
+
+    @Query("SELECT * FROM Ot WHERE tipoOrdenId=:t AND estadoId =:e AND servicioId =:sId AND direccion LIKE :s ")
+    fun getOts(t: Int, e: Int, sId: Int, s: String): DataSource.Factory<Int, Ot>
+
+    @Query("SELECT * FROM Ot WHERE tipoOrdenId=:t AND estadoId =:e AND servicioId =:s")
+    fun getOts(t: Int, e: Int, s: Int): DataSource.Factory<Int, Ot>
+
+    @Query("SELECT * FROM Ot WHERE tipoOrdenId=:t AND estadoId =:e ")
+    fun getOts(t: Int, e: Int): DataSource.Factory<Int, Ot>
+
     @Query("DELETE FROM Ot")
     fun deleteAll()
 
@@ -41,6 +53,6 @@ interface OtDao {
     @Query("SELECT * FROM Ot WHERE estado =:i")
     fun getAllRegistroTask(i: Int): List<Ot>
 
-    @Query("UPDATE Ot SET identity =:codigoRetorno , estado = 0 WHERE otId=:codigoBase")
+    @Query("UPDATE Ot SET identity =:codigoRetorno , estado = 0 , estadoId = 5 WHERE otId=:codigoBase")
     fun updateEnabledOt(codigoBase: Int, codigoRetorno: Int)
 }

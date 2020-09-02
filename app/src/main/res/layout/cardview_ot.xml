@@ -12,7 +12,8 @@
         android:layout_height="wrap_content"
         android:layout_margin="8dp"
         android:text="@string/c1"
-        android:textColor="@color/colorBlack"
+        android:textColor="@color/colorPrimary"
+        android:textSize="18sp"
         android:textStyle="bold"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent" />
@@ -23,7 +24,8 @@
         android:layout_height="wrap_content"
         android:layout_margin="8dp"
         android:text="@string/c1"
-        android:textColor="@color/colorBlack"
+        android:textColor="@color/material_orange_700"
+        android:textStyle="bold"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintTop_toTopOf="parent" />
 
@@ -33,7 +35,7 @@
         android:layout_height="wrap_content"
         android:layout_margin="8dp"
         android:text="@string/c1"
-        android:textColor="@color/colorBlack"
+        android:textColor="@color/colorPrimary"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@+id/textView1" />
 
@@ -43,7 +45,7 @@
         android:layout_height="wrap_content"
         android:layout_margin="8dp"
         android:text="@string/c1"
-        android:textColor="@color/colorBlack"
+        android:textColor="@color/colorPrimary"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@+id/textView3" />
 
@@ -53,7 +55,7 @@
         android:layout_height="wrap_content"
         android:layout_margin="8dp"
         android:text="@string/c1"
-        android:textColor="@color/colorBlack"
+        android:textColor="@color/material_orange_700"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@+id/textView4" />
 
@@ -63,7 +65,7 @@
         android:layout_height="wrap_content"
         android:layout_margin="8dp"
         android:text="@string/c1"
-        android:textColor="@color/colorBlack"
+        android:textColor="@color/colorGreenM"
         android:textStyle="bold"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@+id/textView5" />
@@ -74,7 +76,7 @@
         android:layout_height="wrap_content"
         android:layout_margin="8dp"
         android:text="@string/c1"
-        android:textColor="@color/colorBlack"
+        android:textColor="@color/colorRed"
         android:textStyle="bold"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintTop_toBottomOf="@+id/textView5" />
@@ -85,7 +87,7 @@
         android:layout_height="wrap_content"
         android:layout_margin="8dp"
         android:text="@string/c1"
-        android:textColor="@color/colorBlack"
+        android:textColor="@color/colorGreenM"
         android:textStyle="bold"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@+id/textView7" />

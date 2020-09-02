@@ -12,13 +12,24 @@
         android:orientation="vertical">
 
         <com.google.android.material.textfield.TextInputEditText
+            android:id="@+id/editTextServicio"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_margin="8dp"
+            android:drawableEnd="@drawable/ic_down"
+            android:focusable="false"
+            android:hint="Servicios"
+            android:textColor="@color/colorPrimary" />
+
+        <com.google.android.material.textfield.TextInputEditText
             android:id="@+id/editTextGrupo"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_margin="8dp"
             android:drawableEnd="@drawable/ic_down"
             android:focusable="false"
-            android:hint="Tipo de Trabajo" />
+            android:hint="Tipo de Trabajo"
+            android:textColor="@color/colorPrimary" />
 
         <com.google.android.material.textfield.TextInputEditText
             android:id="@+id/editTextEstado"
@@ -27,7 +38,8 @@
             android:layout_margin="8dp"
             android:drawableEnd="@drawable/ic_down"
             android:focusable="false"
-            android:hint="Estado del Trabajo" />
+            android:hint="Estado del Trabajo"
+            android:textColor="@color/colorPrimary" />
 
         <com.google.android.material.textfield.TextInputEditText
             android:id="@+id/editTextSearch"
@@ -35,7 +47,8 @@
             android:layout_height="wrap_content"
             android:layout_margin="8dp"
             android:drawableEnd="@drawable/ic_search"
-            android:hint="Busqueda" />
+            android:hint="Busqueda"
+            android:textColor="@color/colorPrimary" />
 
         <androidx.recyclerview.widget.RecyclerView
             android:id="@+id/recyclerView"

@@ -63,12 +63,34 @@ class DataBaseModule {
     internal fun provideOtPhotoDao(appDataBase: AppDataBase): OtPhotoDao {
         return appDataBase.otPhotoDao()
     }
+
     @Provides
     internal fun provideMaterialDao(appDataBase: AppDataBase): MaterialDao {
         return appDataBase.materialDao()
     }
+
     @Provides
     internal fun provideDistritoDao(appDataBase: AppDataBase): DistritoDao {
         return appDataBase.distritoDao()
+    }
+
+    @Provides
+    internal fun provideServicioDao(appDataBase: AppDataBase): ServicioDao {
+        return appDataBase.servicioDao()
+    }
+
+    @Provides
+    internal fun provideProveedorDao(appDataBase: AppDataBase): ProveedorDao {
+        return appDataBase.proveedorDao()
+    }
+
+    @Provides
+    internal fun provideJefeCuadrillaDao(appDataBase: AppDataBase): JefeCuadrillaDao {
+        return appDataBase.jefeCuadrillaDao()
+    }
+
+    @Provides
+    internal fun provideOtReporteDao(appDataBase: AppDataBase): OtReporteDao {
+        return appDataBase.otReporteDao()
     }
 }

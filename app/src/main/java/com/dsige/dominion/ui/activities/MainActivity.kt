@@ -18,7 +18,9 @@ import com.dsige.dominion.R
 import com.dsige.dominion.data.local.model.Usuario
 import com.dsige.dominion.data.viewModel.UsuarioViewModel
 import com.dsige.dominion.helper.Util
+import com.dsige.dominion.ui.fragments.GeneralMapFragment
 import com.dsige.dominion.ui.fragments.MainFragment
+import com.dsige.dominion.ui.fragments.ResumenFragment
 import com.dsige.dsigeventas.data.viewModel.ViewModelFactory
 import com.google.android.material.dialog.MaterialAlertDialogBuilder
 import com.google.android.material.navigation.NavigationView
@@ -37,6 +39,9 @@ class MainActivity : DaggerAppCompatActivity(), NavigationView.OnNavigationItemS
     private var dialog: AlertDialog? = null
     private var usuarioId: Int = 0
     private var empresaId: Int = 0
+    private var personalId: Int = 0
+    private var servicioId: Int = 0
+    private var nombreServicio: String = ""
     private var logout: String = "off"
 
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -50,6 +55,7 @@ class MainActivity : DaggerAppCompatActivity(), NavigationView.OnNavigationItemS
             ViewModelProvider(this, viewModelFactory).get(UsuarioViewModel::class.java)
         usuarioViewModel.user.observe(this, Observer { u ->
             if (u != null) {
+                getUser(u)
                 setSupportActionBar(toolbar)
                 val toggle = ActionBarDrawerToggle(
                     this@MainActivity,
@@ -75,14 +81,17 @@ class MainActivity : DaggerAppCompatActivity(), NavigationView.OnNavigationItemS
                     if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.P) {
                         s2.setGroupDividerEnabled(true)
                     }
+
+                    s2.add("Mapa")
+                    s2.getItem(0).setIcon(R.drawable.ic_place)
                     s2.add("Enviar Pendientes")
-                    s2.getItem(0).setIcon(R.drawable.ic_send)
+                    s2.getItem(1).setIcon(R.drawable.ic_send)
                     s2.add("Cerrar Sesión")
-                    s2.getItem(1).setIcon(R.drawable.ic_exit)
+                    s2.getItem(2).setIcon(R.drawable.ic_exit)
                     navigationView.invalidate()
                 })
-                getUser(u)
-//                fragmentByDefault()
+
+                fragmentByDefault()
                 message()
             } else {
                 goLogin()
@@ -100,23 +109,36 @@ class MainActivity : DaggerAppCompatActivity(), NavigationView.OnNavigationItemS
 
     override fun onNavigationItemSelected(item: MenuItem): Boolean {
         when (item.title) {
-            "Sincronizar" -> Util.toastMensaje(this, item.title.toString())
+            "Sincronizar" -> dialogFunction(
+                1, "Se elimiran todos tus avances deseas volver a sincronizar ?"
+            )
+            "Mapa" -> changeFragment(
+                GeneralMapFragment.newInstance("", ""), item.title.toString()
+            )
             "Lista de Ordenes" -> changeFragment(
-                MainFragment.newInstance(usuarioId, 1,empresaId), item.title.toString()
+                MainFragment.newInstance(
+                    usuarioId,
+                    empresaId,
+                    personalId,
+                    servicioId,
+                    nombreServicio
+                ), item.title.toString()
             )
             "Resumen de Ordenes de Trabajo por Proveedor" -> changeFragment(
-                MainFragment.newInstance(usuarioId, 2,empresaId), item.title.toString()
+                ResumenFragment.newInstance(usuarioId, empresaId, personalId,servicioId,nombreServicio), item.title.toString()
             )
             "OT fuera de Plazo" -> changeFragment(
-                MainFragment.newInstance(usuarioId, 3,empresaId), item.title.toString()
+                MainFragment.newInstance(
+                    usuarioId,
+                    empresaId,
+                    personalId,
+                    servicioId,
+                    nombreServicio
+                ), item.title.toString()
             )
             "Ubicacion del Personal" -> Util.toastMensaje(this, item.title.toString())
-//            R.id.reparacion -> changeFragment(
-//                MainFragment.newInstance(1, usuarioId),
-//                "Reparación de Veredas"
-//            )
-            "Enviar Pendientes" -> dialogSend()
-            "Cerrar Sesión" -> dialogLogout()
+            "Enviar Pendientes" -> dialogFunction(2, "Deseas enviar registros ?")
+            "Cerrar Sesión" -> dialogFunction(3, "Deseas Salir ?")
         }
         drawerLayout.closeDrawer(GravityCompat.START)
         return true
@@ -154,7 +176,13 @@ class MainActivity : DaggerAppCompatActivity(), NavigationView.OnNavigationItemS
     private fun fragmentByDefault() {
         supportFragmentManager
             .beginTransaction()
-            .replace(R.id.content_frame, MainFragment.newInstance(usuarioId, 1,empresaId))
+            .replace(
+                R.id.content_frame,
+                MainFragment.newInstance(
+                    usuarioId, empresaId, personalId, servicioId,
+                    nombreServicio
+                )
+            )
             .commit()
         supportActionBar!!.title = "Reparación de Veredas"
 //        navigationView.menu.getItem(1).isChecked = true
@@ -166,6 +194,9 @@ class MainActivity : DaggerAppCompatActivity(), NavigationView.OnNavigationItemS
         header.textViewEmail.text = String.format("Cod : %s", u.usuarioId)
         usuarioId = u.usuarioId
         empresaId = u.empresaId
+        personalId = u.personalId
+        servicioId = u.servicioId
+        nombreServicio = u.nombreServicio
     }
 
     private fun goLogin() {
@@ -198,29 +229,26 @@ class MainActivity : DaggerAppCompatActivity(), NavigationView.OnNavigationItemS
         })
     }
 
-    private fun dialogLogout() {
+    private fun dialogFunction(tipo: Int, title: String) {
         val dialog = MaterialAlertDialogBuilder(this)
             .setTitle("Mensaje")
-            .setMessage("Deseas Salir ?")
+            .setMessage(title)
             .setPositiveButton("SI") { dialog, _ ->
-                logout = "on"
-                load("Cerrando Session")
-                usuarioViewModel.logout(usuarioId.toString())
-                dialog.dismiss()
-            }
-            .setNegativeButton("NO") { dialog, _ ->
-                dialog.cancel()
-            }
-        dialog.show()
-    }
-
-    private fun dialogSend() {
-        val dialog = MaterialAlertDialogBuilder(this)
-            .setTitle("Mensaje")
-            .setMessage("Deseas enviar registros ?")
-            .setPositiveButton("SI") { dialog, _ ->
-                load("Enviando..")
-                usuarioViewModel.sendData(this)
+                when (tipo) {
+                    1 -> {
+                        load("Sincronizando..")
+                        usuarioViewModel.getSync(usuarioId, empresaId, personalId)
+                    }
+                    2 -> {
+                        load("Enviando..")
+                        usuarioViewModel.sendData(this)
+                    }
+                    3 -> {
+                        logout = "on"
+                        load("Cerrando Session")
+                        usuarioViewModel.logout(usuarioId.toString())
+                    }
+                }
                 dialog.dismiss()
             }
             .setNegativeButton("NO") { dialog, _ ->

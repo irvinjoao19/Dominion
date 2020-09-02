@@ -19,7 +19,6 @@ class OtDetalleAdapter(private val listener: OnItemClickListener.OtDetalleListen
     override fun onBindViewHolder(holder: ViewHolder, position: Int) {
         val s = getItem(position)
         if (s != null) {
-            holder.setIsRecyclable(false)
             holder.bind(s, listener)
         }
     }
@@ -33,18 +32,28 @@ class OtDetalleAdapter(private val listener: OnItemClickListener.OtDetalleListen
     inner class ViewHolder(itemView: View) : RecyclerView.ViewHolder(itemView) {
         internal fun bind(o: OtDetalle, listener: OnItemClickListener.OtDetalleListener) =
             with(itemView) {
-                if (o.estado == 2) {
-                    cardViewMateriales.setCardBackgroundColor(
+                when (o.tipoDesmonteId) {
+                    14 -> cardViewMateriales.setCardBackgroundColor(
                         ContextCompat.getColor(
-                            itemView.context, R.color.colorAccent
+                            itemView.context, R.color.colorGreen
+                        )
+                    )
+                    15 -> cardViewMateriales.setCardBackgroundColor(
+                        ContextCompat.getColor(
+                            itemView.context, R.color.colorCloud
                         )
                     )
                 }
+                if (o.tipoDesmonteId == 0) {
+                    textView1.text = o.nombreTipoMaterial
+                } else {
+                    textView1.text = o.nombreTipoDemonte
+                }
 
-                textView1.text = String.format("Cantidad que Recojio Desmonte")
                 textView2.text =
-                    String.format("%s * %s * %s = %s", o.largo, o.ancho, o.espesor, o.total)
+                    String.format("%s * %s * %s = %.2f", o.largo, o.ancho, o.espesor, o.total)
                 imgEdit.setOnClickListener { v -> listener.onItemClick(o, v, adapterPosition) }
+                imgDelete.setOnClickListener { v -> listener.onItemClick(o, v, adapterPosition) }
             }
     }
 

@@ -20,6 +20,10 @@ open class Usuario {
     var empresaId: Int = 0
     var mensaje: String = ""
 
+
+    var servicioId: Int = 0
+    var nombreServicio: String = ""
+
     @Ignore
     var accesos: List<Accesos> = ArrayList()
 }

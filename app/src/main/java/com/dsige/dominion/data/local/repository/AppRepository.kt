@@ -8,6 +8,7 @@ import com.dsige.dominion.helper.Mensaje
 import io.reactivex.Completable
 import io.reactivex.Observable
 import okhttp3.RequestBody
+import retrofit2.Call
 
 interface AppRepository {
 
@@ -23,11 +24,11 @@ interface AppRepository {
 
     fun insertUsuario(u: Usuario): Completable
 
-    fun deleteUsuario(): Completable
+    fun deleteSesion(): Completable
 
-    fun deleteTotal(): Completable
+    fun deleteSync(): Completable
 
-    fun getSync(e: Int, p: Int): Observable<Sync>
+    fun getSync(u: Int, e: Int, p: Int): Observable<Sync>
 
     fun saveSync(s: Sync): Completable
 
@@ -39,17 +40,27 @@ interface AppRepository {
 
     fun getOts(): LiveData<PagedList<Ot>>
 
+    fun getOts(t: Int, e: Int): LiveData<PagedList<Ot>>
+
+    fun getOts(t: Int, e: Int, s: String): LiveData<PagedList<Ot>>
+
+    fun getOts(t: Int, e: Int, s: Int): LiveData<PagedList<Ot>>
+
+    fun getOts(t: Int, e: Int, sId: Int, s: String): LiveData<PagedList<Ot>>
+
     fun insertOrUpdateOt(t: Ot): Completable
 
     fun getOtById(otId: Int): LiveData<Ot>
 
-    fun getOtDetalleById(otId: Int): LiveData<PagedList<OtDetalle>>
+    fun getOtDetalleById(otId: Int, tipo: Int): LiveData<PagedList<OtDetalle>>
 
     fun getOtPhotoById(id: Int): LiveData<List<OtPhoto>>
 
     fun getDistritos(): LiveData<List<Distrito>>
 
     fun getMateriales(): LiveData<List<Material>>
+
+    fun getServicios(): LiveData<List<Servicio>>
 
     fun insertOrUpdateOtDetalle(d: OtDetalle): Completable
 
@@ -58,8 +69,6 @@ interface AppRepository {
     fun getMaxIdOtDetalle(): LiveData<Int>
 
     fun getOtDetalleId(id: Int): LiveData<OtDetalle>
-
-    fun closeDetalle(o: OtDetalle): Completable
 
     fun insertPhoto(f: OtPhoto): Completable
 
@@ -70,4 +79,30 @@ interface AppRepository {
     fun sendRegistroOt(body: RequestBody): Observable<Mensaje>
 
     fun updateOt(t: Mensaje): Completable
+
+    fun saveGps(body: RequestBody): Call<Mensaje>
+
+    fun saveMovil(body: RequestBody): Call<Mensaje>
+
+    fun deleteOtDetalle(o: OtDetalle, context: Context): Completable
+
+    fun getProveedor(f: Filtro): Observable<List<Proveedor>>
+
+    fun getProveedores(): LiveData<PagedList<Proveedor>>
+
+    fun clearProveedores() :Completable
+
+    fun insertProveedor(t: List<Proveedor>) : Completable
+
+    fun getEmpresa(f: Filtro): Observable<List<OtReporte>>
+
+    fun insertEmpresa(t: List<OtReporte>): Completable
+
+    fun getOtReporte(): LiveData<List<OtReporte>>
+
+    fun getJefeCuadrilla(f: Filtro): Observable<List<JefeCuadrilla>>
+
+    fun insertJefeCuadrilla(t: List<JefeCuadrilla>): Completable
+
+    fun getJefeCuadrillas(): LiveData<List<JefeCuadrilla>>
 }

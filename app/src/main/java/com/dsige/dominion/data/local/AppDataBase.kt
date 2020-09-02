@@ -17,7 +17,11 @@ import com.dsige.dominion.data.local.model.*
         Material::class,
         Ot::class,
         OtDetalle::class,
-        OtPhoto::class
+        OtPhoto::class,
+        Servicio::class,
+        Proveedor::class,
+        JefeCuadrilla::class,
+        OtReporte::class
     ],
     version = 5, // version 1 en play store
     exportSchema = false
@@ -33,6 +37,10 @@ abstract class AppDataBase : RoomDatabase() {
     abstract fun otPhotoDao(): OtPhotoDao
     abstract fun materialDao(): MaterialDao
     abstract fun distritoDao(): DistritoDao
+    abstract fun servicioDao(): ServicioDao
+    abstract fun proveedorDao(): ProveedorDao
+    abstract fun jefeCuadrillaDao(): JefeCuadrillaDao
+    abstract fun otReporteDao(): OtReporteDao
 
     companion object {
         @Volatile

@@ -84,7 +84,8 @@ internal constructor(private val roomRepository: AppRepository, private val retr
                 }
 
                 override fun onComplete() {
-                    getSync(u, v)
+//                    getSync(u, v)
+                    sync(u.usuarioId, u.empresaId, u.personalId)
                 }
 
                 override fun onError(e: Throwable) {
@@ -128,8 +129,9 @@ internal constructor(private val roomRepository: AppRepository, private val retr
 //            })
     }
 
+
     private fun deleteUser(mensaje: String) {
-        roomRepository.deleteUsuario()
+        roomRepository.deleteSesion()
             .delay(2, TimeUnit.SECONDS)
             .subscribeOn(Schedulers.computation())
             .observeOn(AndroidSchedulers.mainThread())
@@ -147,8 +149,8 @@ internal constructor(private val roomRepository: AppRepository, private val retr
             })
     }
 
-    fun getSync(u: Usuario, version: String) {
-        roomRepository.deleteTotal()
+    fun getSync(u: Int, e: Int, p: Int) {
+        roomRepository.deleteSync()
             .subscribeOn(Schedulers.computation())
             .observeOn(AndroidSchedulers.mainThread())
             .subscribe(object : CompletableObserver {
@@ -156,7 +158,7 @@ internal constructor(private val roomRepository: AppRepository, private val retr
                 }
 
                 override fun onComplete() {
-                    sync(u.empresaId, u.personalId)
+                    sync(u, e, p)
                 }
 
                 override fun onError(e: Throwable) {
@@ -165,8 +167,8 @@ internal constructor(private val roomRepository: AppRepository, private val retr
             })
     }
 
-    private fun sync(e: Int, p: Int) {
-        roomRepository.getSync(e, p)
+    fun sync(u: Int, e: Int, p: Int) {
+        roomRepository.getSync(u, e, p)
             .subscribeOn(Schedulers.io())
             .observeOn(AndroidSchedulers.mainThread())
             .subscribe(object : Observer<Sync> {
@@ -288,7 +290,6 @@ internal constructor(private val roomRepository: AppRepository, private val retr
                     }
                 }
             })
-
     }
 
     private fun updateOt(t: Mensaje) {

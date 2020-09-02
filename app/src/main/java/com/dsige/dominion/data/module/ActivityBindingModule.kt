@@ -21,4 +21,7 @@ abstract class ActivityBindingModule {
 
     @ContributesAndroidInjector
     internal abstract fun bindPreviewCameraActivity() : PreviewCameraActivity
+
+    @ContributesAndroidInjector(modules = [FragmentBindingModule.Reporte::class])
+    internal abstract fun bindMapActivity(): MapActivity
 }
