@@ -266,7 +266,7 @@ internal constructor(private val roomRepository: AppRepository, private val retr
             .observeOn(AndroidSchedulers.mainThread())
             .subscribe(object : Observer<Mensaje> {
                 override fun onComplete() {
-                    mensajeSuccess.value = "Enviado"
+                    sendSocket()
                 }
 
                 override fun onSubscribe(d: Disposable) {
@@ -288,6 +288,25 @@ internal constructor(private val roomRepository: AppRepository, private val retr
                     } else {
                         mensajeError.postValue(t.message)
                     }
+                }
+            })
+    }
+
+
+    private fun sendSocket() {
+        roomRepository.sendSocket()
+            .subscribeOn(Schedulers.computation())
+            .observeOn(AndroidSchedulers.mainThread())
+            .subscribe(object : CompletableObserver {
+                override fun onSubscribe(d: Disposable) {
+                }
+
+                override fun onComplete() {
+                    mensajeSuccess.value = "Enviado"
+                }
+
+                override fun onError(e: Throwable) {
+                    mensajeError.value = e.toString()
                 }
             })
     }

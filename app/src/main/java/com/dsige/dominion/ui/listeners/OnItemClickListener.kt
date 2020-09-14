@@ -1,9 +1,7 @@
 package com.dsige.dominion.ui.listeners
 
 import android.view.View
-import android.widget.EditText
 import com.dsige.dominion.data.local.model.*
-import com.google.android.material.checkbox.MaterialCheckBox
 
 interface OnItemClickListener {
     interface MenuListener {
@@ -44,5 +42,13 @@ interface OnItemClickListener {
 
     interface ProveedorListener {
         fun onItemClick(p: Proveedor, view: View, position: Int)
+    }
+
+    interface OtPlazoListener {
+        fun onItemClick(o: OtPlazo, view: View, position: Int)
+    }
+
+    interface OtPlazoDetalleListener {
+        fun onItemClick(o: OtPlazoDetalle, view: View, position: Int)
     }
 }

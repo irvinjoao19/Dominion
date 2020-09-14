@@ -62,7 +62,7 @@ class GeneralFragment : DaggerFragment(), View.OnClickListener {
         val gps = Gps(context!!)
         if (gps.isLocationEnabled()) {
             progressBarLugar.visibility = View.VISIBLE
-            Util.getLocationName(context!!, editTextDireccion, gps.location!!, progressBarLugar)
+            Util.getLocationName(context!!, editTextDireccion, editTextDistritos,gps.location!!, progressBarLugar)
         } else {
             gps.showSettingsAlert(context!!)
         }
@@ -93,6 +93,7 @@ class GeneralFragment : DaggerFragment(), View.OnClickListener {
             otId = it.getInt(ARG_PARAM1)
             usuarioId = it.getInt(ARG_PARAM2)
             tipo = it.getInt(ARG_PARAM3)
+            empresaId = it.getInt(ARG_PARAM4)
             servicioId = it.getInt(ARG_PARAM5)
             personalId = it.getInt(ARG_PARAM6)
         }
@@ -155,7 +156,7 @@ class GeneralFragment : DaggerFragment(), View.OnClickListener {
                 }
                 t.usuarioId = usuarioId
                 t.personalJCId = usuarioId
-                t.nroObra = editTextNumero.text.toString()
+                t.nroObra = editTextNumero.text.toString().toUpperCase(Locale.getDefault())
                 t.descripcionOt = editTextDescripcion.text.toString()
                 t.direccion = editTextDireccion.text.toString()
                 t.referenciaOt = editTextReferencia.text.toString()
@@ -169,6 +170,7 @@ class GeneralFragment : DaggerFragment(), View.OnClickListener {
                 t.servicioId = servicioId
                 t.estadoId = 4
                 t.estado = 2
+                t.activeNotificacion = 1
                 otViewModel.validateOt(t)
             }
         } else {

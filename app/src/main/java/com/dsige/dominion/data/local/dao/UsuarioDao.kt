@@ -34,6 +34,10 @@ interface UsuarioDao {
     @Query("SELECT usuarioId FROM Usuario")
     fun getUsuarioIdTask(): Int
 
+    @Query("SELECT * FROM Usuario")
+    fun getUser() : Usuario
+
+
     @Query("UPDATE Usuario SET nombreServicio =:n , servicioId =:s ")
     fun updateServicio(n: String, s: Int)
 }

@@ -25,4 +25,7 @@ interface JefeCuadrillaDao {
     @Query("DELETE FROM JefeCuadrilla")
     fun deleteAll()
 
+    @Query("SELECT * FROM JefeCuadrilla WHERE cuadrillaId =:id")
+    fun getJefeCuadrillaById(id: Int): LiveData<JefeCuadrilla>
+
 }

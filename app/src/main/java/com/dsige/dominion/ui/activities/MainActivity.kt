@@ -20,7 +20,9 @@ import com.dsige.dominion.data.viewModel.UsuarioViewModel
 import com.dsige.dominion.helper.Util
 import com.dsige.dominion.ui.fragments.GeneralMapFragment
 import com.dsige.dominion.ui.fragments.MainFragment
+import com.dsige.dominion.ui.fragments.PlazoFragment
 import com.dsige.dominion.ui.fragments.ResumenFragment
+import com.dsige.dominion.ui.services.SocketServices
 import com.dsige.dsigeventas.data.viewModel.ViewModelFactory
 import com.google.android.material.dialog.MaterialAlertDialogBuilder
 import com.google.android.material.navigation.NavigationView
@@ -67,7 +69,7 @@ class MainActivity : DaggerAppCompatActivity(), NavigationView.OnNavigationItemS
                 drawerLayout.addDrawerListener(toggle)
                 toggle.syncState()
                 navigationView.setNavigationItemSelectedListener(this@MainActivity)
-
+                startService(Intent(this, SocketServices::class.java))
                 navigationView.menu.clear()
                 val menu = navigationView.menu
                 val submenu = menu.addSubMenu("Menu Principal")
@@ -82,7 +84,7 @@ class MainActivity : DaggerAppCompatActivity(), NavigationView.OnNavigationItemS
                         s2.setGroupDividerEnabled(true)
                     }
 
-                    s2.add("Mapa")
+                    s2.add("Lista de Pendientes")
                     s2.getItem(0).setIcon(R.drawable.ic_place)
                     s2.add("Enviar Pendientes")
                     s2.getItem(1).setIcon(R.drawable.ic_send)
@@ -112,7 +114,7 @@ class MainActivity : DaggerAppCompatActivity(), NavigationView.OnNavigationItemS
             "Sincronizar" -> dialogFunction(
                 1, "Se elimiran todos tus avances deseas volver a sincronizar ?"
             )
-            "Mapa" -> changeFragment(
+            "Lista de Pendientes" -> changeFragment(
                 GeneralMapFragment.newInstance("", ""), item.title.toString()
             )
             "Lista de Ordenes" -> changeFragment(
@@ -125,10 +127,16 @@ class MainActivity : DaggerAppCompatActivity(), NavigationView.OnNavigationItemS
                 ), item.title.toString()
             )
             "Resumen de Ordenes de Trabajo por Proveedor" -> changeFragment(
-                ResumenFragment.newInstance(usuarioId, empresaId, personalId,servicioId,nombreServicio), item.title.toString()
+                ResumenFragment.newInstance(
+                    usuarioId,
+                    empresaId,
+                    personalId,
+                    servicioId,
+                    nombreServicio
+                ), item.title.toString()
             )
             "OT fuera de Plazo" -> changeFragment(
-                MainFragment.newInstance(
+                PlazoFragment.newInstance(
                     usuarioId,
                     empresaId,
                     personalId,
@@ -190,8 +198,9 @@ class MainActivity : DaggerAppCompatActivity(), NavigationView.OnNavigationItemS
 
     private fun getUser(u: Usuario) {
         val header = navigationView.getHeaderView(0)
-        header.textViewName.text = u.nombres
+        header.textViewName.text = String.format("%s %s", u.apellidos, u.nombres)
         header.textViewEmail.text = String.format("Cod : %s", u.usuarioId)
+        header.textViewVersion.text = String.format("Versión %s", Util.getVersion(this))
         usuarioId = u.usuarioId
         empresaId = u.empresaId
         personalId = u.personalId

@@ -17,4 +17,5 @@ open class JefeCuadrilla {
     var pendiente: Double = 0.0
     var latitud: String = ""
     var longitud: String = ""
+    var icono: String = ""
 }

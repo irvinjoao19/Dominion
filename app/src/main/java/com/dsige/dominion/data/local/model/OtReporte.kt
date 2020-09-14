@@ -17,7 +17,7 @@ open class OtReporte {
     var nombreEmpresa: String = ""
     var personalJefeCuadrillaId: Int = 0
     var nombreJC: String = ""
-    var estado: Int = 0
+    var estado: String = ""
     var nombreEstado: String = ""
     var vencimiento: String = ""
     var latitud: String = ""

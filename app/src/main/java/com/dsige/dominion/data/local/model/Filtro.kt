@@ -74,4 +74,14 @@ open class Filtro {
         this.empresaId = empresaId
         this.personalId = personalId
     }
+
+    constructor(servicioId: Int, tipo: Int, empresaId: Int, usuarioId: Int) {
+        this.servicioId = servicioId
+        this.tipo = tipo
+        this.empresaId = empresaId
+        this.usuarioId = usuarioId
+    }
+
+
+
 }

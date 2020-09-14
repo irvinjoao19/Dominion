@@ -16,6 +16,9 @@ abstract class FragmentBindingModule {
 
         @ContributesAndroidInjector
         internal abstract fun providResumenFragment(): ResumenFragment
+
+        @ContributesAndroidInjector
+        internal abstract fun providPlazoFragment(): PlazoFragment
     }
 
     @Module

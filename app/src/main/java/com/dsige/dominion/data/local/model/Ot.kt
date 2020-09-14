@@ -45,6 +45,8 @@ open class Ot {
     var estadoId: Int = 0 // 4 -> ejecutado  // 5 enviado aprobar
     var estado: Int = 0 // 1 -> para enviar , 2 -> incompleto
 
+    var activeNotificacion: Int = 0
+
 
     @Ignore
     var detalles: List<OtDetalle> = ArrayList()

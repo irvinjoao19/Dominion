@@ -44,4 +44,12 @@ interface ApiService {
     @Headers("Cache-Control: no-cache")
     @POST("JefeCuadrillas")
     fun getJefeCuadrilla(@Body body: RequestBody): Observable<List<JefeCuadrilla>>
+
+    @Headers("Cache-Control: no-cache")
+    @POST("OtPlazo")
+    fun getOtPlazo(@Body body: RequestBody): Observable<List<OtPlazo>>
+
+    @Headers("Cache-Control: no-cache")
+    @POST("OtPlazoDetalle")
+    fun getOtPlazoDetalle(@Body body: RequestBody): Observable<List<OtPlazoDetalle>>
 }

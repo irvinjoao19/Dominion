@@ -85,7 +85,7 @@ internal constructor(private val roomRepository: AppRepository, private val retr
             mensajeError.value = "Ingresar Dirección"
             return
         }
-        if (t.distritoId == 0) {
+        if (t.nombreDistritoId.isEmpty()) {
             mensajeError.value = "Seleccione Distrito"
             return
         }
@@ -391,6 +391,10 @@ internal constructor(private val roomRepository: AppRepository, private val retr
         return roomRepository.getOtReporte()
     }
 
+    fun getEmpresasById(id: Int): LiveData<OtReporte> {
+        return roomRepository.getEmpresaById(id)
+    }
+
     // TODO Personal Jefe Cuadrilla
 
     fun syncJefeCuadrilla(f: Filtro) {
@@ -438,5 +442,163 @@ internal constructor(private val roomRepository: AppRepository, private val retr
 
     fun getJefeCuadrillas(): LiveData<List<JefeCuadrilla>> {
         return roomRepository.getJefeCuadrillas()
+    }
+
+    fun getJefeCuadrillaById(id: Int): LiveData<JefeCuadrilla> {
+        return roomRepository.getJefeCuadrillaById(id)
+    }
+
+    // TODO Ot Plazo
+
+    fun getOtPlazos(): LiveData<PagedList<OtPlazo>> {
+        return roomRepository.getOtPlazos()
+    }
+
+    fun syncOtPlazo(f: Filtro) {
+        roomRepository.clearOtPlazo()
+            .subscribeOn(Schedulers.io())
+            .observeOn(AndroidSchedulers.mainThread())
+            .subscribe(object : CompletableObserver {
+                override fun onComplete() {
+                    mensajeSuccess.value = "load"
+                    roomRepository.getOtPlazo(f)
+                        .delay(2000, TimeUnit.MILLISECONDS)
+                        .subscribeOn(Schedulers.io())
+                        .observeOn(AndroidSchedulers.mainThread())
+                        .subscribe(object : Observer<List<OtPlazo>> {
+                            override fun onComplete() {
+                                mensajeSuccess.value = "finish"
+                            }
+
+                            override fun onSubscribe(d: Disposable) {
+
+                            }
+
+                            override fun onNext(t: List<OtPlazo>) {
+                                insertOtPlazo(t)
+                            }
+
+                            override fun onError(t: Throwable) {
+                                mensajeSuccess.value = "finish"
+                                if (t is HttpException) {
+                                    val body = t.response().errorBody()
+                                    try {
+                                        val error = retrofit.errorConverter.convert(body!!)
+                                        mensajeError.postValue(error.Message)
+                                    } catch (e1: IOException) {
+                                        e1.printStackTrace()
+                                    }
+                                } else {
+                                    mensajeError.postValue(t.message)
+                                }
+                            }
+                        })
+                }
+
+                override fun onSubscribe(d: Disposable) {
+
+                }
+
+                override fun onError(e: Throwable) {
+
+                }
+            })
+    }
+
+    private fun insertOtPlazo(t: List<OtPlazo>) {
+        roomRepository.insertOtPlazo(t)
+            .subscribeOn(Schedulers.io())
+            .observeOn(AndroidSchedulers.mainThread())
+            .subscribe(object : CompletableObserver {
+                override fun onComplete() {
+
+                }
+
+                override fun onSubscribe(d: Disposable) {
+
+                }
+
+                override fun onError(e: Throwable) {
+
+                }
+
+            })
+    }
+
+    // TODO Ot Plazo Detalle
+
+
+    fun syncOtPlazoDetalle(f: Filtro) {
+        roomRepository.clearOtPlazoDetalle()
+            .subscribeOn(Schedulers.io())
+            .observeOn(AndroidSchedulers.mainThread())
+            .subscribe(object : CompletableObserver {
+                override fun onComplete() {
+                    roomRepository.getOtPlazoDetalle(f)
+                        .delay(2000, TimeUnit.MILLISECONDS)
+                        .subscribeOn(Schedulers.io())
+                        .observeOn(AndroidSchedulers.mainThread())
+                        .subscribe(object : Observer<List<OtPlazoDetalle>> {
+                            override fun onComplete() {
+                                mensajeSuccess.value = "finish"
+                            }
+
+                            override fun onSubscribe(d: Disposable) {
+
+                            }
+
+                            override fun onNext(t: List<OtPlazoDetalle>) {
+                                insertOtPlazoDetalle(t)
+                            }
+
+                            override fun onError(t: Throwable) {
+                                mensajeSuccess.value = "finish"
+                                if (t is HttpException) {
+                                    val body = t.response().errorBody()
+                                    try {
+                                        val error = retrofit.errorConverter.convert(body!!)
+                                        mensajeError.postValue(error.Message)
+                                    } catch (e1: IOException) {
+                                        e1.printStackTrace()
+                                    }
+                                } else {
+                                    mensajeError.postValue(t.message)
+                                }
+                            }
+                        })
+                }
+
+                override fun onSubscribe(d: Disposable) {
+
+                }
+
+                override fun onError(e: Throwable) {
+
+                }
+
+            })
+    }
+
+    private fun insertOtPlazoDetalle(t: List<OtPlazoDetalle>) {
+        roomRepository.insertOtPlazoDetalle(t)
+            .subscribeOn(Schedulers.io())
+            .observeOn(AndroidSchedulers.mainThread())
+            .subscribe(object : CompletableObserver {
+                override fun onComplete() {
+
+                }
+
+                override fun onSubscribe(d: Disposable) {
+
+                }
+
+                override fun onError(e: Throwable) {
+
+                }
+            })
+    }
+
+    fun getOtPlazoDetalles(): LiveData<PagedList<OtPlazoDetalle>> {
+        return roomRepository.getOtPlazoDetalles()
     }
 }

@@ -64,7 +64,7 @@ class PreviewCameraActivity : DaggerAppCompatActivity(), View.OnClickListener {
 
         fabClose.setOnClickListener(this)
         fabOk.setOnClickListener(this)
-        textViewImg.text = nameImg
+        fabClose.text = nameImg
 
         Handler().postDelayed({
             val f = File(Util.getFolder(this), nameImg)

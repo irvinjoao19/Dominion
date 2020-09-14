@@ -34,6 +34,7 @@ import com.dsige.dsigeventas.data.viewModel.ViewModelFactory
 import com.google.android.material.dialog.MaterialAlertDialogBuilder
 import dagger.android.support.DaggerAppCompatActivity
 import kotlinx.android.synthetic.main.activity_form_detail.*
+import java.util.*
 import javax.inject.Inject
 
 class FormDetailActivity : DaggerAppCompatActivity(), View.OnClickListener, TextWatcher {
@@ -173,7 +174,7 @@ class FormDetailActivity : DaggerAppCompatActivity(), View.OnClickListener, Text
             editTextMaterial.setCompoundDrawables(
                 null, null, null, null
             )
-            editTextMaterial.inputType = InputType.TYPE_CLASS_TEXT
+            editTextMaterial.inputType = InputType.TYPE_TEXT_FLAG_CAP_CHARACTERS
         }
 
         if (tipoDesmonte == 15) {
@@ -258,7 +259,7 @@ class FormDetailActivity : DaggerAppCompatActivity(), View.OnClickListener, Text
         if (d.tipoTrabajoId == 6) {
             d.nombreTipoMaterial = editTextMaterial.text.toString()
         } else {
-            d.nroPlaca = editTextMaterial.text.toString()
+            d.nroPlaca = editTextMaterial.text.toString().toUpperCase(Locale.getDefault())
         }
 
         d.estado = if (tipo == "3") 1 else 2

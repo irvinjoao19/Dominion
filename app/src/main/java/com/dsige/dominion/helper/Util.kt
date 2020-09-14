@@ -640,8 +640,7 @@ object Util {
         val mYear = c.get(Calendar.YEAR)
         val mMonth = c.get(Calendar.MONTH)
         val mDay = c.get(Calendar.DAY_OF_MONTH)
-        val datePickerDialog = DatePickerDialog(context, { _, year
-                                                           , monthOfYear, dayOfMonth ->
+        val datePickerDialog = DatePickerDialog(context, { _, year, monthOfYear, dayOfMonth ->
             val month =
                 if (((monthOfYear + 1) / 10) == 0) "0" + (monthOfYear + 1).toString() else (monthOfYear + 1).toString()
             val day = if (((dayOfMonth + 1) / 10) == 0) "0$dayOfMonth" else dayOfMonth.toString()
@@ -859,10 +858,21 @@ object Util {
         return imagePath
     }
 
-    fun getLocationName(context: Context, input: TextInputEditText, location: Location, progressBar: ProgressBar) {
-        val nombre = arrayOf("")
+    fun getLocationName(
+        context: Context,
+        input: TextInputEditText,
+        input2: TextInputEditText,
+        location: Location,
+        progressBar: ProgressBar
+    ) {
         try {
-            val addressObservable = Observable.just(Geocoder(context).getFromLocation(location.latitude, location.longitude, 1)[0])
+            val addressObservable = Observable.just(
+                Geocoder(context).getFromLocation(
+                    location.latitude,
+                    location.longitude,
+                    1
+                )[0]
+            )
             addressObservable.subscribeOn(Schedulers.io())
                 .delay(1000, TimeUnit.MILLISECONDS)
                 .observeOn(AndroidSchedulers.mainThread())
@@ -872,7 +882,8 @@ object Util {
                     }
 
                     override fun onNext(address: Address) {
-                        nombre[0] = address.getAddressLine(0)
+                        input.setText(address.getAddressLine(0).toString())
+                        input2.setText(address.locality.toString())
                     }
 
                     override fun onError(e: Throwable) {
@@ -881,7 +892,6 @@ object Util {
                     }
 
                     override fun onComplete() {
-                        input.setText(nombre[0])
                         progressBar.visibility = View.GONE
                     }
                 })

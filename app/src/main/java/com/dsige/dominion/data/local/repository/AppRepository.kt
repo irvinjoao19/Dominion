@@ -90,9 +90,9 @@ interface AppRepository {
 
     fun getProveedores(): LiveData<PagedList<Proveedor>>
 
-    fun clearProveedores() :Completable
+    fun clearProveedores(): Completable
 
-    fun insertProveedor(t: List<Proveedor>) : Completable
+    fun insertProveedor(t: List<Proveedor>): Completable
 
     fun getEmpresa(f: Filtro): Observable<List<OtReporte>>
 
@@ -100,9 +100,31 @@ interface AppRepository {
 
     fun getOtReporte(): LiveData<List<OtReporte>>
 
+    fun getEmpresaById(id: Int): LiveData<OtReporte>
+
     fun getJefeCuadrilla(f: Filtro): Observable<List<JefeCuadrilla>>
 
     fun insertJefeCuadrilla(t: List<JefeCuadrilla>): Completable
 
     fun getJefeCuadrillas(): LiveData<List<JefeCuadrilla>>
+
+    fun getJefeCuadrillaById(id: Int): LiveData<JefeCuadrilla>
+
+    fun getOtPlazos(): LiveData<PagedList<OtPlazo>>
+
+    fun getOtPlazo(f: Filtro): Observable<List<OtPlazo>>
+
+    fun insertOtPlazo(t: List<OtPlazo>): Completable
+
+    fun getOtPlazoDetalle(f: Filtro): Observable<List<OtPlazoDetalle>>
+
+    fun insertOtPlazoDetalle(t: List<OtPlazoDetalle>): Completable
+
+    fun clearOtPlazo(): Completable
+
+    fun getOtPlazoDetalles(): LiveData<PagedList<OtPlazoDetalle>>
+
+    fun clearOtPlazoDetalle(): Completable
+
+    fun sendSocket(): Completable
 }

@@ -4,6 +4,7 @@ import androidx.lifecycle.LiveData
 import androidx.paging.DataSource
 import androidx.room.*
 import com.dsige.dominion.data.local.model.Ot
+import com.dsige.dominion.data.local.model.OtNotify
 
 @Dao
 interface OtDao {
@@ -55,4 +56,11 @@ interface OtDao {
 
     @Query("UPDATE Ot SET identity =:codigoRetorno , estado = 0 , estadoId = 5 WHERE otId=:codigoBase")
     fun updateEnabledOt(codigoBase: Int, codigoRetorno: Int)
+
+    @Query("SELECT * FROM OtNotify ")
+    fun getAllRegistroSocket(): List<OtNotify>
+
+    @Query("UPDATE Ot SET activeNotificacion = 0")
+    fun updateSocket()
+
 }

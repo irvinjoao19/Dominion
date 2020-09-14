@@ -10,12 +10,16 @@ import com.dsige.dominion.data.local.AppDataBase
 import com.dsige.dominion.data.local.model.*
 import com.dsige.dominion.helper.Mensaje
 import com.dsige.dominion.helper.Util
+import com.github.nkzawa.socketio.client.IO
 import com.google.gson.Gson
 import io.reactivex.Completable
 import io.reactivex.Observable
 import okhttp3.MediaType
 import okhttp3.RequestBody
 import retrofit2.Call
+import java.net.URISyntaxException
+import java.util.*
+import kotlin.collections.ArrayList
 
 class AppRepoImp(private val apiService: ApiService, private val dataBase: AppDataBase) :
     AppRepository {
@@ -168,6 +172,15 @@ class AppRepoImp(private val apiService: ApiService, private val dataBase: AppDa
 
     override fun insertOrUpdateOt(t: Ot): Completable {
         return Completable.fromAction {
+            if (t.distritoId == 0) {
+                t.distritoId = dataBase.distritoDao()
+                    .searchDistritoId(
+                        String.format(
+                            "%s%s%s", "%", t.nombreDistritoId.toUpperCase(Locale.getDefault()), "%"
+                        )
+                    )
+            }
+
             val o: Ot? = dataBase.otDao().getOtIdTask(t.otId)
             if (o == null)
                 dataBase.otDao().insertOtTask(t)
@@ -340,6 +353,10 @@ class AppRepoImp(private val apiService: ApiService, private val dataBase: AppDa
         return dataBase.otReporteDao().getOtReportes()
     }
 
+    override fun getEmpresaById(id: Int): LiveData<OtReporte> {
+        return dataBase.otReporteDao().getOtReporteById(id)
+    }
+
     override fun getJefeCuadrilla(f: Filtro): Observable<List<JefeCuadrilla>> {
         val json = Gson().toJson(f)
         Log.i("TAG", json)
@@ -348,10 +365,107 @@ class AppRepoImp(private val apiService: ApiService, private val dataBase: AppDa
     }
 
     override fun insertJefeCuadrilla(t: List<JefeCuadrilla>): Completable {
-        TODO("Not yet implemented")
+        return Completable.fromAction {
+            dataBase.jefeCuadrillaDao().insertJefeCuadrillaListTask(t)
+        }
     }
 
     override fun getJefeCuadrillas(): LiveData<List<JefeCuadrilla>> {
-        TODO("Not yet implemented")
+        return dataBase.jefeCuadrillaDao().getJefeCuadrillas()
+    }
+
+    override fun getJefeCuadrillaById(id: Int): LiveData<JefeCuadrilla> {
+        return dataBase.jefeCuadrillaDao().getJefeCuadrillaById(id)
+    }
+
+    override fun getOtPlazos(): LiveData<PagedList<OtPlazo>> {
+        return dataBase.otPlazoDao().getOtPlazos().toLiveData(
+            Config(pageSize = 20, enablePlaceholders = true)
+        )
+    }
+
+    override fun getOtPlazo(f: Filtro): Observable<List<OtPlazo>> {
+        val json = Gson().toJson(f)
+        Log.i("TAG", json)
+        val body = RequestBody.create(MediaType.parse("application/json; charset=utf-8"), json)
+        return apiService.getOtPlazo(body)
+    }
+
+    override fun insertOtPlazo(t: List<OtPlazo>): Completable {
+        return Completable.fromAction {
+            dataBase.otPlazoDao().insertOtPlazoListTask(t)
+        }
+    }
+
+    override fun getOtPlazoDetalle(f: Filtro): Observable<List<OtPlazoDetalle>> {
+        val json = Gson().toJson(f)
+        Log.i("TAG", json)
+        val body = RequestBody.create(MediaType.parse("application/json; charset=utf-8"), json)
+        return apiService.getOtPlazoDetalle(body)
+    }
+
+    override fun insertOtPlazoDetalle(t: List<OtPlazoDetalle>): Completable {
+        return Completable.fromAction {
+            dataBase.otPlazoDetalleDao().insertOtPlazoDetalleListTask(t)
+        }
+    }
+
+    override fun clearOtPlazo(): Completable {
+        return Completable.fromAction {
+            dataBase.otPlazoDao().deleteAll()
+        }
+    }
+
+    override fun getOtPlazoDetalles(): LiveData<PagedList<OtPlazoDetalle>> {
+        return dataBase.otPlazoDetalleDao().getOtPlazoDetalles().toLiveData(
+            Config(pageSize = 20, enablePlaceholders = true)
+        )
+    }
+
+    override fun clearOtPlazoDetalle(): Completable {
+        return Completable.fromAction {
+            dataBase.otPlazoDetalleDao().deleteAll()
+        }
+    }
+
+    override fun sendSocket(): Completable {
+        return Completable.fromAction {
+            val v: List<OtNotify> = dataBase.otDao().getAllRegistroSocket()
+
+            val user = dataBase.usuarioDao().getUser()
+            val list: ArrayList<Notificacion> = ArrayList()
+            if (v.isNotEmpty()) {
+                for (r: OtNotify in v) {
+                    val n = Notificacion()
+                    n.idEmpresa = r.empresaId.toString()
+                    n.cantidadOT = r.cantidad
+                    n.idServicio = r.servicioId.toString()
+                    n.idTipoOT = r.tipoOrdenId.toString()
+                    n.idCuadrilla = r.usuarioId.toString()
+
+                    val tipo = when (r.tipoOrdenId) {
+                        3 -> "ROTURA"
+                        4 -> "REPARACION"
+                        else -> "RECOJO"
+                    }
+                    n.mensaje = String.format(
+                        "Se ejecuto %s Ot de %s de la Empresa %s y por el Jefe de Cuadrilla %s %s",
+                        r.cantidad, tipo, user.nombreEmpresa, user.nombres, user.apellidos
+                    )
+
+                    list.add(n)
+                }
+                dataBase.otDao().updateSocket()
+            }
+
+            val web = Gson().toJson(list)
+            Log.i("socket", web)
+            try {
+                val socket = IO.socket("http://173.248.174.85:5000/")
+                socket.emit("Notificacion_movil_web_OT", web)
+                socket.connect()
+            } catch (e: URISyntaxException) {
+            }
+        }
     }
 }

@@ -19,7 +19,7 @@ open class Usuario {
     var personalId: Int = 0
     var empresaId: Int = 0
     var mensaje: String = ""
-
+    var nombreEmpresa: String = ""
 
     var servicioId: Int = 0
     var nombreServicio: String = ""

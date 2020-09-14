@@ -7,32 +7,16 @@
     android:background="@android:color/black"
     tools:context=".ui.activities.PreviewCameraActivity">
 
-    <androidx.constraintlayout.widget.ConstraintLayout
+    <com.google.android.material.floatingactionbutton.ExtendedFloatingActionButton
+        android:id="@+id/fabClose"
         android:layout_width="match_parent"
-        android:layout_height="wrap_content">
-
-        <ImageView
-            android:id="@+id/fabClose"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_margin="@dimen/fab_margin"
-            android:contentDescription="@string/img"
-            app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toTopOf="parent"
-            app:srcCompat="@drawable/ic_arrow_back" />
-
-        <TextView
-            android:id="@+id/textViewImg"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_gravity="start|top"
-            android:layout_marginStart="16dp"
-            android:layout_marginTop="16dp"
-            android:textColor="@color/colorWhite"
-            app:layout_constraintStart_toEndOf="@+id/fabClose"
-            app:layout_constraintTop_toTopOf="parent" />
-
-    </androidx.constraintlayout.widget.ConstraintLayout>
+        android:layout_height="wrap_content"
+        android:layout_gravity="start|top"
+        android:layout_margin="8dp"
+        android:textColor="@color/colorWhite"
+        app:backgroundTint="@color/colorTrans"
+        app:icon="@drawable/ic_arrow_back"
+        app:iconTint="@color/colorWhite" />
 
     <ProgressBar
         android:id="@+id/progressBar"
@@ -44,7 +28,9 @@
         android:id="@+id/imageView"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        android:contentDescription="@string/img" />
+        android:contentDescription="@string/img"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent" />
 
     <com.google.android.material.floatingactionbutton.FloatingActionButton
         android:id="@+id/fabOk"

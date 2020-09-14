@@ -26,4 +26,7 @@ interface OtReporteDao {
     @Query("DELETE FROM OtReporte")
     fun deleteAll()
 
+    @Query("SELECT * FROM OtReporte WHERE otId =:id")
+    fun getOtReporteById(id: Int): LiveData<OtReporte>
+
 }

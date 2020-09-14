@@ -1,0 +1,55 @@
+<?xml version="1.0" encoding="utf-8"?>
+<FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    tools:context=".ui.fragments.PlazoFragment">
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:orientation="vertical"
+        tools:ignore="UselessParent">
+
+        <com.google.android.material.textfield.TextInputEditText
+            android:id="@+id/editTextServicio"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_margin="8dp"
+            android:drawableEnd="@drawable/ic_down"
+            android:focusable="false"
+            android:hint="Servicios"
+            android:textColor="@color/colorPrimary" />
+
+        <com.google.android.material.textfield.TextInputEditText
+            android:id="@+id/editTextGrupo"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_margin="8dp"
+            android:drawableEnd="@drawable/ic_down"
+            android:focusable="false"
+            android:hint="Tipo de Trabajo"
+            android:textColor="@color/colorPrimary" />
+
+        <!--        <com.google.android.material.textfield.TextInputEditText-->
+        <!--            android:id="@+id/editTextSearch"-->
+        <!--            android:layout_width="match_parent"-->
+        <!--            android:layout_height="wrap_content"-->
+        <!--            android:layout_margin="8dp"-->
+        <!--            android:textColor="@color/colorPrimary"-->
+        <!--            android:drawableEnd="@drawable/ic_search"-->
+        <!--            android:hint="Busqueda" />-->
+
+        <androidx.recyclerview.widget.RecyclerView
+            android:id="@+id/recyclerView"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:scrollbars="vertical" />
+    </LinearLayout>
+
+    <ProgressBar
+        android:id="@+id/progressBar"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_gravity="center" />
+</FrameLayout>

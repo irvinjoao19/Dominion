@@ -93,4 +93,14 @@ class DataBaseModule {
     internal fun provideOtReporteDao(appDataBase: AppDataBase): OtReporteDao {
         return appDataBase.otReporteDao()
     }
+
+    @Provides
+    internal fun provideOtPlazoDao(appDataBase: AppDataBase): OtPlazoDao {
+        return appDataBase.otPlazoDao()
+    }
+
+    @Provides
+    internal fun provideOtPlazoDetalleDao(appDataBase: AppDataBase): OtPlazoDetalleDao {
+        return appDataBase.otPlazoDetalleDao()
+    }
 }
