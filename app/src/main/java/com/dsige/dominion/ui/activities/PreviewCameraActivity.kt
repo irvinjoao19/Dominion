@@ -80,11 +80,11 @@ class PreviewCameraActivity : DaggerAppCompatActivity(), View.OnClickListener {
         }, 200)
 
 
-        otViewModel.mensajeError.observe(this, Observer {
+        otViewModel.mensajeError.observe(this, {
             Util.toastMensaje(this, it)
         })
 
-        otViewModel.mensajeSuccess.observe(this, Observer {
+        otViewModel.mensajeSuccess.observe(this, {
             finish()
         })
     }

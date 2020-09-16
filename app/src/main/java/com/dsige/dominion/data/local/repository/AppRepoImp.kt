@@ -28,6 +28,10 @@ class AppRepoImp(private val apiService: ApiService, private val dataBase: AppDa
         return dataBase.usuarioDao().getUsuarioIdTask()
     }
 
+    override fun getEmpresaIdTask(): Int {
+        return dataBase.usuarioDao().getEmpresaIdTask()
+    }
+
     override fun getUsuario(): LiveData<Usuario> {
         return dataBase.usuarioDao().getUsuario()
     }
@@ -461,7 +465,7 @@ class AppRepoImp(private val apiService: ApiService, private val dataBase: AppDa
             val web = Gson().toJson(list)
             Log.i("socket", web)
             try {
-                val socket = IO.socket("http://173.248.174.85:5000/")
+                val socket = IO.socket("http://192.168.20.249:5001/")
                 socket.emit("Notificacion_movil_web_OT", web)
                 socket.connect()
             } catch (e: URISyntaxException) {

@@ -15,16 +15,22 @@ import android.os.Build
 import android.os.Handler
 import android.os.IBinder
 import android.util.Log
+import android.view.View
 import androidx.core.app.NotificationCompat
 import com.dsige.dominion.R
 import com.dsige.dominion.data.local.model.Notificacion
 import com.dsige.dominion.data.local.repository.AppRepository
+import com.dsige.dominion.helper.Util
 import com.dsige.dominion.ui.activities.MainActivity
 import com.github.nkzawa.socketio.client.IO
 import com.github.nkzawa.socketio.client.Socket
 import com.google.gson.Gson
 import com.google.gson.reflect.TypeToken
+import com.squareup.picasso.Callback
+import com.squareup.picasso.Picasso
 import dagger.android.AndroidInjection
+import kotlinx.android.synthetic.main.activity_preview_camera.*
+import java.io.File
 import java.net.URISyntaxException
 import java.util.*
 import javax.inject.Inject
@@ -46,29 +52,36 @@ class SocketServices : Service() {
 
     override fun onStartCommand(intent: Intent?, flags: Int, startId: Int): Int {
         val handler = Handler()
-        handler.post(Runnable {
+        handler.post {
             try {
                 mSocket =
-                    IO.socket("http://173.248.174.85:5000/")
+                    IO.socket("http://192.168.20.249:5001/")
                 mSocket.on("Alertas_web_OT") { s ->
                     Log.i("TAG", s[0].toString())
                     val myType = object : TypeToken<List<Notificacion>>() {}.type
                     val n = Gson().fromJson<List<Notificacion>>(s[0].toString(), myType)
-                    for (m: Notificacion in n) {
-                        val u = roomRepository.getUsuarioIdTask()
-                        if (u.toString() == m.idCuadrilla) {
-                            notificationSocket(this, m.titulo, m.mensaje)
+                    for ((id, m: Notificacion) in n.withIndex()) {
+                        if (m.idCuadrilla == "0") {
+                            val e = roomRepository.getEmpresaIdTask()
+                            if (m.idEmpresa == e.toString()) {
+                                notificationSocket(id, this, m.titulo, m.mensaje)
+                            }
+                        } else {
+                            val u = roomRepository.getUsuarioIdTask()
+                            if (u.toString() == m.idCuadrilla) {
+                                notificationSocket(id, this, m.titulo, m.mensaje)
+                            }
                         }
                     }
                 }
             } catch (ignored: URISyntaxException) {
             }
             mSocket.connect()
-        })
+        }
         return super.onStartCommand(intent, flags, startId)
     }
 
-    private fun notificationSocket(context: Context, title: String, s: String) {
+    private fun notificationSocket(id: Int, context: Context, title: String, s: String) {
         val intent = Intent(context, MainActivity::class.java)
         intent.flags = Intent.FLAG_ACTIVITY_CLEAR_TOP
         val pendingIntent =
@@ -84,8 +97,7 @@ class SocketServices : Service() {
         val nManager =
             context.getSystemService(Context.NOTIFICATION_SERVICE) as NotificationManager
         nManager.createNotificationChannel(CHANNEL_ID_TIMER, CHANNEL_NAME_TIMER, true)
-        val m = (Date().time / 1000L % Int.MAX_VALUE).toInt()
-        nManager.notify(m, nBuilder.build())
+        nManager.notify(id, nBuilder.build())
     }
 
     private fun getBasicNotificationBuilder(context: Context, channelId: String, playSound: Boolean)

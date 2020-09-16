@@ -14,6 +14,8 @@ interface AppRepository {
 
     fun getUsuarioIdTask(): Int
 
+    fun getEmpresaIdTask(): Int
+
     fun getUsuario(): LiveData<Usuario>
 
     fun getUsuarioService(
