@@ -465,7 +465,7 @@ class AppRepoImp(private val apiService: ApiService, private val dataBase: AppDa
             val web = Gson().toJson(list)
             Log.i("socket", web)
             try {
-                val socket = IO.socket("http://192.168.20.249:5001/")
+                val socket = IO.socket(Util.UrlSocket)
                 socket.emit("Notificacion_movil_web_OT", web)
                 socket.connect()
             } catch (e: URISyntaxException) {

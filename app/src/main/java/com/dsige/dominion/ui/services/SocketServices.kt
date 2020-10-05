@@ -55,7 +55,7 @@ class SocketServices : Service() {
         handler.post {
             try {
                 mSocket =
-                    IO.socket("http://192.168.20.249:5001/")
+                    IO.socket(Util.UrlSocket)
                 mSocket.on("Alertas_web_OT") { s ->
                     Log.i("TAG", s[0].toString())
                     val myType = object : TypeToken<List<Notificacion>>() {}.type

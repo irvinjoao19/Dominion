@@ -52,8 +52,8 @@ import kotlin.math.*
 
 object Util {
 
-    val FolderImg = "Dsige/Lds"
-    val UrlFoto = "http://www.dsige.com/webApiDsigeVehiculo/fotos/"
+    val UrlFoto = "http://190.223.38.245/WebApi_3R_Dominion/Archivos/Fotos/"
+    val UrlSocket = "http://190.223.38.245:5000/"
 
     private var FechaActual: String? = ""
     private var date: Date? = null
