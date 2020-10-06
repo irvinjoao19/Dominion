@@ -15,7 +15,6 @@ import android.widget.TextView
 import androidx.appcompat.app.AlertDialog
 import androidx.appcompat.app.AppCompatActivity
 import androidx.appcompat.view.ContextThemeWrapper
-import androidx.lifecycle.Observer
 import androidx.lifecycle.ViewModelProvider
 import androidx.recyclerview.widget.DefaultItemAnimator
 import androidx.recyclerview.widget.DividerItemDecoration
@@ -62,7 +61,13 @@ class GeneralFragment : DaggerFragment(), View.OnClickListener {
         val gps = Gps(context!!)
         if (gps.isLocationEnabled()) {
             progressBarLugar.visibility = View.VISIBLE
-            Util.getLocationName(context!!, editTextDireccion, editTextDistritos,gps.location!!, progressBarLugar)
+            Util.getLocationName(
+                context!!,
+                editTextDireccion,
+                editTextDistritos,
+                gps.location!!,
+                progressBarLugar
+            )
         } else {
             gps.showSettingsAlert(context!!)
         }
@@ -115,7 +120,7 @@ class GeneralFragment : DaggerFragment(), View.OnClickListener {
         otViewModel =
             ViewModelProvider(this, viewModelFactory).get(OtViewModel::class.java)
 
-        otViewModel.getOtById(otId).observe(viewLifecycleOwner, Observer {
+        otViewModel.getOtById(otId).observe(viewLifecycleOwner, {
             if (it != null) {
                 t = it
                 editTextNumero.setText(it.nroObra)
@@ -123,15 +128,18 @@ class GeneralFragment : DaggerFragment(), View.OnClickListener {
                 editTextDistritos.setText(it.nombreDistritoId)
                 editTextReferencia.setText(it.referenciaOt)
                 editTextDescripcion.setText(it.descripcionOt)
+                if (it.estado == 0){
+                    fabGenerate.visibility = View.GONE
+                }
             }
         })
 
-        otViewModel.mensajeError.observe(viewLifecycleOwner, Observer {
+        otViewModel.mensajeError.observe(viewLifecycleOwner, {
             //closeLoad()
             Util.toastMensaje(context!!, it)
         })
 
-        otViewModel.mensajeSuccess.observe(viewLifecycleOwner, Observer {
+        otViewModel.mensajeSuccess.observe(viewLifecycleOwner, {
             viewPager?.currentItem = 1
             Util.toastMensaje(context!!, it)
         })
@@ -236,24 +244,12 @@ class GeneralFragment : DaggerFragment(), View.OnClickListener {
             }
         })
         recyclerView.adapter = distritoAdapter
-        otViewModel.getDistritos().observe(this, Observer {
+        otViewModel.getDistritos().observe(this, {
             distritoAdapter.addItems(it)
         })
         editTextSearch.addTextChangedListener(object : TextWatcher {
-            override fun beforeTextChanged(
-                charSequence: CharSequence,
-                i: Int, i1: Int, i2: Int
-            ) {
-
-            }
-
-            override fun onTextChanged(
-                charSequence: CharSequence,
-                i: Int, i1: Int, i2: Int
-            ) {
-
-            }
-
+            override fun beforeTextChanged(c: CharSequence, i: Int, i1: Int, i2: Int) {}
+            override fun onTextChanged(c: CharSequence, i: Int, i1: Int, i2: Int) {}
             override fun afterTextChanged(editable: Editable) {
                 distritoAdapter.getFilter().filter(editTextSearch.text.toString())
             }

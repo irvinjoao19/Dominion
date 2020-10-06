@@ -52,6 +52,10 @@ class OtDetalleAdapter(private val listener: OnItemClickListener.OtDetalleListen
 
                 textView2.text =
                     String.format("%s * %s * %s = %.2f", o.largo, o.ancho, o.espesor, o.total)
+                if (o.estado == 3) {
+                    imgEdit.visibility = View.GONE
+                    imgDelete.visibility = View.GONE
+                }
                 imgEdit.setOnClickListener { v -> listener.onItemClick(o, v, adapterPosition) }
                 imgDelete.setOnClickListener { v -> listener.onItemClick(o, v, adapterPosition) }
             }

@@ -12,7 +12,6 @@ import androidx.appcompat.app.AlertDialog
 import androidx.appcompat.view.ContextThemeWrapper
 import androidx.core.view.GravityCompat
 import androidx.fragment.app.Fragment
-import androidx.lifecycle.Observer
 import androidx.lifecycle.ViewModelProvider
 import com.dsige.dominion.R
 import com.dsige.dominion.data.local.model.Usuario
@@ -55,7 +54,7 @@ class MainActivity : DaggerAppCompatActivity(), NavigationView.OnNavigationItemS
     private fun bindUI() {
         usuarioViewModel =
             ViewModelProvider(this, viewModelFactory).get(UsuarioViewModel::class.java)
-        usuarioViewModel.user.observe(this, Observer { u ->
+        usuarioViewModel.user.observe(this, { u ->
             if (u != null) {
                 getUser(u)
                 setSupportActionBar(toolbar)
@@ -74,7 +73,7 @@ class MainActivity : DaggerAppCompatActivity(), NavigationView.OnNavigationItemS
                 val menu = navigationView.menu
                 val submenu = menu.addSubMenu("Menu Principal")
 
-                usuarioViewModel.getAccesos(u.usuarioId).observe(this, Observer { accesos ->
+                usuarioViewModel.getAccesos(u.usuarioId).observe(this, { accesos ->
                     for ((c, a) in accesos.withIndex()) {
                         submenu.add(a.nombre)
                         submenu.getItem(c).setIcon(R.drawable.ic_sync)
@@ -218,7 +217,7 @@ class MainActivity : DaggerAppCompatActivity(), NavigationView.OnNavigationItemS
     }
 
     private fun message() {
-        usuarioViewModel.mensajeSuccess.observe(this, Observer { s ->
+        usuarioViewModel.mensajeSuccess.observe(this, { s ->
             if (s != null) {
                 closeLoad()
                 if (s == "Close") {
@@ -230,7 +229,7 @@ class MainActivity : DaggerAppCompatActivity(), NavigationView.OnNavigationItemS
                 }
             }
         })
-        usuarioViewModel.mensajeError.observe(this@MainActivity, Observer { s ->
+        usuarioViewModel.mensajeError.observe(this@MainActivity, { s ->
             if (s != null) {
                 closeLoad()
                 Util.snackBarMensaje(window.decorView, s)

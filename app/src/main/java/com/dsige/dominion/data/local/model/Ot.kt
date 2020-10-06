@@ -43,7 +43,7 @@ open class Ot {
     var identity: Int = 0
 
     var estadoId: Int = 0 // 4 -> ejecutado  // 5 enviado aprobar
-    var estado: Int = 0 // 1 -> para enviar , 2 -> incompleto
+    var estado: Int = 0 // 1 -> para enviar , 2 -> incompleto  , 0 -> desabilitado
 
     var activeNotificacion: Int = 0
 

@@ -19,7 +19,7 @@ open class OtDetalle {
     var total: Double = 0.0
     var nroPlaca: String = ""
     var m3Vehiculo: Double = 0.0
-    var estado: Int = 0 // 2 -> por completar 1 -> completado
+    var estado: Int = 0 // 2 -> por completar 1 -> completado // 3 -> enviado
 
     var nombreTipoMaterial: String = ""
     var nombreTipoDemonte:String = ""

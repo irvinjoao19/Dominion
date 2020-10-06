@@ -9,6 +9,7 @@ import androidx.paging.toLiveData
 import com.dsige.dominion.data.local.AppDataBase
 import com.dsige.dominion.data.local.model.*
 import com.dsige.dominion.helper.Mensaje
+import com.dsige.dominion.helper.MensajeDetalle
 import com.dsige.dominion.helper.Util
 import com.github.nkzawa.socketio.client.IO
 import com.google.gson.Gson
@@ -185,11 +186,18 @@ class AppRepoImp(private val apiService: ApiService, private val dataBase: AppDa
                     )
             }
 
+
             val o: Ot? = dataBase.otDao().getOtIdTask(t.otId)
-            if (o == null)
+            if (o == null) {
                 dataBase.otDao().insertOtTask(t)
-            else
+            } else {
+                val a = dataBase.otDetalleDao().getDetalleOts(t.otId)
+                if (a > 0){
+                    t.estado = 1
+                }
                 dataBase.otDao().updateOtTask(t)
+            }
+
         }
     }
 
@@ -291,6 +299,15 @@ class AppRepoImp(private val apiService: ApiService, private val dataBase: AppDa
     override fun updateOt(t: Mensaje): Completable {
         return Completable.fromAction {
             dataBase.otDao().updateEnabledOt(t.codigoBase, t.codigoRetorno)
+
+            dataBase.otDetalleDao().updateEnabledDetalle(t.codigoBase)
+//            val detalle: List<MensajeDetalle>? = t.detalle
+//            if (detalle != null) {
+//                for (d: MensajeDetalle in detalle) {
+//
+//
+//                }
+//            }
         }
     }
 
