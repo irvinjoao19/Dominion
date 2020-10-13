@@ -3,6 +3,8 @@ package com.dsige.dominion.ui.activities
 import android.annotation.SuppressLint
 import android.app.Activity
 import android.content.Intent
+import android.location.Address
+import android.location.Geocoder
 import android.os.Bundle
 import android.provider.MediaStore
 import android.text.Editable
@@ -30,11 +32,17 @@ import com.dsige.dominion.helper.Util
 import com.dsige.dominion.ui.adapters.MaterialAdapter
 import com.dsige.dominion.ui.adapters.OtPhotoAdapter
 import com.dsige.dominion.ui.listeners.OnItemClickListener
-import com.dsige.dsigeventas.data.viewModel.ViewModelFactory
+import com.dsige.dominion.data.viewModel.ViewModelFactory
+import com.dsige.dominion.helper.Gps
 import com.google.android.material.dialog.MaterialAlertDialogBuilder
 import dagger.android.support.DaggerAppCompatActivity
+import io.reactivex.Observable
+import io.reactivex.android.schedulers.AndroidSchedulers
+import io.reactivex.disposables.Disposable
+import io.reactivex.schedulers.Schedulers
 import kotlinx.android.synthetic.main.activity_form_detail.*
 import java.util.*
+import java.util.concurrent.TimeUnit
 import javax.inject.Inject
 
 class FormDetailActivity : DaggerAppCompatActivity(), View.OnClickListener, TextWatcher {
@@ -65,7 +73,8 @@ class FormDetailActivity : DaggerAppCompatActivity(), View.OnClickListener, Text
                 b.getInt("otId"),
                 b.getInt("usuarioId"),
                 b.getInt("tipo"),
-                b.getInt("tipoDesmonte")
+                b.getInt("tipoDesmonte"),
+                b.getInt("estado")
             )
         }
     }
@@ -78,7 +87,7 @@ class FormDetailActivity : DaggerAppCompatActivity(), View.OnClickListener, Text
      * 14 -> Desmonte Recojido
      * 15 -> Genera Ot Desmonte
      */
-    private fun bindUI(detalleId: Int, otId: Int, u: Int, tipo: Int, tipoDesmonte: Int) {
+    private fun bindUI(detalleId: Int, otId: Int, u: Int, tipo: Int, tipoDesmonte: Int, e: Int) {
         setSupportActionBar(toolbar)
         supportActionBar!!.title = when {
             tipo == 6 -> "Ot Medidas"
@@ -103,7 +112,9 @@ class FormDetailActivity : DaggerAppCompatActivity(), View.OnClickListener, Text
 
         val otPhotoAdapter = OtPhotoAdapter(object : OnItemClickListener.OtPhotoListener {
             override fun onItemClick(o: OtPhoto, view: View, position: Int) {
-                confirmDelete(o)
+                if (o.estado == 1) {
+                    confirmDelete(o)
+                }
             }
         })
 
@@ -121,7 +132,7 @@ class FormDetailActivity : DaggerAppCompatActivity(), View.OnClickListener, Text
                     fabSave.visibility = View.GONE
             })
 
-        otViewModel.getOtDetalleId(detalleId).observe(this, Observer {
+        otViewModel.getOtDetalleId(detalleId).observe(this, {
             if (it != null) {
                 d = it
                 if (it.tipoTrabajoId == 6) {
@@ -135,7 +146,7 @@ class FormDetailActivity : DaggerAppCompatActivity(), View.OnClickListener, Text
             }
         })
 
-        otViewModel.mensajeError.observe(this, Observer {
+        otViewModel.mensajeError.observe(this, {
             Util.toastMensaje(this, it)
         })
 
@@ -180,6 +191,10 @@ class FormDetailActivity : DaggerAppCompatActivity(), View.OnClickListener, Text
         if (tipoDesmonte == 15) {
             textView1.visibility = View.GONE
             editTextMaterial.visibility = View.GONE
+        }
+
+        if (e == 3) {
+            fabMenu.visibility = View.GONE
         }
 
         editTextAncho.addTextChangedListener(this)
@@ -256,6 +271,8 @@ class FormDetailActivity : DaggerAppCompatActivity(), View.OnClickListener, Text
     }
 
     private fun formRegistro(tipo: String) {
+
+
         if (d.tipoTrabajoId == 6) {
             d.nombreTipoMaterial = editTextMaterial.text.toString()
         } else {
@@ -276,7 +293,19 @@ class FormDetailActivity : DaggerAppCompatActivity(), View.OnClickListener, Text
             editTextEspesor.text.toString().isEmpty() -> d.espesor = 0.0
             else -> d.espesor = editTextEspesor.text.toString().toDouble()
         }
-        otViewModel.validateOtDetalle(d, tipo)
+
+        if (tipo == "3") {
+            val gps = Gps(this)
+            if (gps.isLocationEnabled()) {
+                if (gps.latitude.toString() != "0.0" || gps.longitude.toString() != "0.0") {
+                    d.latitud = gps.latitude.toString()
+                    d.longitud = gps.longitude.toString()
+                    otViewModel.validateOtDetalle(d, tipo)
+                }
+            }
+        } else {
+            otViewModel.validateOtDetalle(d, tipo)
+        }
     }
 
     private fun goCamera() {
@@ -296,11 +325,36 @@ class FormDetailActivity : DaggerAppCompatActivity(), View.OnClickListener, Text
         super.onActivityResult(requestCode, resultCode, data)
         if (requestCode == Permission.GALERY_REQUEST && resultCode == Activity.RESULT_OK) {
             if (data != null) {
-                otViewModel.generarArchivo(
-                    Util.getFechaActualForPhoto(usuarioId),
-                    this,
-                    data
-                )
+
+                val gps = Gps(this)
+                if (gps.isLocationEnabled()) {
+                    val addressObservable = Observable.just(
+                        Geocoder(this)
+                            .getFromLocation(
+                                gps.getLatitude(), gps.getLongitude(), 1
+                            )[0]
+                    )
+                    addressObservable.subscribeOn(Schedulers.io())
+                        .delay(1000, TimeUnit.MILLISECONDS)
+                        .observeOn(AndroidSchedulers.mainThread())
+                        .subscribe(object : io.reactivex.Observer<Address> {
+                            override fun onSubscribe(d: Disposable) {}
+                            override fun onNext(address: Address) {
+                                otViewModel.generarArchivo(
+                                    Util.getFechaActualForPhoto(usuarioId),
+                                    this@FormDetailActivity,
+                                    data,
+                                    address.getAddressLine(0).toString(),
+                                    address.locality.toString()
+                                )
+                            }
+
+                            override fun onError(e: Throwable) {}
+                            override fun onComplete() {}
+                        })
+                } else {
+                    gps.showSettingsAlert(this)
+                }
             }
         }
     }

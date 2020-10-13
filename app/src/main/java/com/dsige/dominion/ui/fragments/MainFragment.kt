@@ -29,8 +29,7 @@ import com.dsige.dominion.ui.adapters.GrupoAdapter
 import com.dsige.dominion.ui.adapters.OtAdapter
 import com.dsige.dominion.ui.adapters.ServicioAdapter
 import com.dsige.dominion.ui.listeners.OnItemClickListener
-import com.dsige.dsigeventas.data.viewModel.ViewModelFactory
-import com.google.android.material.textfield.TextInputEditText
+import com.dsige.dominion.data.viewModel.ViewModelFactory
 import com.google.gson.Gson
 import dagger.android.support.DaggerFragment
 import kotlinx.android.synthetic.main.fragment_main.*

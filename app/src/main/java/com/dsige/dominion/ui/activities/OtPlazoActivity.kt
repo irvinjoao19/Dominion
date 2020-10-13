@@ -15,7 +15,7 @@ import com.dsige.dominion.data.viewModel.OtViewModel
 import com.dsige.dominion.helper.Util
 import com.dsige.dominion.ui.adapters.OtPlazoDetalleAdapter
 import com.dsige.dominion.ui.listeners.OnItemClickListener
-import com.dsige.dsigeventas.data.viewModel.ViewModelFactory
+import com.dsige.dominion.data.viewModel.ViewModelFactory
 import dagger.android.support.DaggerAppCompatActivity
 import kotlinx.android.synthetic.main.activity_form_detail.*
 import kotlinx.android.synthetic.main.activity_form_detail.recyclerView

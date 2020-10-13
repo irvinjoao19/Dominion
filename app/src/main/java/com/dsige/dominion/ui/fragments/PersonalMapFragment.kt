@@ -26,7 +26,7 @@ import com.dsige.dominion.data.local.model.Filtro
 import com.dsige.dominion.data.local.model.JefeCuadrilla
 import com.dsige.dominion.data.viewModel.OtViewModel
 import com.dsige.dominion.helper.Util
-import com.dsige.dsigeventas.data.viewModel.ViewModelFactory
+import com.dsige.dominion.data.viewModel.ViewModelFactory
 import com.google.android.gms.maps.CameraUpdateFactory
 import com.google.android.gms.maps.GoogleMap
 import com.google.android.gms.maps.OnMapReadyCallback

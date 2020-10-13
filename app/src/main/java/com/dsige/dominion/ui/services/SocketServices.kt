@@ -117,7 +117,6 @@ class SocketServices : Service() {
         return nBuilder
     }
 
-
     @TargetApi(26)
     private fun NotificationManager.createNotificationChannel(
         channelID: String, channelName: String, playSound: Boolean

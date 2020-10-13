@@ -2,7 +2,6 @@ package com.dsige.dominion.ui.fragments
 
 import android.content.Intent
 import android.os.Bundle
-import androidx.fragment.app.Fragment
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
@@ -19,7 +18,7 @@ import com.dsige.dominion.helper.Util
 import com.dsige.dominion.ui.activities.FormDetailActivity
 import com.dsige.dominion.ui.adapters.OtDetalleAdapter
 import com.dsige.dominion.ui.listeners.OnItemClickListener
-import com.dsige.dsigeventas.data.viewModel.ViewModelFactory
+import com.dsige.dominion.data.viewModel.ViewModelFactory
 import com.google.android.material.dialog.MaterialAlertDialogBuilder
 import dagger.android.support.DaggerFragment
 import kotlinx.android.synthetic.main.fragment_desmonte.*
@@ -113,6 +112,7 @@ class DesmonteFragment : DaggerFragment(), View.OnClickListener {
                             .putExtra("usuarioId", usuarioId)
                             .putExtra("tipo", o.tipoTrabajoId)
                             .putExtra("tipoDesmonte", o.tipoDesmonteId)
+                            .putExtra("estado", o.estado)
                     )
                     R.id.imgDelete -> confirmDelete(o)
                 }

@@ -3,7 +3,6 @@ package com.dsige.dominion.data.module
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.ViewModelProvider
 import com.dsige.dominion.data.viewModel.*
-import com.dsige.dsigeventas.data.viewModel.*
 import dagger.Binds
 import dagger.Module
 import dagger.multibindings.IntoMap

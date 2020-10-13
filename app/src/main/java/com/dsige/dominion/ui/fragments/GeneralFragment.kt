@@ -30,7 +30,7 @@ import com.dsige.dominion.helper.Gps
 import com.dsige.dominion.helper.Util
 import com.dsige.dominion.ui.adapters.DistritoAdapter
 import com.dsige.dominion.ui.listeners.OnItemClickListener
-import com.dsige.dsigeventas.data.viewModel.ViewModelFactory
+import com.dsige.dominion.data.viewModel.ViewModelFactory
 import com.google.android.material.textfield.TextInputEditText
 import com.google.android.material.textfield.TextInputLayout
 import dagger.android.support.DaggerFragment
@@ -65,7 +65,8 @@ class GeneralFragment : DaggerFragment(), View.OnClickListener {
                 context!!,
                 editTextDireccion,
                 editTextDistritos,
-                gps.location!!,
+                gps.getLatitude(),
+                gps.getLongitude(),
                 progressBarLugar
             )
         } else {
@@ -128,7 +129,7 @@ class GeneralFragment : DaggerFragment(), View.OnClickListener {
                 editTextDistritos.setText(it.nombreDistritoId)
                 editTextReferencia.setText(it.referenciaOt)
                 editTextDescripcion.setText(it.descripcionOt)
-                if (it.estado == 0){
+                if (it.estado == 0) {
                     fabGenerate.visibility = View.GONE
                 }
             }
@@ -286,7 +287,6 @@ class GeneralFragment : DaggerFragment(), View.OnClickListener {
             }
         }
     }
-
 
     companion object {
         @JvmStatic

@@ -3,7 +3,6 @@ package com.dsige.dominion.ui.fragments
 import android.annotation.SuppressLint
 import android.content.Intent
 import android.os.Bundle
-import androidx.fragment.app.Fragment
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
@@ -30,7 +29,7 @@ import com.dsige.dominion.ui.adapters.GrupoAdapter
 import com.dsige.dominion.ui.adapters.ProveedorAdapter
 import com.dsige.dominion.ui.adapters.ServicioAdapter
 import com.dsige.dominion.ui.listeners.OnItemClickListener
-import com.dsige.dsigeventas.data.viewModel.ViewModelFactory
+import com.dsige.dominion.data.viewModel.ViewModelFactory
 import dagger.android.support.DaggerFragment
 import kotlinx.android.synthetic.main.fragment_resumen.*
 import javax.inject.Inject

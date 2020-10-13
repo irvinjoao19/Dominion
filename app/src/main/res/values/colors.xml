@@ -36,6 +36,7 @@
     <color name="colorLead">#c2bdbf</color>
     <color name="correctSend">#4caf50</color>
     <color name="colorButton">#2980b9</color>
+    <color name="transparentBlack">#64000000</color>
 
     <color name="text">#5D5858</color>
     <color name="textoColor">#1B4C7D</color>

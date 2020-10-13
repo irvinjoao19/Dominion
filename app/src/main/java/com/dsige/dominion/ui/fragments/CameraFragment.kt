@@ -7,6 +7,8 @@ import android.content.Intent
 import android.content.res.Configuration
 import android.graphics.*
 import android.hardware.camera2.*
+import android.location.Address
+import android.location.Geocoder
 import android.media.ImageReader
 import android.os.*
 import android.util.Log
@@ -15,10 +17,17 @@ import android.util.SparseIntArray
 import android.view.*
 import androidx.fragment.app.Fragment
 import com.dsige.dominion.R
+import com.dsige.dominion.helper.Gps
 import com.dsige.dominion.helper.ImageSaver
 import com.dsige.dominion.helper.Util
 import com.dsige.dominion.ui.activities.PreviewCameraActivity
+import io.reactivex.Observable
+import io.reactivex.Observer
+import io.reactivex.android.schedulers.AndroidSchedulers
+import io.reactivex.disposables.Disposable
+import io.reactivex.schedulers.Schedulers
 import kotlinx.android.synthetic.main.fragment_camera.*
+import kotlinx.android.synthetic.main.fragment_general.*
 import java.io.File
 import java.lang.Long.signum
 import java.util.*
@@ -220,7 +229,11 @@ class CameraFragment : Fragment(), View.OnClickListener, View.OnTouchListener {
      * still image is ready to be saved.
      */
     private val onImageAvailableListener = ImageReader.OnImageAvailableListener {
-        backgroundHandler?.post(ImageSaver(it.acquireLatestImage(), file))
+        backgroundHandler?.post(
+            ImageSaver(
+                it.acquireLatestImage(), file, context!!, direccion, distrito
+            )
+        )
     }
 
     /**
@@ -321,6 +334,8 @@ class CameraFragment : Fragment(), View.OnClickListener, View.OnTouchListener {
     private var usuarioId: Int = 0
     private var nameImg: String = ""
     private var registroId: Int = 0
+    private var direccion: String = ""
+    private var distrito: String = ""
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -345,6 +360,31 @@ class CameraFragment : Fragment(), View.OnClickListener, View.OnTouchListener {
         super.onActivityCreated(savedInstanceState)
         nameImg = Util.getFechaActualForPhoto(usuarioId)
         file = File(Util.getFolder(context!!), nameImg)
+
+        val gps = Gps(context!!)
+        if (gps.isLocationEnabled()) {
+            val addressObservable = Observable.just(
+                Geocoder(context)
+                    .getFromLocation(
+                        gps.getLatitude(), gps.getLongitude(), 1
+                    )[0]
+            )
+            addressObservable.subscribeOn(Schedulers.io())
+                .delay(1000, TimeUnit.MILLISECONDS)
+                .observeOn(AndroidSchedulers.mainThread())
+                .subscribe(object : Observer<Address> {
+                    override fun onSubscribe(d: Disposable) {}
+                    override fun onNext(address: Address) {
+                        direccion = address.getAddressLine(0).toString()
+                        distrito = address.locality.toString()
+                    }
+
+                    override fun onError(e: Throwable) {}
+                    override fun onComplete() {}
+                })
+        } else {
+            gps.showSettingsAlert(context!!)
+        }
     }
 
     override fun onResume() {
@@ -392,10 +432,7 @@ class CameraFragment : Fragment(), View.OnClickListener, View.OnTouchListener {
                     CompareSizesByArea()
                 )
                 imageReader = ImageReader.newInstance(
-                    640,
-                    480,
-                    ImageFormat.JPEG,
-                    1
+                    640, 480, ImageFormat.JPEG, 1
                 ).apply {
                     setOnImageAvailableListener(onImageAvailableListener, backgroundHandler)
                 }
@@ -726,14 +763,14 @@ class CameraFragment : Fragment(), View.OnClickListener, View.OnTouchListener {
                     unlockFocus()
                     Handler().postDelayed({
 
-                            startActivity(
-                                Intent(context!!, PreviewCameraActivity::class.java)
-                                    .putExtra("nameImg", nameImg)
-                                    .putExtra("usuarioId", usuarioId)
-                                    .putExtra("id", registroId)
-                                    .putExtra("galery", false)
-                            )
-                            activity!!.finish()
+                        startActivity(
+                            Intent(context!!, PreviewCameraActivity::class.java)
+                                .putExtra("nameImg", nameImg)
+                                .putExtra("usuarioId", usuarioId)
+                                .putExtra("id", registroId)
+                                .putExtra("galery", false)
+                        )
+                        activity!!.finish()
 
                     }, 500)
                 }

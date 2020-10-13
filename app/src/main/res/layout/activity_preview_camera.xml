@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="utf-8"?>
-<FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<androidx.coordinatorlayout.widget.CoordinatorLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
@@ -7,16 +7,42 @@
     android:background="@android:color/black"
     tools:context=".ui.activities.PreviewCameraActivity">
 
-    <com.google.android.material.floatingactionbutton.ExtendedFloatingActionButton
-        android:id="@+id/fabClose"
+    <androidx.constraintlayout.widget.ConstraintLayout
         android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:layout_gravity="start|top"
-        android:layout_margin="8dp"
-        android:textColor="@color/colorWhite"
-        app:backgroundTint="@color/colorTrans"
-        app:icon="@drawable/ic_arrow_back"
-        app:iconTint="@color/colorWhite" />
+        android:layout_height="55dp"
+        android:background="@color/transparentBlack"
+        android:orientation="horizontal"
+        app:layout_behavior="@string/appbar_scrolling_view_behavior">
+
+        <ImageView
+            android:id="@+id/imgClose"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_margin="15dp"
+            android:contentDescription="@string/img"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toTopOf="parent"
+            app:srcCompat="@drawable/ic_arrow_back" />
+    </androidx.constraintlayout.widget.ConstraintLayout>
+
+    <!--    <com.google.android.material.appbar.AppBarLayout-->
+    <!--        android:id="@+id/appBarLayout"-->
+    <!--        android:layout_width="match_parent"-->
+    <!--        android:layout_height="wrap_content">-->
+    <!--        &lt;!&ndash;        app:layout_scrollFlags="scroll|enterAlways|enterAlwaysCollapsed"&ndash;&gt;-->
+    <!--        <androidx.appcompat.widget.Toolbar-->
+    <!--            android:id="@+id/toolbar"-->
+    <!--            android:layout_width="match_parent"-->
+    <!--            android:layout_height="?attr/actionBarSize"-->
+    <!--            android:background="@null" />-->
+    <!--    </com.google.android.material.appbar.AppBarLayout>-->
+    <!--    -->
+    <!--    <androidx.appcompat.widget.Toolbar-->
+    <!--        android:id="@+id/toolbar"-->
+    <!--        android:layout_width="match_parent"        -->
+    <!--        android:layout_height="?attr/actionBarSize"-->
+    <!--        android:background="@color/transparentBlack" />-->
 
     <ProgressBar
         android:id="@+id/progressBar"
@@ -28,9 +54,7 @@
         android:id="@+id/imageView"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        android:contentDescription="@string/img"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintStart_toStartOf="parent" />
+        android:contentDescription="@string/img" />
 
     <com.google.android.material.floatingactionbutton.FloatingActionButton
         android:id="@+id/fabOk"
@@ -41,4 +65,4 @@
         app:backgroundTint="@color/colorPrimary"
         app:srcCompat="@drawable/ic_check"
         app:tint="@color/colorWhite" />
-</FrameLayout>
+</androidx.coordinatorlayout.widget.CoordinatorLayout>

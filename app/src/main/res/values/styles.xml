@@ -52,7 +52,7 @@
     </style>
 
     <style name="menu_labels_style">
-        <item name="android:background">@color/colorBlack</item>
-        <item name="android:textColor">@color/colorWhite</item>
+        <item name="android:background">@color/colorTrans</item>
+        <item name="android:textColor">@color/colorPrimary</item>
     </style>
 </resources>

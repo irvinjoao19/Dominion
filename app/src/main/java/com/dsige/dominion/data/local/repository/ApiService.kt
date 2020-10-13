@@ -30,7 +30,7 @@ interface ApiService {
     fun saveMovil(@Body body: RequestBody): Call<Mensaje>
 
     @Headers("Cache-Control: no-cache")
-    @POST("SaveRegistro")
+    @POST("SaveRegistroNew")
     fun sendRegistroOt(@Body body: RequestBody): Observable<Mensaje>
 
     @Headers("Cache-Control: no-cache")

@@ -18,7 +18,7 @@ import com.dsige.dominion.helper.Util
 import com.dsige.dominion.ui.activities.FormDetailActivity
 import com.dsige.dominion.ui.adapters.OtDetalleAdapter
 import com.dsige.dominion.ui.listeners.OnItemClickListener
-import com.dsige.dsigeventas.data.viewModel.ViewModelFactory
+import com.dsige.dominion.data.viewModel.ViewModelFactory
 import com.google.android.material.dialog.MaterialAlertDialogBuilder
 import dagger.android.support.DaggerFragment
 import kotlinx.android.synthetic.main.fragment_medidas.*
@@ -83,13 +83,13 @@ class MedidasFragment : DaggerFragment(), View.OnClickListener {
         otViewModel =
             ViewModelProvider(this, viewModelFactory).get(OtViewModel::class.java)
 
-        otViewModel.getOtById(otId).observe(viewLifecycleOwner, Observer {
+        otViewModel.getOtById(otId).observe(viewLifecycleOwner, {
             if (it != null) {
                 estado = it.estado
             }
         })
 
-        otViewModel.getMaxIdOtDetalle().observe(viewLifecycleOwner, Observer { s ->
+        otViewModel.getMaxIdOtDetalle().observe(viewLifecycleOwner, { s ->
             otDetalleId = if (s != null) {
                 s + 1
             } else
@@ -105,8 +105,13 @@ class MedidasFragment : DaggerFragment(), View.OnClickListener {
                             .putExtra("otId", o.otId)
                             .putExtra("usuarioId", usuarioId)
                             .putExtra("tipo", o.tipoTrabajoId)
+                            .putExtra("estado", o.estado)
                     )
-                    R.id.imgDelete -> confirmDelete(o)
+                    R.id.imgDelete -> if(estado == 3) {
+                        Util.toastMensaje(context!!,"Ubicacion")
+                    }else{
+                        confirmDelete(o)
+                    }
                 }
             }
         })
@@ -127,7 +132,7 @@ class MedidasFragment : DaggerFragment(), View.OnClickListener {
             .setTitle("Mensaje")
             .setMessage("Se eliminaran las fotos que estan incluidas en esta medida ?")
             .setPositiveButton("Eliminar") { dialog, _ ->
-                otViewModel.deleteOtDetalle(o,context!!)
+                otViewModel.deleteOtDetalle(o, context!!)
                 dialog.dismiss()
             }
             .setNegativeButton("Cancelar") { dialog, _ ->

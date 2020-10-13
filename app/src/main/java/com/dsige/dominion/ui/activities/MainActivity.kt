@@ -22,7 +22,7 @@ import com.dsige.dominion.ui.fragments.MainFragment
 import com.dsige.dominion.ui.fragments.PlazoFragment
 import com.dsige.dominion.ui.fragments.ResumenFragment
 import com.dsige.dominion.ui.services.SocketServices
-import com.dsige.dsigeventas.data.viewModel.ViewModelFactory
+import com.dsige.dominion.data.viewModel.ViewModelFactory
 import com.google.android.material.dialog.MaterialAlertDialogBuilder
 import com.google.android.material.navigation.NavigationView
 import dagger.android.support.DaggerAppCompatActivity

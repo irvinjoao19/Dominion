@@ -1,4 +1,4 @@
-package com.dsige.dsigeventas.data.viewModel
+package com.dsige.dominion.data.viewModel
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.ViewModelProvider

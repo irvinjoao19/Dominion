@@ -26,7 +26,7 @@ import com.dsige.dominion.data.local.model.*
         OtPlazoDetalle::class
     ],
     views = [OtNotify::class],
-    version = 6, // version 3 en play store
+    version = 5, // version 3 en play store
     exportSchema = false
 )
 abstract class AppDataBase : RoomDatabase() {

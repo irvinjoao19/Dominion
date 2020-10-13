@@ -1,5 +1,6 @@
 package com.dsige.dominion.helper
 
+import android.content.Context
 import android.media.Image
 import android.util.Log
 import java.io.File
@@ -15,7 +16,10 @@ internal class ImageSaver(
     /**
      * The file we save the image into.
      */
-    private val file: File
+    private val file: File,
+    private val context: Context,
+    private val direccion: String,
+    private val distrito: String
 ) : Runnable {
 
     override fun run() {
@@ -27,7 +31,7 @@ internal class ImageSaver(
             output = FileOutputStream(file).apply {
                 write(bytes)
             }
-            Util.getAngleImage(file.absolutePath)
+            Util.getAngleImage(context, file.absolutePath,direccion,distrito)
         } catch (e: IOException) {
             Log.e(TAG, e.toString())
         } finally {

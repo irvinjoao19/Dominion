@@ -197,23 +197,6 @@ object Util {
 
     // TODO SOBRE FOTO
 
-    fun generateImageAsync(pathFile: String): Observable<Boolean> {
-        return Observable.create { e ->
-            e.onNext(comprimirImagen(pathFile))
-            e.onComplete()
-        }
-    }
-
-    private fun comprimirImagen(PathFile: String): Boolean {
-        return try {
-            val result = getRightAngleImage(PathFile)
-            result == PathFile
-        } catch (ex: Exception) {
-            Log.i("exception", ex.message)
-            false
-        }
-    }
-
     private fun getDateTimeFormatString(date: Date): String {
         @SuppressLint("SimpleDateFormat") val df = SimpleDateFormat("dd/MM/yyyy - hh:mm:ss a")
         return df.format(date)
@@ -224,42 +207,6 @@ object Util {
         @SuppressLint("SimpleDateFormat") val df = SimpleDateFormat("dd/MM/yyyy - hh:mm:ss a")
         return df.format(date)
     }
-
-    private fun processingBitmapSetDateTime(bm1: Bitmap?, captionString: String?): Bitmap? {
-        //Bitmap bm1 = null;
-        var newBitmap: Bitmap? = null
-        try {
-
-            var config: Bitmap.Config? = bm1!!.config
-            if (config == null) {
-                config = Bitmap.Config.ARGB_8888
-            }
-            newBitmap = Bitmap.createBitmap(bm1.width, bm1.height, config)
-
-            val newCanvas = Canvas(newBitmap!!)
-            newCanvas.drawBitmap(bm1, 0f, 0f, null)
-
-            if (captionString != null) {
-
-                val paintText = Paint(Paint.ANTI_ALIAS_FLAG)
-                paintText.color = Color.RED
-                paintText.textSize = 22f
-                paintText.style = Paint.Style.FILL
-                paintText.setShadowLayer(0.7f, 0.7f, 0.7f, Color.YELLOW)
-
-                val rectText = Rect()
-                paintText.getTextBounds(captionString, 0, captionString.length, rectText)
-                newCanvas.drawText(captionString, 0f, rectText.height().toFloat(), paintText)
-            }
-
-            //} catch (FileNotFoundException e) {
-        } catch (e: Exception) {
-            e.printStackTrace()
-        }
-
-        return newBitmap
-    }
-
 
     private fun copyBitmatToFile(filename: String, bitmap: Bitmap): String {
         return try {
@@ -377,7 +324,7 @@ object Util {
         }
     }
 
-    private fun shrinkBitmapOnlyReduceCamera2(
+    private fun shrinkBitmapOnlyReduceCamera(
         file: String
     ) {
         val b = BitmapFactory.decodeFile(file)
@@ -419,80 +366,90 @@ object Util {
         newBitmap.recycle()
     }
 
+    private fun shrinkBitmapOnlyReduceCamera2(
+        context: Context, file: String
+    ) {
+        val b = BitmapFactory.decodeFile(file)
+        val text = getDateTimeFormatString()
+        val gText = String.format(
+            "%s\n%s\n%s",
+            text,
+            "Mz d Lote 2 Venecia San Felipe",
+            "Comas"
+        )
+
+        var config: Bitmap.Config? = b.config
+        if (config == null) {
+            config = Bitmap.Config.ARGB_8888
+        }
+        val bitmap = Bitmap.createBitmap(b.width, b.height, config)
+
+
+        val canvas = Canvas(bitmap)
+        // new antialised Paint
+        val paint = Paint(Paint.ANTI_ALIAS_FLAG)
+        // text color - #3D3D3D
+        paint.color = Color.WHITE
+        // text size in pixels
+        paint.textSize = 18f
+        // text shadow
+        paint.setShadowLayer(1f, 0f, 1f, Color.WHITE)
+
+        // draw text to the Canvas center
+        val bounds = Rect()
+        var noOfLines = 0
+        for (line in gText.split("\n").toTypedArray()) {
+            noOfLines++
+        }
+        paint.getTextBounds(gText, 0, gText.length, bounds)
+        val x = 20
+        var y: Float = (bitmap.height - bounds.height() * noOfLines).toFloat()
+        val mPaint = Paint()
+        mPaint.color = ContextCompat.getColor(context, R.color.transparentBlack)
+        val left = 0
+        val top = bitmap.height - bounds.height() * (noOfLines + 1)
+        val right = bitmap.width
+        val bottom = bitmap.height
+        canvas.drawRect(left.toFloat(), top.toFloat(), right.toFloat(), bottom.toFloat(), mPaint)
+        for (line in gText.split("\n").toTypedArray()) {
+            canvas.drawText(line, x.toFloat(), y, paint)
+            y += paint.descent() - paint.ascent()
+        }
+
+
+//        newCanvas.drawBitmap(b, 0f, 0f, null)
+//
+//        val paintText = Paint(Paint.ANTI_ALIAS_FLAG)
+//        paintText.color = Color.RED
+//        paintText.textSize = 22f
+//        paintText.style = Paint.Style.FILL
+//        paintText.setShadowLayer(0.7f, 0.7f, 0.7f, Color.YELLOW)
+//
+//        val rectText = Rect()
+//        paintText.getTextBounds(text, 0, text.length, rectText)
+//        newCanvas.drawText(text, 0f, rectText.height().toFloat(), paintText)
+
+        val fOut = FileOutputStream(file)
+        val imageName = file.substring(file.lastIndexOf("/") + 1)
+        val imageType = imageName.substring(imageName.lastIndexOf(".") + 1)
+
+        val out = FileOutputStream(file)
+        if (imageType.equals("png", ignoreCase = true)) {
+            bitmap.compress(Bitmap.CompressFormat.PNG, 100, out)
+        } else if (imageType.equals("jpeg", ignoreCase = true) || imageType.equals(
+                "jpg",
+                ignoreCase = true
+            )
+        ) {
+            bitmap.compress(Bitmap.CompressFormat.JPEG, 100, out)
+        }
+        fOut.flush()
+        fOut.close()
+        bitmap.recycle()
+    }
+
     // TODO SOBRE ROTAR LA PHOTO
 
-    fun getRightAngleImage(photoPath: String): String {
-
-        try {
-            val ei = ExifInterface(photoPath)
-            val orientation =
-                ei.getAttributeInt(ExifInterface.TAG_ORIENTATION, ExifInterface.ORIENTATION_NORMAL)
-            val degree: Int
-
-            degree = when (orientation) {
-                ExifInterface.ORIENTATION_NORMAL -> 0
-                ExifInterface.ORIENTATION_ROTATE_90 -> 90
-                ExifInterface.ORIENTATION_ROTATE_180 -> 180
-                ExifInterface.ORIENTATION_ROTATE_270 -> 270
-                ExifInterface.ORIENTATION_UNDEFINED -> 0
-                else -> 90
-            }
-
-            return rotateImage(degree, photoPath)
-
-        } catch (e: Exception) {
-            e.printStackTrace()
-        }
-
-        return photoPath
-    }
-
-    private fun rotateImage(degree: Int, imagePath: String): String {
-        if (degree <= 0) {
-            shrinkBitmapOnlyReduce(
-                imagePath,
-                img_width_default,
-                img_height_default,
-                getDateTimeFormatString(Date(File(imagePath).lastModified()))
-            )
-            return imagePath
-        }
-        try {
-
-            var b: Bitmap? = shrinkBitmap(imagePath, img_width_default, img_height_default)
-            val matrix = Matrix()
-            if (b!!.width > b.height) {
-                matrix.setRotate(degree.toFloat())
-                b = Bitmap.createBitmap(b, 0, 0, b.width, b.height, matrix, true)
-                b = processingBitmapSetDateTime(
-                    b,
-                    getDateTimeFormatString(Date(File(imagePath).lastModified()))
-                )
-            }
-
-            val fOut = FileOutputStream(imagePath)
-            val imageName = imagePath.substring(imagePath.lastIndexOf("/") + 1)
-            val imageType = imageName.substring(imageName.lastIndexOf(".") + 1)
-
-            val out = FileOutputStream(imagePath)
-            if (imageType.equals("png", ignoreCase = true)) {
-                b!!.compress(Bitmap.CompressFormat.PNG, 70, out)
-            } else if (imageType.equals("jpeg", ignoreCase = true) || imageType.equals(
-                    "jpg",
-                    ignoreCase = true
-                )
-            ) {
-                b!!.compress(Bitmap.CompressFormat.JPEG, 70, out)
-            }
-            fOut.flush()
-            fOut.close()
-            b!!.recycle()
-        } catch (e: Exception) {
-            e.printStackTrace()
-        }
-
-        return imagePath
-    }
 
     fun getVersion(context: Context): String {
         val pInfo = context.packageManager.getPackageInfo(context.packageName, 0)
@@ -606,7 +563,7 @@ object Util {
         val mHour = c.get(Calendar.HOUR_OF_DAY)
         val mMinute = c.get(Calendar.MINUTE)
         val timePickerDialog =
-            TimePickerDialog(context, TimePickerDialog.OnTimeSetListener { _, hourOfDay, minute ->
+            TimePickerDialog(context, { _, hourOfDay, minute ->
                 val hour = if (hourOfDay < 10) "0$hourOfDay" else hourOfDay.toString()
                 val minutes = if (minute < 10) "0$minute" else minute.toString()
                 val day = if (hourOfDay < 12) "a.m." else "p.m."
@@ -790,7 +747,7 @@ object Util {
         }
     }
 
-    fun getAngleImage(photoPath: String): String {
+    fun getAngleImage(context: Context, photoPath: String,direccion: String, distrito: String): String {
         try {
             val ei = ExifInterface(photoPath)
             val orientation =
@@ -805,8 +762,7 @@ object Util {
                 ExifInterface.ORIENTATION_UNDEFINED -> 0
                 else -> 90
             }
-
-            return rotateNewImage(degree, photoPath)
+            return rotateNewImage(context, degree, photoPath,direccion,distrito)
 
         } catch (e: Exception) {
             e.printStackTrace()
@@ -815,23 +771,24 @@ object Util {
         return photoPath
     }
 
-    private fun rotateNewImage(degree: Int, imagePath: String): String {
-        if (degree <= 0) {
-            shrinkBitmapOnlyReduceCamera2(imagePath)
-            return imagePath
-        }
+    private fun rotateNewImage(
+        context: Context, degree: Int, imagePath: String, direccion: String, distrito: String
+    ): String {
         try {
-
             var b: Bitmap? = BitmapFactory.decodeFile(imagePath)
             val matrix = Matrix()
-            if (b!!.width > b.height) {
-                matrix.setRotate(degree.toFloat())
-                b = Bitmap.createBitmap(b, 0, 0, b.width, b.height, matrix, true)
-                b = processingBitmapSetDateTime(
-                    b,
-                    getDateTimeFormatString(Date(File(imagePath).lastModified()))
-                )
-            }
+//            if (b!!.width > b.height) {
+            matrix.setRotate(degree.toFloat())
+//                b = Bitmap.createBitmap(b, 0, 0, 480, 640, matrix, true)
+            b = Bitmap.createBitmap(b!!, 0, 0, b.width, b.height, matrix, true)
+            val text = String.format(
+                "%s\n%s\n%s",
+                getDateTimeFormatString(Date(File(imagePath).lastModified())),
+                direccion,
+                distrito
+            )
+            b = drawTextToBitmap(context, b, text)
+//            }
 
             val fOut = FileOutputStream(imagePath)
             val imageName = imagePath.substring(imagePath.lastIndexOf("/") + 1)
@@ -861,16 +818,16 @@ object Util {
         context: Context,
         input: TextInputEditText,
         input2: TextInputEditText,
-        location: Location,
+        latitude: Double,
+        longitude: Double,
         progressBar: ProgressBar
     ) {
         try {
             val addressObservable = Observable.just(
-                Geocoder(context).getFromLocation(
-                    location.latitude,
-                    location.longitude,
-                    1
-                )[0]
+                Geocoder(context)
+                    .getFromLocation(
+                        latitude, longitude, 1
+                    )[0]
             )
             addressObservable.subscribeOn(Schedulers.io())
                 .delay(1000, TimeUnit.MILLISECONDS)
@@ -901,7 +858,7 @@ object Util {
     }
 
     fun getFolderAdjunto(
-        file: String, context: Context, data: Intent
+        file: String, context: Context, data: Intent,direccion:String,distrito:String
     ): Completable {
         return Completable.fromAction {
             val imagepath = getFolder(context).toString() + "/" + file
@@ -914,11 +871,59 @@ object Util {
                     }
                     copyFile(File(getRealPathFromURI(context, data.data!!)), f)
 //                    shrinkBitmapOnlyReduceCamera2(imagepath)
-                    getAngleImage(imagepath)
+                    getAngleImage(context, imagepath,direccion,distrito)
                 } catch (e: IOException) {
                     e.printStackTrace()
                 }
             }
         }
+    }
+
+    private fun drawTextToBitmap(
+        gContext: Context,
+        b: Bitmap,
+        gText: String
+    ): Bitmap? {
+        var bitmap = b
+        var bitmapConfig = bitmap.config
+
+        // set default bitmap config if none
+        if (bitmapConfig == null) {
+            bitmapConfig = Bitmap.Config.ARGB_8888
+        }
+        // resource bitmaps are imutable,
+        // so we need to convert it to mutable one
+        bitmap = bitmap.copy(bitmapConfig, true)
+        val canvas = Canvas(bitmap)
+        // new antialised Paint
+        val paint = Paint(Paint.ANTI_ALIAS_FLAG)
+        // text color - #3D3D3D
+        paint.color = Color.WHITE
+        // text size in pixels
+        paint.textSize = 18f
+        // text shadow
+        paint.setShadowLayer(1f, 0f, 1f, Color.WHITE)
+
+        // draw text to the Canvas center
+        val bounds = Rect()
+        var noOfLines = 0
+        for (line in gText.split("\n").toTypedArray()) {
+            noOfLines++
+        }
+        paint.getTextBounds(gText, 0, gText.length, bounds)
+        val x = 20
+        var y: Float = (bitmap.height - bounds.height() * noOfLines).toFloat()
+        val mPaint = Paint()
+        mPaint.color = ContextCompat.getColor(gContext, R.color.transparentBlack)
+        val left = 0
+        val top = bitmap.height - bounds.height() * (noOfLines + 1)
+        val right = bitmap.width
+        val bottom = bitmap.height
+        canvas.drawRect(left.toFloat(), top.toFloat(), right.toFloat(), bottom.toFloat(), mPaint)
+        for (line in gText.split("\n").toTypedArray()) {
+            canvas.drawText(line, x.toFloat(), y, paint)
+            y += paint.descent() - paint.ascent()
+        }
+        return bitmap
     }
 }

@@ -4,13 +4,12 @@ import android.content.Intent
 import android.os.Bundle
 import android.os.Handler
 import android.view.View
-import androidx.lifecycle.Observer
 import androidx.lifecycle.ViewModelProvider
 import com.dsige.dominion.R
 import com.dsige.dominion.data.local.model.OtPhoto
 import com.dsige.dominion.data.viewModel.OtViewModel
 import com.dsige.dominion.helper.Util
-import com.dsige.dsigeventas.data.viewModel.ViewModelFactory
+import com.dsige.dominion.data.viewModel.ViewModelFactory
 import com.squareup.picasso.Callback
 import com.squareup.picasso.Picasso
 import dagger.android.support.DaggerAppCompatActivity
@@ -23,7 +22,7 @@ class PreviewCameraActivity : DaggerAppCompatActivity(), View.OnClickListener {
     override fun onClick(v: View) {
         when (v.id) {
             R.id.fabOk -> formPhoto()
-            R.id.fabClose -> if (galery) {
+            R.id.imgClose -> if (galery) {
                 finish()
             } else {
                 startActivity(
@@ -62,9 +61,14 @@ class PreviewCameraActivity : DaggerAppCompatActivity(), View.OnClickListener {
         otViewModel =
             ViewModelProvider(this, viewModelFactory).get(OtViewModel::class.java)
 
-        fabClose.setOnClickListener(this)
+
+//        setSupportActionBar(toolbar)
+//        supportActionBar!!.title = nameImg
+//        supportActionBar!!.setDisplayHomeAsUpEnabled(true)
+//        toolbar.setNavigationOnClickListener(this)
+
         fabOk.setOnClickListener(this)
-        fabClose.text = nameImg
+        imgClose.setOnClickListener(this)
 
         Handler().postDelayed({
             val f = File(Util.getFolder(this), nameImg)

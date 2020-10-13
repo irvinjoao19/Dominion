@@ -34,4 +34,7 @@ interface OtPhotoDao {
 
     @Query("SELECt * FROM OtPhoto WHERE otDetalleId =:id")
     fun getOtPhotoIdTask(id: Int):  List<OtPhoto>
+
+    @Query("UPDATE OtPhoto SET  estado = 0 WHERE otDetalleId=:codigoBase")
+    fun updateEnabledPhoto(codigoBase: Int)
 }

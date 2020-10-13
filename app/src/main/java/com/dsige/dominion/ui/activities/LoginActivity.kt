@@ -18,7 +18,7 @@ import com.dsige.dominion.helper.Permission
 import com.dsige.dominion.helper.Util
 import com.dsige.dominion.ui.services.GpsService
 import com.dsige.dominion.ui.services.MovilService
-import com.dsige.dsigeventas.data.viewModel.ViewModelFactory
+import com.dsige.dominion.data.viewModel.ViewModelFactory
 import com.google.android.material.dialog.MaterialAlertDialogBuilder
 import dagger.android.support.DaggerAppCompatActivity
 import kotlinx.android.synthetic.main.activity_login.*

@@ -106,6 +106,18 @@ class AppRepoImp(private val apiService: ApiService, private val dataBase: AppDa
             val o: List<Ot>? = s.ots
             if (o != null) {
                 dataBase.otDao().insertOtListTask(o)
+                for (ot: Ot in o) {
+                    val d:List<OtDetalle>? = ot.detalles
+                    if (d != null){
+                        dataBase.otDetalleDao().insertOtDetalleListTask(d)
+                        for(p:OtDetalle in d){
+                            val f : List<OtPhoto>? = p.photos
+                            if (f != null){
+                                dataBase.otPhotoDao().insertOtPhotoListTask(f)
+                            }
+                        }
+                    }
+                }
             }
             val g: List<Grupo>? = s.groups
             if (g != null) {
@@ -192,7 +204,7 @@ class AppRepoImp(private val apiService: ApiService, private val dataBase: AppDa
                 dataBase.otDao().insertOtTask(t)
             } else {
                 val a = dataBase.otDetalleDao().getDetalleOts(t.otId)
-                if (a > 0){
+                if (a > 0) {
                     t.estado = 1
                 }
                 dataBase.otDao().updateOtTask(t)
@@ -299,15 +311,13 @@ class AppRepoImp(private val apiService: ApiService, private val dataBase: AppDa
     override fun updateOt(t: Mensaje): Completable {
         return Completable.fromAction {
             dataBase.otDao().updateEnabledOt(t.codigoBase, t.codigoRetorno)
-
             dataBase.otDetalleDao().updateEnabledDetalle(t.codigoBase)
-//            val detalle: List<MensajeDetalle>? = t.detalle
-//            if (detalle != null) {
-//                for (d: MensajeDetalle in detalle) {
-//
-//
-//                }
-//            }
+            val detalle: List<MensajeDetalle>? = t.detalle
+            if (detalle != null) {
+                for (d: MensajeDetalle in detalle) {
+                    dataBase.otPhotoDao().updateEnabledPhoto(t.codigoBase)
+                }
+            }
         }
     }
 

@@ -26,7 +26,7 @@ import com.dsige.dominion.ui.adapters.GrupoAdapter
 import com.dsige.dominion.ui.adapters.OtPlazoAdapter
 import com.dsige.dominion.ui.adapters.ServicioAdapter
 import com.dsige.dominion.ui.listeners.OnItemClickListener
-import com.dsige.dsigeventas.data.viewModel.ViewModelFactory
+import com.dsige.dominion.data.viewModel.ViewModelFactory
 import dagger.android.support.DaggerFragment
 import kotlinx.android.synthetic.main.fragment_resumen.*
 import javax.inject.Inject

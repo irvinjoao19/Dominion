@@ -198,8 +198,8 @@ internal constructor(private val roomRepository: AppRepository, private val retr
         return roomRepository.getOtDetalleId(detalleId)
     }
 
-    fun generarArchivo(nameImg: String, context: Context, data: Intent) {
-        Util.getFolderAdjunto(nameImg, context, data)
+    fun generarArchivo(nameImg: String, context: Context, data: Intent,direccion:String,distrito:String) {
+        Util.getFolderAdjunto(nameImg, context, data,direccion,distrito)
             .subscribeOn(Schedulers.io())
             .observeOn(AndroidSchedulers.mainThread())
             .subscribe(object : CompletableObserver {
