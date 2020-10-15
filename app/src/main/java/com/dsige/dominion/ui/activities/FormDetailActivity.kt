@@ -3,6 +3,7 @@ package com.dsige.dominion.ui.activities
 import android.annotation.SuppressLint
 import android.app.Activity
 import android.content.Intent
+import android.database.Cursor
 import android.location.Address
 import android.location.Geocoder
 import android.os.Bundle
@@ -27,13 +28,13 @@ import com.dsige.dominion.data.local.model.Material
 import com.dsige.dominion.data.local.model.OtDetalle
 import com.dsige.dominion.data.local.model.OtPhoto
 import com.dsige.dominion.data.viewModel.OtViewModel
+import com.dsige.dominion.data.viewModel.ViewModelFactory
+import com.dsige.dominion.helper.Gps
 import com.dsige.dominion.helper.Permission
 import com.dsige.dominion.helper.Util
 import com.dsige.dominion.ui.adapters.MaterialAdapter
 import com.dsige.dominion.ui.adapters.OtPhotoAdapter
 import com.dsige.dominion.ui.listeners.OnItemClickListener
-import com.dsige.dominion.data.viewModel.ViewModelFactory
-import com.dsige.dominion.helper.Gps
 import com.google.android.material.dialog.MaterialAlertDialogBuilder
 import dagger.android.support.DaggerAppCompatActivity
 import io.reactivex.Observable
@@ -123,14 +124,13 @@ class FormDetailActivity : DaggerAppCompatActivity(), View.OnClickListener, Text
         recyclerView.setHasFixedSize(true)
         recyclerView.adapter = otPhotoAdapter
 
-        otViewModel.getOtPhotoById(detalleId)
-            .observe(this, Observer {
-                otPhotoAdapter.addItems(it)
-                if (it.isNotEmpty())
-                    fabSave.visibility = View.VISIBLE
-                else
-                    fabSave.visibility = View.GONE
-            })
+        otViewModel.getOtPhotoById(detalleId).observe(this, {
+            otPhotoAdapter.addItems(it)
+            if (it.isNotEmpty())
+                fabSave.visibility = View.VISIBLE
+            else
+                fabSave.visibility = View.GONE
+        })
 
         otViewModel.getOtDetalleId(detalleId).observe(this, {
             if (it != null) {
@@ -237,7 +237,7 @@ class FormDetailActivity : DaggerAppCompatActivity(), View.OnClickListener, Text
             }
         })
         recyclerView.adapter = materialAdapter
-        otViewModel.getMateriales().observe(this, Observer {
+        otViewModel.getMateriales().observe(this, {
             materialAdapter.addItems(it)
         })
     }
@@ -262,17 +262,10 @@ class FormDetailActivity : DaggerAppCompatActivity(), View.OnClickListener, Text
         d.total = result
     }
 
-    override fun beforeTextChanged(p0: CharSequence?, p1: Int, p2: Int, p3: Int) {
-
-    }
-
-    override fun onTextChanged(p0: CharSequence?, p1: Int, p2: Int, p3: Int) {
-
-    }
+    override fun beforeTextChanged(p0: CharSequence?, p1: Int, p2: Int, p3: Int) {}
+    override fun onTextChanged(p0: CharSequence?, p1: Int, p2: Int, p3: Int) {}
 
     private fun formRegistro(tipo: String) {
-
-
         if (d.tipoTrabajoId == 6) {
             d.nombreTipoMaterial = editTextMaterial.text.toString()
         } else {
@@ -317,7 +310,13 @@ class FormDetailActivity : DaggerAppCompatActivity(), View.OnClickListener, Text
     }
 
     private fun goGalery() {
+//        val i = Intent()
+//        i.type = "image/*"
+//        i.putExtra(Intent.EXTRA_ALLOW_MULTIPLE, true)
+//        i.action = Intent.ACTION_GET_CONTENT
         val i = Intent(Intent.ACTION_PICK, MediaStore.Images.Media.INTERNAL_CONTENT_URI)
+//        i.type = "image/*"
+        i.putExtra(Intent.EXTRA_ALLOW_MULTIPLE, true)
         startActivityForResult(i, Permission.GALERY_REQUEST)
     }
 
@@ -325,7 +324,7 @@ class FormDetailActivity : DaggerAppCompatActivity(), View.OnClickListener, Text
         super.onActivityResult(requestCode, resultCode, data)
         if (requestCode == Permission.GALERY_REQUEST && resultCode == Activity.RESULT_OK) {
             if (data != null) {
-
+                otViewModel.setError("Cargando imagenes seleccionadas...")
                 val gps = Gps(this)
                 if (gps.isLocationEnabled()) {
                     val addressObservable = Observable.just(
@@ -341,14 +340,11 @@ class FormDetailActivity : DaggerAppCompatActivity(), View.OnClickListener, Text
                             override fun onSubscribe(d: Disposable) {}
                             override fun onNext(address: Address) {
                                 otViewModel.generarArchivo(
-                                    Util.getFechaActualForPhoto(usuarioId),
-                                    this@FormDetailActivity,
-                                    data,
+                                    usuarioId, this@FormDetailActivity, data,
                                     address.getAddressLine(0).toString(),
                                     address.locality.toString()
                                 )
                             }
-
                             override fun onError(e: Throwable) {}
                             override fun onComplete() {}
                         })

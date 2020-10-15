@@ -51,4 +51,8 @@ interface OnItemClickListener {
     interface OtPlazoDetalleListener {
         fun onItemClick(o: OtPlazoDetalle, view: View, position: Int)
     }
+
+    interface OtMultiPhotoListener {
+        fun onItemClick(s:String, view: View, position: Int)
+    }
 }

@@ -51,13 +51,14 @@ class OtMapActivity : AppCompatActivity(), OnMapReadyCallback, LocationListener 
     lateinit var place2: MarkerOptions
     lateinit var locationManager: LocationManager
 
-    var MIN_DISTANCE_CHANGE_FOR_UPDATES: Int = 10
-    var MIN_TIME_BW_UPDATES: Int = 5000
-    var isFirstTime: Boolean = true
+    private var MIN_DISTANCE_CHANGE_FOR_UPDATES: Int = 10
+    private var MIN_TIME_BW_UPDATES: Int = 5000
+    private var isFirstTime: Boolean = true
 
-    var latitud: String = ""
-    var longitud: String = ""
-    var title: String = ""
+    private var latitud: String = ""
+    private var longitud: String = ""
+    private var title: String = ""
+    private var mode: String = ""
 
     override fun onResume() {
         super.onResume()
@@ -75,6 +76,7 @@ class OtMapActivity : AppCompatActivity(), OnMapReadyCallback, LocationListener 
             latitud = b.getString("latitud")!!
             longitud = b.getString("longitud")!!
             title = b.getString("title")!!
+            mode = b.getString("mode")!!
             val mapFragment = supportFragmentManager
                 .findFragmentById(R.id.map) as SupportMapFragment
             mapFragment.getMapAsync(this)
@@ -148,7 +150,7 @@ class OtMapActivity : AppCompatActivity(), OnMapReadyCallback, LocationListener 
     private fun getUrl(origin: LatLng, dest: LatLng): String {
         val str_origin = "origin=" + origin.latitude + "," + origin.longitude
         val str_dest = "destination=" + dest.latitude + "," + dest.longitude
-        val mode = "mode=driving&alternatives=true"
+        val mode = "mode=$mode&alternatives=true"
         val parameters = "$str_origin&$str_dest&$mode"
         val output = "json"
 
@@ -204,7 +206,6 @@ class OtMapActivity : AppCompatActivity(), OnMapReadyCallback, LocationListener 
             if (mapRoutes != null) {
                 for (r: MapRoute in map.routes) {
                     val mapLegs: List<MapLegs>? = r.legs
-                    var i = 0
                     if (mapLegs != null) {
                         for (m: MapLegs in mapLegs) {
                             val start: MapStartLocation? = m.start_location
@@ -215,7 +216,10 @@ class OtMapActivity : AppCompatActivity(), OnMapReadyCallback, LocationListener 
                                         .position(position)
                                         .title(m.start_address)
                                         .icon(
-                                            Util.bitmapDescriptorFromVector(this@OtMapActivity, R.drawable.ic_people)
+                                            Util.bitmapDescriptorFromVector(
+                                                this@OtMapActivity,
+                                                R.drawable.ic_people
+                                            )
                                         )
                                 )
 

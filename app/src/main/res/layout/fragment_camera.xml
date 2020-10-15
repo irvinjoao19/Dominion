@@ -41,7 +41,7 @@
         android:contentDescription="@string/img"
         android:focusable="true"
         android:src="@drawable/ic_camera_lens"
-        app:layout_constraintBottom_toBottomOf="@+id/textureView"
+        app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent" />
 

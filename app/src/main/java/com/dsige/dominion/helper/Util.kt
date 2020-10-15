@@ -4,9 +4,8 @@ import android.annotation.SuppressLint
 import android.app.Activity
 import android.app.DatePickerDialog
 import android.app.TimePickerDialog
-import android.content.Context
+import android.content.*
 import android.content.Context.MODE_PRIVATE
-import android.content.Intent
 import android.graphics.*
 import android.location.Address
 import android.location.Geocoder
@@ -35,7 +34,6 @@ import com.google.android.material.dialog.MaterialAlertDialogBuilder
 import com.google.android.material.snackbar.Snackbar
 import com.google.android.material.textfield.TextInputEditText
 import com.google.android.material.textfield.TextInputLayout
-import io.reactivex.Completable
 import io.reactivex.Observable
 import io.reactivex.Observer
 import io.reactivex.android.schedulers.AndroidSchedulers
@@ -747,7 +745,9 @@ object Util {
         }
     }
 
-    fun getAngleImage(context: Context, photoPath: String,direccion: String, distrito: String): String {
+    fun getAngleImage(
+        context: Context, photoPath: String, direccion: String, distrito: String
+    ): String {
         try {
             val ei = ExifInterface(photoPath)
             val orientation =
@@ -762,7 +762,7 @@ object Util {
                 ExifInterface.ORIENTATION_UNDEFINED -> 0
                 else -> 90
             }
-            return rotateNewImage(context, degree, photoPath,direccion,distrito)
+            return rotateNewImage(context, degree, photoPath, direccion, distrito)
 
         } catch (e: Exception) {
             e.printStackTrace()
@@ -858,22 +858,59 @@ object Util {
     }
 
     fun getFolderAdjunto(
-        file: String, context: Context, data: Intent,direccion:String,distrito:String
-    ): Completable {
-        return Completable.fromAction {
-            val imagepath = getFolder(context).toString() + "/" + file
-            val f = File(imagepath)
-            if (!f.exists()) {
-                try {
-                    val success = f.createNewFile()
-                    if (success) {
-                        Log.i("TAG", "FILE CREATED")
+        usuarioId: Int, context: Context, data: Intent, direccion: String, distrito: String
+    ): Observable<ArrayList<String>> {
+        return Observable.create {
+//            var imageEncoded = ""
+//            val filePathColumn = arrayOf(MediaStore.Images.Media.DATA)
+            val imagesEncodedList = ArrayList<String>()
+            if (data.clipData != null) {
+                val mClipData: ClipData? = data.clipData
+                for (i in 0 until mClipData!!.itemCount) {
+                    val item: ClipData.Item = mClipData.getItemAt(i)
+                    val uri: Uri = item.uri
+
+                    val file = getFechaActualForPhoto(usuarioId)
+                    val imagepath = getFolder(context).toString() + "/" + file
+                    val f = File(imagepath)
+                    if (!f.exists()) {
+                        try {
+                            val success = f.createNewFile()
+                            if (success) {
+                                Log.i("TAG", "FILE CREATED")
+                            }
+                            copyFile(File(getRealPathFromURI(context, uri)), f)
+                            getAngleImage(context, imagepath, direccion, distrito)
+                            imagesEncodedList.add(file)
+                        } catch (e: IOException) {
+                            e.printStackTrace()
+                        }
                     }
-                    copyFile(File(getRealPathFromURI(context, data.data!!)), f)
-//                    shrinkBitmapOnlyReduceCamera2(imagepath)
-                    getAngleImage(context, imagepath,direccion,distrito)
-                } catch (e: IOException) {
-                    e.printStackTrace()
+                }
+                it.onNext(imagesEncodedList)
+                it.onComplete()
+                return@create
+            } else {
+                if (data.data != null) {
+                    val file = getFechaActualForPhoto(usuarioId)
+                    val imagepath = getFolder(context).toString() + "/" + file
+                    val f = File(imagepath)
+                    if (!f.exists()) {
+                        try {
+                            val success = f.createNewFile()
+                            if (success) {
+                                Log.i("TAG", "FILE CREATED")
+                            }
+                            copyFile(File(getRealPathFromURI(context, data.data!!)), f)
+                            getAngleImage(context, imagepath, direccion, distrito)
+                            imagesEncodedList.add(file)
+                        } catch (e: IOException) {
+                            e.printStackTrace()
+                        }
+                    }
+                    it.onNext(imagesEncodedList)
+                    it.onComplete()
+                    return@create
                 }
             }
         }

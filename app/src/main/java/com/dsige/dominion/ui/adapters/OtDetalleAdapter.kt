@@ -47,7 +47,15 @@ class OtDetalleAdapter(private val listener: OnItemClickListener.OtDetalleListen
                 if (o.tipoDesmonteId == 0) {
                     textView1.text = o.nombreTipoMaterial
                 } else {
-                    textView1.text = o.nombreTipoDemonte
+                    textView1.text = if (o.nombreTipoDemonte.isEmpty()) {
+                        when (o.tipoDesmonteId) {
+                            14 -> "Desmonte Recojido"
+                            else -> "Genera Ot Desmonte"
+                        }
+                    } else {
+                        o.nombreTipoDemonte
+                    }
+
                 }
 
                 textView2.text =

@@ -123,12 +123,17 @@ class MainFragment : DaggerFragment(), View.OnClickListener {
                                 .putExtra("servicioId", o.servicioId)
                                 .putExtra("personalId", o.personalJCId)
                         )
-                        2 -> startActivity(
-                            Intent(context, OtMapActivity::class.java)
-                                .putExtra("latitud", o.latitud)
-                                .putExtra("longitud", o.longitud)
-                                .putExtra("title", o.nombreEmpresa)
-                        )
+                        2 -> if (o.latitud.isNotEmpty() || o.longitud.isNotEmpty()) {
+                            startActivity(
+                                Intent(context, OtMapActivity::class.java)
+                                    .putExtra("latitud", o.latitud)
+                                    .putExtra("longitud", o.longitud)
+                                    .putExtra("title", o.nombreEmpresa)
+                                    .putExtra("mode", "driving")
+                            )
+                        } else {
+                            otViewModel.setError("Ot no cuenta con Coordenadas")
+                        }
                     }
                     false
                 }

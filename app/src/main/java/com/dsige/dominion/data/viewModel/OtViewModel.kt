@@ -198,22 +198,21 @@ internal constructor(private val roomRepository: AppRepository, private val retr
         return roomRepository.getOtDetalleId(detalleId)
     }
 
-    fun generarArchivo(nameImg: String, context: Context, data: Intent,direccion:String,distrito:String) {
-        Util.getFolderAdjunto(nameImg, context, data,direccion,distrito)
+    fun generarArchivo(
+        usuarioId: Int, context: Context,
+        data: Intent, direccion: String, distrito: String
+    ) {
+        Util.getFolderAdjunto(usuarioId, context, data, direccion, distrito)
             .subscribeOn(Schedulers.io())
             .observeOn(AndroidSchedulers.mainThread())
-            .subscribe(object : CompletableObserver {
-                override fun onComplete() {
-                    mensajeSuccess.value = nameImg
+            .subscribe(object : Observer<ArrayList<String>> {
+                override fun onSubscribe(d: Disposable) {}
+                override fun onNext(t: ArrayList<String>) {
+                    mensajeSuccess.value = t.toString()
                 }
 
-                override fun onSubscribe(d: Disposable) {
-
-                }
-
-                override fun onError(e: Throwable) {
-                    Log.i("TAG", e.toString())
-                }
+                override fun onError(e: Throwable) {}
+                override fun onComplete() {}
             })
     }
 
@@ -600,5 +599,24 @@ internal constructor(private val roomRepository: AppRepository, private val retr
 
     fun getOtPlazoDetalles(): LiveData<PagedList<OtPlazoDetalle>> {
         return roomRepository.getOtPlazoDetalles()
+    }
+
+    fun insertMultiPhoto(f: ArrayList<OtPhoto>) {
+        roomRepository.insertMultiPhoto(f)
+            .subscribeOn(Schedulers.io())
+            .observeOn(AndroidSchedulers.mainThread())
+            .subscribe(object : CompletableObserver {
+                override fun onComplete() {
+                    mensajeSuccess.value = "Ok"
+                }
+
+                override fun onSubscribe(d: Disposable) {
+
+                }
+
+                override fun onError(e: Throwable) {
+                    Log.i("TAG", e.toString())
+                }
+            })
     }
 }

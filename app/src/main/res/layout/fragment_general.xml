@@ -65,16 +65,17 @@
                 app:layout_constraintStart_toStartOf="parent"
                 app:layout_constraintTop_toBottomOf="@+id/layout2" />
 
-            <ImageView
+            <com.google.android.material.floatingactionbutton.FloatingActionButton
                 android:id="@+id/imageViewDireccion"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:layout_margin="16dp"
-                android:contentDescription="@string/img"
+                android:layout_margin="8dp"
+                app:backgroundTint="@color/colorAccent"
                 app:layout_constraintEnd_toEndOf="parent"
                 app:layout_constraintStart_toEndOf="@+id/layout2"
                 app:layout_constraintTop_toBottomOf="@+id/layout1"
-                app:srcCompat="@drawable/ic_place" />
+                app:srcCompat="@drawable/ic_place"
+                app:tint="@color/colorWhite" />
 
             <com.google.android.material.textfield.TextInputLayout
                 android:id="@+id/layout3"
@@ -114,16 +115,17 @@
                     android:textColor="@color/colorAccent" />
             </com.google.android.material.textfield.TextInputLayout>
 
-            <ImageView
+            <com.google.android.material.floatingactionbutton.FloatingActionButton
                 android:id="@+id/imageViewReferencia"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:layout_margin="16dp"
-                android:contentDescription="@string/img"
+                android:layout_margin="8dp"
+                app:backgroundTint="@color/colorAccent"
                 app:layout_constraintEnd_toEndOf="parent"
                 app:layout_constraintStart_toEndOf="@+id/layout4"
                 app:layout_constraintTop_toBottomOf="@+id/layout3"
-                app:srcCompat="@drawable/ic_micro" />
+                app:srcCompat="@drawable/ic_micro"
+                app:tint="@color/colorWhite" />
 
             <com.google.android.material.textfield.TextInputLayout
                 android:id="@+id/layout5"
@@ -144,16 +146,18 @@
                     android:textColor="@color/colorAccent" />
             </com.google.android.material.textfield.TextInputLayout>
 
-            <ImageView
+            <com.google.android.material.floatingactionbutton.FloatingActionButton
                 android:id="@+id/imageViewDescripcion"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:layout_margin="16dp"
+                android:layout_margin="8dp"
                 android:contentDescription="@string/img"
+                app:backgroundTint="@color/colorAccent"
                 app:layout_constraintEnd_toEndOf="parent"
                 app:layout_constraintStart_toEndOf="@+id/layout5"
                 app:layout_constraintTop_toBottomOf="@+id/layout4"
-                app:srcCompat="@drawable/ic_micro" />
+                app:srcCompat="@drawable/ic_micro"
+                app:tint="@color/colorWhite" />
 
             <com.google.android.material.floatingactionbutton.ExtendedFloatingActionButton
                 android:id="@+id/fabGenerate"

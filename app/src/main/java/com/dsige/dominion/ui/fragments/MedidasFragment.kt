@@ -19,6 +19,7 @@ import com.dsige.dominion.ui.activities.FormDetailActivity
 import com.dsige.dominion.ui.adapters.OtDetalleAdapter
 import com.dsige.dominion.ui.listeners.OnItemClickListener
 import com.dsige.dominion.data.viewModel.ViewModelFactory
+import com.dsige.dominion.ui.activities.OtMapActivity
 import com.google.android.material.dialog.MaterialAlertDialogBuilder
 import dagger.android.support.DaggerFragment
 import kotlinx.android.synthetic.main.fragment_medidas.*
@@ -107,9 +108,19 @@ class MedidasFragment : DaggerFragment(), View.OnClickListener {
                             .putExtra("tipo", o.tipoTrabajoId)
                             .putExtra("estado", o.estado)
                     )
-                    R.id.imgDelete -> if(estado == 3) {
-                        Util.toastMensaje(context!!,"Ubicacion")
-                    }else{
+                    R.id.imgDelete -> if (o.estado == 3) {
+                        if (o.latitud.isNotEmpty() || o.longitud.isNotEmpty()) {
+                            startActivity(
+                                Intent(context, OtMapActivity::class.java)
+                                    .putExtra("latitud", o.latitud)
+                                    .putExtra("longitud", o.longitud)
+                                    .putExtra("title", "Medidas")
+                                    .putExtra("mode", "walking")
+                            )
+                        } else {
+                            otViewModel.setError("Desmonte no cuenta con Coordenadas")
+                        }
+                    } else {
                         confirmDelete(o)
                     }
                 }
@@ -124,6 +135,9 @@ class MedidasFragment : DaggerFragment(), View.OnClickListener {
         otViewModel.getOtDetalleById(otId, 6)
             .observe(viewLifecycleOwner, Observer(otDetalleAdapter::submitList))
 
+        otViewModel.mensajeError.observe(viewLifecycleOwner, {
+            Util.toastMensaje(context!!, it)
+        })
         fab.setOnClickListener(this)
     }
 

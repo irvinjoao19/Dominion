@@ -273,6 +273,16 @@ class AppRepoImp(private val apiService: ApiService, private val dataBase: AppDa
         }
     }
 
+    override fun insertMultiPhoto(f: ArrayList<OtPhoto>): Completable {
+        return Completable.fromAction {
+            for(photos : OtPhoto in f){
+                val p: OtPhoto? = dataBase.otPhotoDao().getOtPhotoName(photos.urlPhoto)
+                if (p == null)
+                    dataBase.otPhotoDao().insertOtPhotoTask(photos)
+            }
+        }
+    }
+
     override fun deletePhoto(o: OtPhoto, context: Context): Completable {
         return Completable.fromAction {
             Util.deletePhoto(o.urlPhoto, context)

@@ -2,6 +2,7 @@ package com.dsige.dominion.ui.fragments
 
 import android.content.Intent
 import android.os.Bundle
+import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
@@ -19,6 +20,7 @@ import com.dsige.dominion.ui.activities.FormDetailActivity
 import com.dsige.dominion.ui.adapters.OtDetalleAdapter
 import com.dsige.dominion.ui.listeners.OnItemClickListener
 import com.dsige.dominion.data.viewModel.ViewModelFactory
+import com.dsige.dominion.ui.activities.OtMapActivity
 import com.google.android.material.dialog.MaterialAlertDialogBuilder
 import dagger.android.support.DaggerFragment
 import kotlinx.android.synthetic.main.fragment_desmonte.*
@@ -37,7 +39,7 @@ class DesmonteFragment : DaggerFragment(), View.OnClickListener {
         }
     }
 
-    private fun goDesmonteActivity(t:Int) {
+    private fun goDesmonteActivity(t: Int) {
         if (estado != 0) {
             startActivity(
                 Intent(context, FormDetailActivity::class.java)
@@ -114,7 +116,21 @@ class DesmonteFragment : DaggerFragment(), View.OnClickListener {
                             .putExtra("tipoDesmonte", o.tipoDesmonteId)
                             .putExtra("estado", o.estado)
                     )
-                    R.id.imgDelete -> confirmDelete(o)
+                    R.id.imgDelete -> if (o.estado == 3) {
+                        if (o.latitud.isNotEmpty() || o.longitud.isNotEmpty()) {
+                            startActivity(
+                                Intent(context, OtMapActivity::class.java)
+                                    .putExtra("latitud", o.latitud)
+                                    .putExtra("longitud", o.longitud)
+                                    .putExtra("title", "Desmonte")
+                                    .putExtra("mode", "walking")
+                            )
+                        } else {
+                            otViewModel.setError("Desmonte no cuenta con Coordenadas")
+                        }
+                    } else {
+                        confirmDelete(o)
+                    }
                 }
             }
         })
@@ -127,6 +143,10 @@ class DesmonteFragment : DaggerFragment(), View.OnClickListener {
         otViewModel.getOtDetalleById(otId, 7)
             .observe(viewLifecycleOwner, Observer(otDetalleAdapter::submitList))
 
+        otViewModel.mensajeError.observe(viewLifecycleOwner, {
+            Util.toastMensaje(context!!, it)
+        })
+
         fabDesmonteR.setOnClickListener(this)
         fabDesmonteG.setOnClickListener(this)
     }
@@ -136,7 +156,7 @@ class DesmonteFragment : DaggerFragment(), View.OnClickListener {
             .setTitle("Mensaje")
             .setMessage("Se eliminaran las fotos que estan incluidas en este desmonte ?")
             .setPositiveButton("Eliminar") { dialog, _ ->
-                otViewModel.deleteOtDetalle(o,context!!)
+                otViewModel.deleteOtDetalle(o, context!!)
                 dialog.dismiss()
             }
             .setNegativeButton("Cancelar") { dialog, _ ->
