@@ -4,6 +4,7 @@ import android.annotation.SuppressLint
 import android.app.AlertDialog
 import android.content.Intent
 import android.os.Bundle
+import android.view.KeyEvent
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
@@ -41,7 +42,17 @@ private const val ARG_PARAM3 = "param3"
 private const val ARG_PARAM4 = "param4"
 private const val ARG_PARAM5 = "param5"
 
-class MainFragment : DaggerFragment(), View.OnClickListener {
+class MainFragment : DaggerFragment(), View.OnClickListener, TextView.OnEditorActionListener {
+
+    override fun onEditorAction(v: TextView, actionId: Int, event: KeyEvent?): Boolean {
+        if (v.text.isNotEmpty()) {
+            f.search = v.text.toString()
+            val json = Gson().toJson(f)
+            otViewModel.search.value = json
+        }
+        return false
+    }
+
 
     override fun onClick(v: View) {
         when (v.id) {
@@ -76,9 +87,6 @@ class MainFragment : DaggerFragment(), View.OnClickListener {
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-
-
-
         arguments?.let {
             usuarioId = it.getInt(ARG_PARAM1)
             empresaId = it.getInt(ARG_PARAM2)
@@ -168,6 +176,7 @@ class MainFragment : DaggerFragment(), View.OnClickListener {
         editTextGrupo.setOnClickListener(this)
         editTextEstado.setOnClickListener(this)
         editTextServicio.setOnClickListener(this)
+        editTextSearch.setOnEditorActionListener(this)
         fab.setOnClickListener(this)
 
         otViewModel.mensajeError.observe(viewLifecycleOwner, Observer {

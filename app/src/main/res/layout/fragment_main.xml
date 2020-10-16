@@ -48,6 +48,7 @@
             android:layout_margin="8dp"
             android:drawableEnd="@drawable/ic_search"
             android:hint="Busqueda"
+            android:inputType="text"
             android:textColor="@color/colorPrimary" />
 
         <androidx.recyclerview.widget.RecyclerView
