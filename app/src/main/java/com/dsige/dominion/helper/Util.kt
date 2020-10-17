@@ -4,8 +4,11 @@ import android.annotation.SuppressLint
 import android.app.Activity
 import android.app.DatePickerDialog
 import android.app.TimePickerDialog
-import android.content.*
+import android.content.ClipData
+import android.content.Context
 import android.content.Context.MODE_PRIVATE
+import android.content.Intent
+import android.database.Cursor
 import android.graphics.*
 import android.location.Address
 import android.location.Geocoder
@@ -156,7 +159,7 @@ object Util {
     // TODO SOBRE ADJUNTAR PHOTO
 
     @Throws(IOException::class)
-    fun copyFile(sourceFile: File, destFile: File) {
+    private fun copyFile(sourceFile: File, destFile: File) {
         if (!sourceFile.exists()) {
             return
         }
@@ -169,16 +172,78 @@ object Util {
         destination.close()
     }
 
-    private fun getRealPathFromURI(context: Context, contentUri: Uri): String {
-        var result: String = ""
-        val proj = arrayOf(MediaStore.Video.Media.DATA)
-        @SuppressLint("Recycle") val cursor =
-            context.contentResolver.query(contentUri, proj, null, null, null)
+    fun getAllShownImagesPath(context: Context, uriExternal: Uri): String {
+
+//        val cursor: Cursor?
+//        val columnIndexID: Int
+//        val listOfAllImages = ""
+//        val projection = arrayOf(MediaStore.Images.Media._ID)
+//        var imageId: Long
+//        cursor = context.contentResolver.query(uriExternal, projection, null, null, null)
+//        if (cursor != null) {
+//            columnIndexID = cursor.getColumnIndexOrThrow(MediaStore.Images.Media._ID)
+//            while (cursor.moveToNext()) {
+//                imageId = cursor.getLong(columnIndexID)
+//                val uriImage = Uri.withAppendedPath(uriExternal, "" + imageId)
+//                listOfAllImages.add(uriImage)
+//            }
+//            cursor.close()
+//        }
+        return ""
+
+    }
+
+    private fun getImageFilePath(context:Context,uri: Uri): String {
+        var path =  ""
+        var image_id: String? = null
+        val cursor: Cursor? = context.contentResolver.query(uri, null, null, null, null)
         if (cursor != null) {
-            val columnIndex = cursor.getColumnIndexOrThrow(MediaStore.Images.Media.DATA)
             cursor.moveToFirst()
-            result = cursor.getString(columnIndex)
+            image_id = cursor.getString(0)
+            image_id = image_id.substring(image_id.lastIndexOf(":") + 1)
+            cursor.close()
         }
+
+        val cursor2: Cursor? = context.contentResolver.query(
+            MediaStore.Images.Media.EXTERNAL_CONTENT_URI,
+            null,
+            MediaStore.Images.Media._ID + " = ? ",
+            arrayOf(image_id),
+            null
+        )
+        if (cursor2 != null) {
+            cursor2.moveToFirst()
+            path = cursor2.getString(cursor2.getColumnIndex(MediaStore.Images.Media.DATA))
+            cursor2.close()
+        }
+        return path
+    }
+
+    @SuppressLint("Recycle")
+    private fun getRealPathFromURI(context: Context, contentUri: Uri): String {
+
+        val result: String
+        val cursor: Cursor? = context.contentResolver.query(contentUri, null, null, null, null)
+        if (cursor == null) { // Source is Dropbox or other similar local file path
+            result = contentUri.path.toString()
+        } else {
+            cursor.moveToFirst()
+            val idx = cursor.getColumnIndexOrThrow(MediaStore.Images.Media.DATA)
+            result = cursor.getString(idx)
+            cursor.close()
+        }
+        return result
+
+
+
+//        val proj = arrayOf(MediaStore.Images.Media._ID)
+//        @SuppressLint("Recycle") val cursor =
+//            context.contentResolver.query(contentUri, proj, null, null, null)
+//        if (cursor != null) {
+//            val columnIndex = cursor.getColumnIndex(MediaStore.Images.Media.DATA)
+//            cursor.moveToFirst()
+//            result = cursor.getString(columnIndex)
+//        }
         return result
     }
 
@@ -879,7 +944,9 @@ object Util {
                             if (success) {
                                 Log.i("TAG", "FILE CREATED")
                             }
-                            copyFile(File(getRealPathFromURI(context, uri)), f)
+
+                            copyFile(File(getImageFilePath(context, uri)), f)
+//                            copyFile(File(getRealPathFromURI(context, uri)), f)
                             getAngleImage(context, imagepath, direccion, distrito)
                             imagesEncodedList.add(file)
                         } catch (e: IOException) {
@@ -901,7 +968,8 @@ object Util {
                             if (success) {
                                 Log.i("TAG", "FILE CREATED")
                             }
-                            copyFile(File(getRealPathFromURI(context, data.data!!)), f)
+                            copyFile(File(getImageFilePath(context, data.data!!)), f)
+//                            copyFile(File(getRealPathFromURI(context, data.data!!)), f)
                             getAngleImage(context, imagepath, direccion, distrito)
                             imagesEncodedList.add(file)
                         } catch (e: IOException) {

@@ -310,12 +310,8 @@ class FormDetailActivity : DaggerAppCompatActivity(), View.OnClickListener, Text
     }
 
     private fun goGalery() {
-//        val i = Intent()
-//        i.type = "image/*"
-//        i.putExtra(Intent.EXTRA_ALLOW_MULTIPLE, true)
-//        i.action = Intent.ACTION_GET_CONTENT
-        val i = Intent(Intent.ACTION_PICK, MediaStore.Images.Media.INTERNAL_CONTENT_URI)
-//        i.type = "image/*"
+        val i = Intent(Intent.ACTION_GET_CONTENT)
+        i.type = "image/*"
         i.putExtra(Intent.EXTRA_ALLOW_MULTIPLE, true)
         startActivityForResult(i, Permission.GALERY_REQUEST)
     }
