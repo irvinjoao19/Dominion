@@ -134,7 +134,7 @@ class PreviewCameraActivity : DaggerAppCompatActivity(), View.OnClickListener {
         }
 
         otViewModel.mensajeError.observe(this, {
-            Util.toastMensaje(this, it)
+            Util.toastMensaje(this, it,false)
         })
 
         otViewModel.mensajeSuccess.observe(this, {
@@ -153,7 +153,7 @@ class PreviewCameraActivity : DaggerAppCompatActivity(), View.OnClickListener {
 
     private fun formMultiPhoto() {
         val f: ArrayList<OtPhoto> = ArrayList()
-        if (lista.size > 1)
+        if (lista.size > 0)
             for (d: String in lista) {
                 val p = OtPhoto()
                 p.otDetalleId = id

@@ -166,7 +166,7 @@ class MainFragment : DaggerFragment(), View.OnClickListener, TextView.OnEditorAc
         f.servicioId = servicioId
         otViewModel.search.value = Gson().toJson(f)
 
-        otViewModel.getMaxIdOt().observe(viewLifecycleOwner, Observer { s ->
+        otViewModel.getMaxIdOt().observe(viewLifecycleOwner, { s ->
             otId = if (s != null) {
                 s + 1
             } else
@@ -179,8 +179,8 @@ class MainFragment : DaggerFragment(), View.OnClickListener, TextView.OnEditorAc
         editTextSearch.setOnEditorActionListener(this)
         fab.setOnClickListener(this)
 
-        otViewModel.mensajeError.observe(viewLifecycleOwner, Observer {
-            Util.toastMensaje(context!!, it)
+        otViewModel.mensajeError.observe(viewLifecycleOwner, {
+            Util.toastMensaje(context!!, it,false)
         })
     }
 
@@ -215,7 +215,7 @@ class MainFragment : DaggerFragment(), View.OnClickListener, TextView.OnEditorAc
                     }
                 })
                 recyclerView.adapter = estadoAdapter
-                otViewModel.getEstados().observe(this, Observer {
+                otViewModel.getEstados().observe(this, {
                     estadoAdapter.addItems(it)
                 })
             }
@@ -230,7 +230,7 @@ class MainFragment : DaggerFragment(), View.OnClickListener, TextView.OnEditorAc
                         }
                     })
                 recyclerView.adapter = grupoAdapter
-                otViewModel.getGrupos().observe(this, Observer {
+                otViewModel.getGrupos().observe(this, {
                     grupoAdapter.addItems(it)
                 })
             }
@@ -245,7 +245,7 @@ class MainFragment : DaggerFragment(), View.OnClickListener, TextView.OnEditorAc
                         }
                     })
                 recyclerView.adapter = servicioAdapter
-                otViewModel.getServicios().observe(this, Observer {
+                otViewModel.getServicios().observe(this, {
                     servicioAdapter.addItems(it)
                 })
             }

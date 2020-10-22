@@ -33,15 +33,11 @@ class OtDetalleAdapter(private val listener: OnItemClickListener.OtDetalleListen
         internal fun bind(o: OtDetalle, listener: OnItemClickListener.OtDetalleListener) =
             with(itemView) {
                 when (o.tipoDesmonteId) {
-                    14 -> cardViewMateriales.setCardBackgroundColor(
-                        ContextCompat.getColor(
-                            itemView.context, R.color.colorGreen
-                        )
+                    14 -> card.setCardBackgroundColor(
+                        ContextCompat.getColor(itemView.context, R.color.colorGreen)
                     )
-                    15 -> cardViewMateriales.setCardBackgroundColor(
-                        ContextCompat.getColor(
-                            itemView.context, R.color.colorCloud
-                        )
+                    15 -> card.setCardBackgroundColor(
+                        ContextCompat.getColor(itemView.context, R.color.colorCloud)
                     )
                 }
                 if (o.tipoDesmonteId == 0) {
@@ -63,6 +59,9 @@ class OtDetalleAdapter(private val listener: OnItemClickListener.OtDetalleListen
                 if (o.estado == 3) {
                     imgEdit.setImageResource(R.drawable.ic_galery)
                     imgDelete.setImageResource(R.drawable.ic_place_blue)
+                    card.setCardBackgroundColor(
+                        ContextCompat.getColor(itemView.context, R.color.colorSecondaryText)
+                    )
                 }
                 imgEdit.setOnClickListener { v -> listener.onItemClick(o, v, adapterPosition) }
                 imgDelete.setOnClickListener { v -> listener.onItemClick(o, v, adapterPosition) }

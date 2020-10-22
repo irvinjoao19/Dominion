@@ -119,15 +119,15 @@ class PlazoFragment : DaggerFragment(), View.OnClickListener {
         otViewModel.getOtPlazos()
             .observe(viewLifecycleOwner, Observer(otPlazoAdapter::submitList))
 
-        otViewModel.mensajeSuccess.observe(viewLifecycleOwner, Observer {
+        otViewModel.mensajeSuccess.observe(viewLifecycleOwner, {
             if (it == "finish") {
                 progressBar.visibility = View.GONE
             } else
                 progressBar.visibility = View.VISIBLE
         })
 
-        otViewModel.mensajeError.observe(viewLifecycleOwner, Observer {
-            Util.toastMensaje(context!!, it)
+        otViewModel.mensajeError.observe(viewLifecycleOwner, {
+            Util.toastMensaje(context!!, it,false)
         })
 
         editTextServicio.setOnClickListener(this)
@@ -166,7 +166,7 @@ class PlazoFragment : DaggerFragment(), View.OnClickListener {
                         }
                     })
                 recyclerView.adapter = servicioAdapter
-                otViewModel.getServicios().observe(this, Observer {
+                otViewModel.getServicios().observe(this, {
                     servicioAdapter.addItems(it)
                 })
             }
@@ -181,7 +181,7 @@ class PlazoFragment : DaggerFragment(), View.OnClickListener {
                         }
                     })
                 recyclerView.adapter = grupoAdapter
-                otViewModel.getGrupos().observe(this, Observer {
+                otViewModel.getGrupos().observe(this, {
                     grupoAdapter.addItems(it)
                 })
             }

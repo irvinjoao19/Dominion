@@ -43,7 +43,7 @@ class MedidasFragment : DaggerFragment(), View.OnClickListener {
                 )
             } else {
                 viewPager?.currentItem = 0
-                Util.toastMensaje(context!!, "Completar primer formulario")
+                Util.toastMensaje(context!!, "Completar primer formulario",false)
             }
         }
     }
@@ -136,7 +136,7 @@ class MedidasFragment : DaggerFragment(), View.OnClickListener {
             .observe(viewLifecycleOwner, Observer(otDetalleAdapter::submitList))
 
         otViewModel.mensajeError.observe(viewLifecycleOwner, {
-            Util.toastMensaje(context!!, it)
+            Util.toastMensaje(context!!, it,false)
         })
         fab.setOnClickListener(this)
     }

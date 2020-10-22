@@ -10,7 +10,6 @@ import android.view.View
 import androidx.appcompat.app.AlertDialog
 import androidx.appcompat.view.ContextThemeWrapper
 import androidx.core.app.ActivityCompat
-import androidx.lifecycle.Observer
 import androidx.lifecycle.ViewModelProvider
 import com.dsige.dominion.R
 import com.dsige.dominion.data.viewModel.UsuarioViewModel
@@ -105,13 +104,13 @@ class LoginActivity : DaggerAppCompatActivity(), View.OnClickListener {
             permision()
         }
 
-        usuarioViewModel.mensajeError.observe(this, Observer { s ->
+        usuarioViewModel.mensajeError.observe(this, { s ->
             if (s != null) {
                 closeLoad()
-                Util.toastMensaje(this, s)
+                Util.toastMensaje(this, s, false)
             }
         })
-        usuarioViewModel.mensajeSuccess.observe(this, Observer { s ->
+        usuarioViewModel.mensajeSuccess.observe(this, { s ->
             if (s != null) {
                 closeLoad()
                 goMainActivity()

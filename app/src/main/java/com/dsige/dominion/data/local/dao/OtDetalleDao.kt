@@ -41,7 +41,7 @@ interface OtDetalleDao {
     @Query("UPDATE OtDetalle SET estado = 1 WHERE otDetalleId =:id")
     fun closeDetalle(id: Int)
 
-    @Query("SELECT * FROM OtDetalle WHERE otId =:id")
+    @Query("SELECT * FROM OtDetalle WHERE otId =:id AND estado = 1")
     fun getAllRegistroDetalleTask(id: Int): List<OtDetalle>
 
     @Query("UPDATE OtDetalle SET  estado = 3 WHERE otId=:codigoBase")

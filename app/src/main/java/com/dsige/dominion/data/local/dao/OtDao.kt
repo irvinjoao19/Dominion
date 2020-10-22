@@ -21,19 +21,19 @@ interface OtDao {
     @Delete
     fun deleteOtTask(c: Ot)
 
-    @Query("SELECT * FROM Ot")
+    @Query("SELECT * FROM Ot GROUP BY distritoId,direccion,nroObra")
     fun getOts(): DataSource.Factory<Int, Ot>
 
-    @Query("SELECT * FROM Ot WHERE tipoOrdenId=:t AND estadoId =:e AND direccion LIKE :s ")
+    @Query("SELECT * FROM Ot WHERE tipoOrdenId=:t AND estadoId =:e AND direccion LIKE :s GROUP BY distritoId,direccion,nroObra")
     fun getOts(t: Int, e: Int, s: String): DataSource.Factory<Int, Ot>
 
-    @Query("SELECT * FROM Ot WHERE tipoOrdenId=:t AND estadoId =:e AND servicioId =:sId AND direccion LIKE :s ")
+    @Query("SELECT * FROM Ot WHERE tipoOrdenId=:t AND estadoId =:e AND servicioId =:sId AND direccion LIKE :s GROUP BY distritoId,direccion,nroObra")
     fun getOts(t: Int, e: Int, sId: Int, s: String): DataSource.Factory<Int, Ot>
 
-    @Query("SELECT * FROM Ot WHERE tipoOrdenId=:t AND estadoId =:e AND servicioId =:s")
+    @Query("SELECT * FROM Ot WHERE tipoOrdenId=:t AND estadoId =:e AND servicioId =:s GROUP BY distritoId,direccion,nroObra")
     fun getOts(t: Int, e: Int, s: Int): DataSource.Factory<Int, Ot>
 
-    @Query("SELECT * FROM Ot WHERE tipoOrdenId=:t AND estadoId =:e ")
+    @Query("SELECT * FROM Ot WHERE tipoOrdenId=:t AND estadoId =:e GROUP BY distritoId,direccion,nroObra")
     fun getOts(t: Int, e: Int): DataSource.Factory<Int, Ot>
 
     @Query("DELETE FROM Ot")
@@ -62,5 +62,8 @@ interface OtDao {
 
     @Query("UPDATE Ot SET activeNotificacion = 0")
     fun updateSocket()
+
+    @Query("SELECT * FROM Ot WHERE nroObra=:n AND fechaXOt=:f")
+    fun getNroOt(n: String, f: String): Boolean
 
 }

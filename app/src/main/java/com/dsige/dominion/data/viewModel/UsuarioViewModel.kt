@@ -239,8 +239,7 @@ internal constructor(private val roomRepository: AppRepository, private val retr
                                     b.addFormDataPart(
                                         "files", file.name,
                                         RequestBody.create(
-                                            MediaType.parse("multipart/form-data"),
-                                            file
+                                            MediaType.parse("multipart/form-data"), file
                                         )
                                     )
                                 }
@@ -256,8 +255,7 @@ internal constructor(private val roomRepository: AppRepository, private val retr
 
                 val body = b.build()
                 Observable.zip(
-                    Observable.just(a), roomRepository.sendRegistroOt(body),
-                    BiFunction<Ot, Mensaje, Mensaje> { _, mensaje ->
+                    Observable.just(a), roomRepository.sendRegistroOt(body), { _, mensaje ->
                         mensaje
                     })
             }

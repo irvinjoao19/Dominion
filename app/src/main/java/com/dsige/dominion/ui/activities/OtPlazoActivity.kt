@@ -84,7 +84,7 @@ class OtPlazoActivity : DaggerAppCompatActivity() {
         })
 
         otViewModel.mensajeError.observe(this, {
-            Util.toastMensaje(this, it)
+            Util.toastMensaje(this, it,false)
         })
     }
 }

@@ -2,7 +2,6 @@ package com.dsige.dominion.ui.fragments
 
 import android.content.Intent
 import android.os.Bundle
-import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
@@ -51,7 +50,7 @@ class DesmonteFragment : DaggerFragment(), View.OnClickListener {
             )
         } else {
             viewPager?.currentItem = 0
-            Util.toastMensaje(context!!, "Completar primer formulario")
+            Util.toastMensaje(context!!, "Completar primer formulario",false)
         }
     }
 
@@ -144,7 +143,7 @@ class DesmonteFragment : DaggerFragment(), View.OnClickListener {
             .observe(viewLifecycleOwner, Observer(otDetalleAdapter::submitList))
 
         otViewModel.mensajeError.observe(viewLifecycleOwner, {
-            Util.toastMensaje(context!!, it)
+            Util.toastMensaje(context!!, it,false)
         })
 
         fabDesmonteR.setOnClickListener(this)

@@ -107,12 +107,12 @@ class AppRepoImp(private val apiService: ApiService, private val dataBase: AppDa
             if (o != null) {
                 dataBase.otDao().insertOtListTask(o)
                 for (ot: Ot in o) {
-                    val d:List<OtDetalle>? = ot.detalles
-                    if (d != null){
+                    val d: List<OtDetalle>? = ot.detalles
+                    if (d != null) {
                         dataBase.otDetalleDao().insertOtDetalleListTask(d)
-                        for(p:OtDetalle in d){
-                            val f : List<OtPhoto>? = p.photos
-                            if (f != null){
+                        for (p: OtDetalle in d) {
+                            val f: List<OtPhoto>? = p.photos
+                            if (f != null) {
                                 dataBase.otPhotoDao().insertOtPhotoListTask(f)
                             }
                         }
@@ -189,27 +189,33 @@ class AppRepoImp(private val apiService: ApiService, private val dataBase: AppDa
 
     override fun insertOrUpdateOt(t: Ot): Completable {
         return Completable.fromAction {
-            if (t.distritoId == 0) {
-                t.distritoId = dataBase.distritoDao()
-                    .searchDistritoId(
-                        String.format(
-                            "%s%s%s", "%", t.nombreDistritoId.toUpperCase(Locale.getDefault()), "%"
-                        )
-                    )
-            }
-
-
-            val o: Ot? = dataBase.otDao().getOtIdTask(t.otId)
-            if (o == null) {
-                dataBase.otDao().insertOtTask(t)
+            val ot: Boolean = dataBase.otDao().getNroOt(t.nroObra, t.fechaXOt)
+            if (ot) {
+                error("Ingrese otro Nro de OT")
             } else {
-                val a = dataBase.otDetalleDao().getDetalleOts(t.otId)
-                if (a > 0) {
-                    t.estado = 1
+                if (t.distritoId == 0) {
+                    t.distritoId = dataBase.distritoDao()
+                        .searchDistritoId(
+                            String.format(
+                                "%s%s%s",
+                                "%",
+                                t.nombreDistritoId.toUpperCase(Locale.getDefault()),
+                                "%"
+                            )
+                        )
                 }
-                dataBase.otDao().updateOtTask(t)
-            }
 
+                val o: Ot? = dataBase.otDao().getOtIdTask(t.otId)
+                if (o == null) {
+                    dataBase.otDao().insertOtTask(t)
+                } else {
+                    val a = dataBase.otDetalleDao().getDetalleOts(t.otId)
+                    if (a > 0) {
+                        t.estado = 1
+                    }
+                    dataBase.otDao().updateOtTask(t)
+                }
+            }
         }
     }
 
@@ -275,7 +281,7 @@ class AppRepoImp(private val apiService: ApiService, private val dataBase: AppDa
 
     override fun insertMultiPhoto(f: ArrayList<OtPhoto>): Completable {
         return Completable.fromAction {
-            for(photos : OtPhoto in f){
+            for (photos: OtPhoto in f) {
                 val p: OtPhoto? = dataBase.otPhotoDao().getOtPhotoName(photos.urlPhoto)
                 if (p == null)
                     dataBase.otPhotoDao().insertOtPhotoTask(photos)

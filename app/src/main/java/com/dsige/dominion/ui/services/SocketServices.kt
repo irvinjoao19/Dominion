@@ -54,8 +54,7 @@ class SocketServices : Service() {
         val handler = Handler()
         handler.post {
             try {
-                mSocket =
-                    IO.socket(Util.UrlSocket)
+                mSocket = IO.socket(Util.UrlSocket)
                 mSocket.on("Alertas_web_OT") { s ->
                     Log.i("TAG", s[0].toString())
                     val myType = object : TypeToken<List<Notificacion>>() {}.type
@@ -74,9 +73,9 @@ class SocketServices : Service() {
                         }
                     }
                 }
+                mSocket.connect()
             } catch (ignored: URISyntaxException) {
             }
-            mSocket.connect()
         }
         return super.onStartCommand(intent, flags, startId)
     }

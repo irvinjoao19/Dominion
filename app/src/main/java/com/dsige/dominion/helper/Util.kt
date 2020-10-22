@@ -193,8 +193,8 @@ object Util {
 
     }
 
-    private fun getImageFilePath(context:Context,uri: Uri): String {
-        var path =  ""
+    private fun getImageFilePath(context: Context, uri: Uri): String {
+        var path = ""
         var image_id: String? = null
         val cursor: Cursor? = context.contentResolver.query(uri, null, null, null, null)
         if (cursor != null) {
@@ -233,7 +233,6 @@ object Util {
             cursor.close()
         }
         return result
-
 
 
 //        val proj = arrayOf(MediaStore.Images.Media._ID)
@@ -555,8 +554,8 @@ object Util {
         mSnackbar.show()
     }
 
-    fun toastMensaje(context: Context, mensaje: String) {
-        Toast.makeText(context, mensaje, Toast.LENGTH_LONG).show()
+    fun toastMensaje(context: Context, mensaje: String, b: Boolean) {
+        Toast.makeText(context, mensaje, if (b) Toast.LENGTH_LONG else Toast.LENGTH_SHORT).show()
     }
 
     fun dialogMensaje(context: Context, title: String, mensaje: String) {
@@ -908,7 +907,7 @@ object Util {
                     }
 
                     override fun onError(e: Throwable) {
-                        toastMensaje(context, context.getString(R.string.try_again))
+                        toastMensaje(context, context.getString(R.string.try_again),true)
                         progressBar.visibility = View.GONE
                     }
 
@@ -917,13 +916,14 @@ object Util {
                     }
                 })
         } catch (e: IOException) {
-            toastMensaje(context, e.toString())
+            toastMensaje(context, e.toString(),true)
             progressBar.visibility = View.GONE
         }
     }
 
     fun getFolderAdjunto(
-        usuarioId: Int, context: Context, data: Intent, direccion: String, distrito: String
+        size: Int, usuarioId: Int, context: Context, data: Intent,
+        direccion: String, distrito: String
     ): Observable<ArrayList<String>> {
         return Observable.create {
 //            var imageEncoded = ""
@@ -931,10 +931,16 @@ object Util {
             val imagesEncodedList = ArrayList<String>()
             if (data.clipData != null) {
                 val mClipData: ClipData? = data.clipData
-                for (i in 0 until mClipData!!.itemCount) {
+                val cantidad = mClipData!!.itemCount
+                if (cantidad > size) {
+                    it.onError(Throwable("No puedes seleccionar mas de $size Imagenes"))
+                    it.onComplete()
+                    return@create
+                }
+
+                for (i in 0 until mClipData.itemCount) {
                     val item: ClipData.Item = mClipData.getItemAt(i)
                     val uri: Uri = item.uri
-
                     val file = getFechaActualForPhoto(usuarioId)
                     val imagepath = getFolder(context).toString() + "/" + file
                     val f = File(imagepath)

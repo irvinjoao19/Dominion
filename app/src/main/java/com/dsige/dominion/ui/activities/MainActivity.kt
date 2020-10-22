@@ -118,32 +118,20 @@ class MainActivity : DaggerAppCompatActivity(), NavigationView.OnNavigationItemS
             )
             "Lista de Ordenes" -> changeFragment(
                 MainFragment.newInstance(
-                    usuarioId,
-                    empresaId,
-                    personalId,
-                    servicioId,
-                    nombreServicio
+                    usuarioId, empresaId, personalId, servicioId, nombreServicio
                 ), item.title.toString()
             )
             "Resumen de Ordenes de Trabajo por Proveedor" -> changeFragment(
                 ResumenFragment.newInstance(
-                    usuarioId,
-                    empresaId,
-                    personalId,
-                    servicioId,
-                    nombreServicio
+                    usuarioId, empresaId, personalId, servicioId, nombreServicio
                 ), item.title.toString()
             )
             "OT fuera de Plazo" -> changeFragment(
                 PlazoFragment.newInstance(
-                    usuarioId,
-                    empresaId,
-                    personalId,
-                    servicioId,
-                    nombreServicio
+                    usuarioId, empresaId, personalId, servicioId, nombreServicio
                 ), item.title.toString()
             )
-            "Ubicacion del Personal" -> Util.toastMensaje(this, item.title.toString())
+            "Ubicacion del Personal" -> Util.toastMensaje(this, item.title.toString(), true)
             "Enviar Pendientes" -> dialogFunction(2, "Deseas enviar registros ?")
             "Cerrar Sesión" -> dialogFunction(3, "Deseas Salir ?")
         }
@@ -186,8 +174,7 @@ class MainActivity : DaggerAppCompatActivity(), NavigationView.OnNavigationItemS
             .replace(
                 R.id.content_frame,
                 MainFragment.newInstance(
-                    usuarioId, empresaId, personalId, servicioId,
-                    nombreServicio
+                    usuarioId, empresaId, personalId, servicioId, nombreServicio
                 )
             )
             .commit()
@@ -225,7 +212,7 @@ class MainActivity : DaggerAppCompatActivity(), NavigationView.OnNavigationItemS
                     intent.flags = Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_CLEAR_TASK
                     startActivity(intent)
                 } else {
-                    Util.toastMensaje(this, s)
+                    Util.toastMensaje(this, s, true)
                 }
             }
         })

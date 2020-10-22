@@ -107,7 +107,6 @@ internal constructor(private val roomRepository: AppRepository, private val retr
                 override fun onError(e: Throwable) {
                     mensajeError.value = e.message
                 }
-
             })
     }
 
@@ -199,10 +198,10 @@ internal constructor(private val roomRepository: AppRepository, private val retr
     }
 
     fun generarArchivo(
-        usuarioId: Int, context: Context,
+        size: Int, usuarioId: Int, context: Context,
         data: Intent, direccion: String, distrito: String
     ) {
-        Util.getFolderAdjunto(usuarioId, context, data, direccion, distrito)
+        Util.getFolderAdjunto(size, usuarioId, context, data, direccion, distrito)
             .subscribeOn(Schedulers.io())
             .observeOn(AndroidSchedulers.mainThread())
             .subscribe(object : Observer<ArrayList<String>> {
@@ -211,7 +210,10 @@ internal constructor(private val roomRepository: AppRepository, private val retr
                     mensajeSuccess.value = t.toString()
                 }
 
-                override fun onError(e: Throwable) {}
+                override fun onError(e: Throwable) {
+                    mensajeError.value = e.message
+                }
+
                 override fun onComplete() {}
             })
     }

@@ -137,12 +137,12 @@ class GeneralFragment : DaggerFragment(), View.OnClickListener {
 
         otViewModel.mensajeError.observe(viewLifecycleOwner, {
             //closeLoad()
-            Util.toastMensaje(context!!, it)
+            Util.toastMensaje(context!!, it,false)
         })
 
         otViewModel.mensajeSuccess.observe(viewLifecycleOwner, {
             viewPager?.currentItem = 1
-            Util.toastMensaje(context!!, it)
+            Util.toastMensaje(context!!, it,false)
         })
 
         editTextDistritos.setOnClickListener(this)
@@ -180,6 +180,7 @@ class GeneralFragment : DaggerFragment(), View.OnClickListener {
                 t.estadoId = 4
                 t.estado = 2
                 t.activeNotificacion = 1
+                t.fechaXOt = Util.getFecha()
                 otViewModel.validateOt(t)
             }
         } else {
@@ -269,7 +270,7 @@ class GeneralFragment : DaggerFragment(), View.OnClickListener {
         try {
             startActivityForResult(intent, permission)
         } catch (a: ActivityNotFoundException) {
-            Util.toastMensaje(context!!, "Dispositivo no compatible para esta opción")
+            Util.toastMensaje(context!!, "Dispositivo no compatible para esta opción",false)
         }
     }
 

@@ -3,11 +3,9 @@ package com.dsige.dominion.ui.activities
 import android.annotation.SuppressLint
 import android.app.Activity
 import android.content.Intent
-import android.database.Cursor
 import android.location.Address
 import android.location.Geocoder
 import android.os.Bundle
-import android.provider.MediaStore
 import android.text.Editable
 import android.text.InputType
 import android.text.TextWatcher
@@ -42,6 +40,7 @@ import io.reactivex.android.schedulers.AndroidSchedulers
 import io.reactivex.disposables.Disposable
 import io.reactivex.schedulers.Schedulers
 import kotlinx.android.synthetic.main.activity_form_detail.*
+import java.io.IOException
 import java.util.*
 import java.util.concurrent.TimeUnit
 import javax.inject.Inject
@@ -62,6 +61,8 @@ class FormDetailActivity : DaggerAppCompatActivity(), View.OnClickListener, Text
     lateinit var otViewModel: OtViewModel
     lateinit var d: OtDetalle
     private var usuarioId: Int = 0
+    private var size: Int = 0
+    private var maxSize: Int = 10
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -125,11 +126,17 @@ class FormDetailActivity : DaggerAppCompatActivity(), View.OnClickListener, Text
         recyclerView.adapter = otPhotoAdapter
 
         otViewModel.getOtPhotoById(detalleId).observe(this, {
+            size = it.size
             otPhotoAdapter.addItems(it)
             if (it.isNotEmpty())
                 fabSave.visibility = View.VISIBLE
             else
                 fabSave.visibility = View.GONE
+
+            if (it.size == maxSize) {
+                fabCamara.visibility = View.GONE
+                fabGaleria.visibility = View.GONE
+            }
         })
 
         otViewModel.getOtDetalleId(detalleId).observe(this, {
@@ -147,7 +154,7 @@ class FormDetailActivity : DaggerAppCompatActivity(), View.OnClickListener, Text
         })
 
         otViewModel.mensajeError.observe(this, {
-            Util.toastMensaje(this, it)
+            Util.toastMensaje(this, it, false)
         })
 
         otViewModel.mensajeSuccess.observe(this, Observer { s ->
@@ -310,6 +317,7 @@ class FormDetailActivity : DaggerAppCompatActivity(), View.OnClickListener, Text
     }
 
     private fun goGalery() {
+        otViewModel.setError("Maximo " + (maxSize - size) + " fotos para seleccionar")
         val i = Intent(Intent.ACTION_GET_CONTENT)
         i.type = "image/*"
         i.putExtra(Intent.EXTRA_ALLOW_MULTIPLE, true)
@@ -320,30 +328,35 @@ class FormDetailActivity : DaggerAppCompatActivity(), View.OnClickListener, Text
         super.onActivityResult(requestCode, resultCode, data)
         if (requestCode == Permission.GALERY_REQUEST && resultCode == Activity.RESULT_OK) {
             if (data != null) {
-                otViewModel.setError("Cargando imagenes seleccionadas...")
                 val gps = Gps(this)
                 if (gps.isLocationEnabled()) {
-                    val addressObservable = Observable.just(
-                        Geocoder(this)
-                            .getFromLocation(
-                                gps.getLatitude(), gps.getLongitude(), 1
-                            )[0]
-                    )
-                    addressObservable.subscribeOn(Schedulers.io())
-                        .delay(1000, TimeUnit.MILLISECONDS)
-                        .observeOn(AndroidSchedulers.mainThread())
-                        .subscribe(object : io.reactivex.Observer<Address> {
-                            override fun onSubscribe(d: Disposable) {}
-                            override fun onNext(address: Address) {
-                                otViewModel.generarArchivo(
-                                    usuarioId, this@FormDetailActivity, data,
-                                    address.getAddressLine(0).toString(),
-                                    address.locality.toString()
-                                )
-                            }
-                            override fun onError(e: Throwable) {}
-                            override fun onComplete() {}
-                        })
+                    try {
+                        otViewModel.setError("Cargando imagenes seleccionadas...")
+                        val addressObservable = Observable.just(
+                            Geocoder(this)
+                                .getFromLocation(
+                                    gps.getLatitude(), gps.getLongitude(), 1
+                                )[0]
+                        )
+                        addressObservable.subscribeOn(Schedulers.io())
+                            .delay(1000, TimeUnit.MILLISECONDS)
+                            .observeOn(AndroidSchedulers.mainThread())
+                            .subscribe(object : io.reactivex.Observer<Address> {
+                                override fun onSubscribe(d: Disposable) {}
+                                override fun onNext(address: Address) {
+                                    otViewModel.generarArchivo(
+                                        (maxSize - size), usuarioId, this@FormDetailActivity, data,
+                                        address.getAddressLine(0).toString(),
+                                        address.locality.toString()
+                                    )
+                                }
+
+                                override fun onError(e: Throwable) {}
+                                override fun onComplete() {}
+                            })
+                    } catch (e: IOException) {
+                        otViewModel.setError(e.toString())
+                    }
                 } else {
                     gps.showSettingsAlert(this)
                 }
@@ -360,7 +373,7 @@ class FormDetailActivity : DaggerAppCompatActivity(), View.OnClickListener, Text
                 dialog.dismiss()
             }
             .setNegativeButton("NO") { dialog, _ ->
-                dialog.cancel()
+                dialog.dismiss()
             }
         dialog.show()
     }

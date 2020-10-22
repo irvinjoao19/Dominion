@@ -485,7 +485,7 @@ class CameraFragment : Fragment(), View.OnClickListener, View.OnTouchListener {
         } catch (e: NullPointerException) {
             // Currently an NPE is thrown when the Camera2API is used but not supported on the
             // device this code runs.
-            Util.toastMensaje(context!!, "CAMERA ERROR")
+            Util.toastMensaje(context!!, "CAMERA ERROR",true)
 //            ErrorDialog.newInstance(getString(R.string.camera_error))
 //                .show(childFragmentManager, FRAGMENT_DIALOG)
         }
@@ -632,7 +632,7 @@ class CameraFragment : Fragment(), View.OnClickListener, View.OnTouchListener {
                     }
 
                     override fun onConfigureFailed(session: CameraCaptureSession) {
-                        Util.toastMensaje(context!!, "Failed")
+                        Util.toastMensaje(context!!, "Failed",true)
                     }
                 }, null
             )

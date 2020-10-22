@@ -39,14 +39,13 @@ open class Ot {
     var latitud: String = ""
     var longitud: String = ""
     var usuarioId: Int = 0
-
     var identity: Int = 0
 
     var estadoId: Int = 0 // 4 -> ejecutado  // 5 enviado aprobar
     var estado: Int = 0 // 1 -> para enviar , 2 -> incompleto  , 0 -> desabilitado
+    var fechaXOt :String = "" // solo un nro de ot por dia
 
     var activeNotificacion: Int = 0
-
 
     @Ignore
     var detalles: List<OtDetalle> = ArrayList()

@@ -28,5 +28,4 @@ open class OtDetalle {
 
     @Ignore
     var photos: List<OtPhoto> = ArrayList()
-
 }
