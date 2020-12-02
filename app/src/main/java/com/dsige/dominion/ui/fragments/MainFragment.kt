@@ -125,7 +125,7 @@ class MainFragment : DaggerFragment(), View.OnClickListener, TextView.OnEditorAc
                         1 -> startActivity(
                             Intent(context, FormActivity::class.java)
                                 .putExtra("otId", o.otId)
-                                .putExtra("usuarioId", o.usuarioId)
+                                .putExtra("usuarioId", usuarioId)
                                 .putExtra("tipo", o.tipoOrdenId)
                                 .putExtra("empresaId", o.empresaId)
                                 .putExtra("servicioId", o.servicioId)

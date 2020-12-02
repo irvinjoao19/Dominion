@@ -49,4 +49,7 @@ interface OtDetalleDao {
 
     @Query("SELECT COUNT(*) FROM OtDetalle WHERE otId =:id")
     fun getDetalleOts(id: Int): Int
+
+    @Query("SELECT * FROM OtDetalle WHERE estado =:e")
+    fun getAllRegistroDetalleActiveTask(e:Int): List<OtDetalle>
 }

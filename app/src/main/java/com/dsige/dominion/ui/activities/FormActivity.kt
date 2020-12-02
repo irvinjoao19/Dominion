@@ -23,7 +23,6 @@ class FormActivity : DaggerAppCompatActivity() {
     }
 
     private fun bind(otId: Int, u: Int, t: Int, e: Int, s: Int, p: Int) {
-
         setSupportActionBar(toolbar)
         supportActionBar!!.title = when (t) {
             3 -> "ROTURA"

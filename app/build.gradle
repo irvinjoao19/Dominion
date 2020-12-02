@@ -13,8 +13,8 @@ android {
         applicationId "com.dsige.dominion"
         minSdkVersion 23
         targetSdkVersion 29
-        versionCode 5
-        versionName "1.4"
+        versionCode 7
+        versionName "1.6"
 
         testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
     }

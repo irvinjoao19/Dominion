@@ -26,10 +26,10 @@ interface OtPhotoDao {
     @Query("DELETE FROM OtPhoto")
     fun deleteAll()
 
-    @Query("SELECt * FROM OtPhoto WHERE otDetalleId =:id")
+    @Query("SELECT * FROM OtPhoto WHERE otDetalleId =:id")
     fun getOtPhotoById(id: Int): LiveData<List<OtPhoto>>
 
-    @Query("SELECt * FROM OtPhoto WHERE urlPhoto =:img")
+    @Query("SELECT * FROM OtPhoto WHERE urlPhoto =:img")
     fun getOtPhotoName(img: String): OtPhoto
 
     @Query("SELECt * FROM OtPhoto WHERE otDetalleId =:id")

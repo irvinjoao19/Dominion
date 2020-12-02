@@ -224,6 +224,107 @@ internal constructor(private val roomRepository: AppRepository, private val retr
         return roomRepository.getAccesos(usuarioId)
     }
 
+    fun sendOt(context: Context) {
+        val ot: Observable<List<OtPhoto>> = roomRepository.getOtPhotoTask()
+        ot.flatMap { observable ->
+            Observable.fromIterable(observable).flatMap { a ->
+                val b = MultipartBody.Builder()
+                if (a.urlPhoto.isNotEmpty()) {
+                    val file = File(Util.getFolder(context), a.urlPhoto)
+                    if (file.exists()) {
+                        b.addFormDataPart(
+                            "files", file.name,
+                            RequestBody.create(
+                                MediaType.parse("multipart/form-data"), file
+                            )
+                        )
+                    }
+                }
+                b.setType(MultipartBody.FORM)
+                val body = b.build()
+                Observable.zip(
+                    Observable.just(a), roomRepository.sendOtPhotos(body), { _, mensaje ->
+                        mensaje
+                    })
+            }
+        }.subscribeOn(Schedulers.io())
+            .observeOn(AndroidSchedulers.mainThread())
+            .subscribe(object : Observer<String> {
+
+                override fun onSubscribe(d: Disposable) {
+                    Log.i("TAG", d.toString())
+                }
+
+                override fun onNext(m: String) {
+                    Log.i("TAG", m)
+//                    updateParteDiario(m)
+                }
+
+                override fun onError(e: Throwable) {
+                    if (e is HttpException) {
+                        val body = e.response().errorBody()
+                        try {
+                            val error = retrofit.errorConverter.convert(body!!)
+                            mensajeError.postValue(error.Message)
+                        } catch (e1: IOException) {
+                            e1.printStackTrace()
+                            Log.i("TAG", e1.toString())
+                        }
+                    } else {
+                        mensajeError.postValue(e.message)
+                    }
+                }
+
+                override fun onComplete() {
+                    sendDataTask()
+                }
+            })
+    }
+
+    fun sendDataTask() {
+        val ots: Observable<List<Ot>> = roomRepository.getSendOt(1)
+        ots.flatMap { observable ->
+            Observable.fromIterable(observable).flatMap { a ->
+                val json = Gson().toJson(a)
+                Log.i("TAG", json)
+                val body =
+                    RequestBody.create(MediaType.parse("application/json; charset=utf-8"), json)
+                Observable.zip(
+                    Observable.just(a), roomRepository.sendOt(body), { _, mensaje ->
+                        mensaje
+                    })
+            }
+        }.subscribeOn(Schedulers.io())
+            .delay(1000, TimeUnit.MILLISECONDS)
+            .observeOn(AndroidSchedulers.mainThread())
+            .subscribe(object : Observer<Mensaje> {
+                override fun onComplete() {
+                    sendSocket()
+                }
+
+                override fun onSubscribe(d: Disposable) {
+                }
+
+                override fun onNext(t: Mensaje) {
+                    updateOt(t)
+                }
+
+                override fun onError(t: Throwable) {
+                    if (t is HttpException) {
+                        val body = t.response().errorBody()
+                        try {
+                            val error = retrofit.errorConverter.convert(body!!)
+                            mensajeError.postValue(error.Message)
+                        } catch (e1: IOException) {
+                            e1.printStackTrace()
+                        }
+                    } else {
+                        mensajeError.postValue(t.message)
+                    }
+                }
+            })
+    }
+
     fun sendData(context: Context) {
         val ots: Observable<List<Ot>> = roomRepository.getSendOt(1)
         ots.flatMap { observable ->

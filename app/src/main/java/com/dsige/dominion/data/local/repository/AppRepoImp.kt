@@ -18,6 +18,9 @@ import io.reactivex.Observable
 import okhttp3.MediaType
 import okhttp3.RequestBody
 import retrofit2.Call
+import retrofit2.http.Body
+import retrofit2.http.Headers
+import retrofit2.http.POST
 import java.net.URISyntaxException
 import java.util.*
 import kotlin.collections.ArrayList
@@ -515,4 +518,36 @@ class AppRepoImp(private val apiService: ApiService, private val dataBase: AppDa
             }
         }
     }
+
+    override fun getOtPhotoTask(): Observable<List<OtPhoto>> {
+        return Observable.create { e ->
+            val data: ArrayList<OtPhoto> = ArrayList()
+            val ot = dataBase.otDetalleDao().getAllRegistroDetalleActiveTask(1)
+            if (ot.isEmpty()) {
+                e.onError(Throwable("Usted no tiene pendientes por enviar"))
+                e.onComplete()
+                return@create
+            }
+            for (p: OtDetalle in ot) {
+                val photos: List<OtPhoto>? =
+                    dataBase.otPhotoDao().getOtPhotoIdTask(p.otDetalleId)
+                if (photos != null) {
+                    for (f: OtPhoto in photos) {
+                        data.add(f)
+                    }
+                }
+            }
+            e.onNext(data)
+            e.onComplete()
+        }
+    }
+
+    override fun sendOtPhotos(body: RequestBody): Observable<String> {
+        return apiService.sendOtPhotos(body)
+    }
+
+    override fun sendOt(body: RequestBody): Observable<Mensaje> {
+        return apiService.sendOt(body)
+    }
+
 }

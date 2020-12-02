@@ -236,7 +236,7 @@ class MainActivity : DaggerAppCompatActivity(), NavigationView.OnNavigationItemS
                     }
                     2 -> {
                         load("Enviando..")
-                        usuarioViewModel.sendData(this)
+                        usuarioViewModel.sendOt(this)
                     }
                     3 -> {
                         logout = "on"

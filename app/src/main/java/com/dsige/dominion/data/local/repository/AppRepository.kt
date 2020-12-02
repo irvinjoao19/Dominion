@@ -90,4 +90,11 @@ interface AppRepository {
 
     fun sendSocket(): Completable
 
+    // nuevo
+    fun getOtPhotoTask(): Observable<List<OtPhoto>>
+    fun sendOtPhotos(body: RequestBody): Observable<String>
+    fun sendOt(body: RequestBody): Observable<Mensaje>
+
+
+
 }
