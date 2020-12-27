@@ -60,7 +60,7 @@ interface ApiService {
     fun sendOtPhotos(@Body body: RequestBody): Observable<String>
 
     @Headers("Cache-Control: no-cache")
-    @POST("SaveOtNew3")
+    @POST("SaveOtNew4")
     fun sendOt(@Body body: RequestBody): Observable<Mensaje>
 
 }

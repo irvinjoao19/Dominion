@@ -328,6 +328,19 @@ class FormDetailActivity : DaggerAppCompatActivity(), View.OnClickListener, Text
             else -> d.espesor = editTextEspesor.text.toString().toDouble()
         }
 
+        when {
+            editTextCantidadPanos.text.toString().isEmpty() -> d.cantPanos = 0f
+            else -> d.cantPanos = editTextCantidadPanos.text.toString().toFloat()
+        }
+        when {
+            editTextHorizontal.text.toString().isEmpty() -> d.medHorizontal = 0.0
+            else -> d.medHorizontal = editTextHorizontal.text.toString().toDouble()
+        }
+        when {
+            editTextVertical.text.toString().isEmpty() -> d.medVertical = 0.0
+            else -> d.medVertical = editTextVertical.text.toString().toDouble()
+        }
+
         if (tipo == "3") {
             val gps = Gps(this)
             if (gps.isLocationEnabled()) {

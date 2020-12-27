@@ -26,6 +26,10 @@ open class OtDetalle {
     var nombreTipoMaterial: String = ""
     var nombreTipoDemonte:String = ""
 
+    var cantPanos : Float = 0f
+    var medHorizontal : Double = 0.0
+    var medVertical : Double = 0.0
+
     @Ignore
     var photos: List<OtPhoto> = ArrayList()
 }
