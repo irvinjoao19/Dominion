@@ -16,6 +16,7 @@ import com.google.gson.Gson
 import com.jakewharton.retrofit2.adapter.rxjava2.HttpException
 import io.reactivex.Completable
 import io.reactivex.CompletableObserver
+import io.reactivex.Observable
 import io.reactivex.Observer
 import io.reactivex.android.schedulers.AndroidSchedulers
 import io.reactivex.disposables.Disposable
@@ -81,13 +82,23 @@ internal constructor(private val roomRepository: AppRepository, private val retr
             mensajeError.value = "Ingresar Nro OT/TD"
             return
         }
+        if (t.servicioId == 2) {
+            if (t.distritoId == 0) {
+                if (t.nroSed.isEmpty()) {
+                    mensajeError.value = "Ingrese Nro Sed"
+                    return
+                }
+            }
+        }
         if (t.direccion.isEmpty()) {
             mensajeError.value = "Ingresar Dirección"
             return
         }
-        if (t.nombreDistritoId.isEmpty()) {
-            mensajeError.value = "Seleccione Distrito"
-            return
+        if (t.servicioId != 2) {
+            if (t.nombreDistritoId.isEmpty()) {
+                mensajeError.value = "Seleccione Distrito"
+                return
+            }
         }
         insertOrUpdateOt(t)
     }
@@ -608,16 +619,62 @@ internal constructor(private val roomRepository: AppRepository, private val retr
             .subscribeOn(Schedulers.io())
             .observeOn(AndroidSchedulers.mainThread())
             .subscribe(object : CompletableObserver {
+                override fun onSubscribe(d: Disposable) {}
+                override fun onError(e: Throwable) {}
                 override fun onComplete() {
                     mensajeSuccess.value = "Ok"
                 }
+            })
+    }
 
-                override fun onSubscribe(d: Disposable) {
+    fun getSed(sed: String): Observable<Sed> {
+        return roomRepository.getSed(sed)
+    }
 
+    fun insertOtPhotoCabecera(o: OtDetalle) {
+        roomRepository.insertOtPhotoCabecera(o)
+            .subscribeOn(Schedulers.io())
+            .observeOn(AndroidSchedulers.mainThread())
+            .subscribe(object : Observer<Int> {
+                override fun onSubscribe(d: Disposable) {}
+                override fun onError(e: Throwable) {}
+                override fun onComplete() {}
+                override fun onNext(t: Int) {
+                    insertOtPhoto(t, o.photos)
                 }
+            })
+    }
 
-                override fun onError(e: Throwable) {
-                    Log.i("TAG", e.toString())
+    private fun insertOtPhoto(id: Int, t: List<OtPhoto>) {
+        roomRepository.insertOtPhoto(id, t)
+            .subscribeOn(Schedulers.io())
+            .observeOn(AndroidSchedulers.mainThread())
+            .subscribe(object : CompletableObserver {
+                override fun onSubscribe(d: Disposable) {}
+                override fun onError(e: Throwable) {}
+                override fun onComplete() {
+                    mensajeSuccess.value = "Ok"
+                }
+            })
+    }
+
+    fun getCountOtPhotoBajaTension(otId: Int): LiveData<Int> {
+        return roomRepository.getCountOtPhotoBajaTension(otId)
+    }
+
+    fun getOtPhotoBajaTension(otId: Int): LiveData<List<OtPhoto>> {
+        return roomRepository.getOtPhotoBajaTension(otId)
+    }
+
+    fun deleteOtPhotoBajaTension(otId: Int,context:Context) {
+        roomRepository.deleteOtPhotoBajaTension(otId,context)
+            .subscribeOn(Schedulers.io())
+            .observeOn(AndroidSchedulers.mainThread())
+            .subscribe(object : CompletableObserver {
+                override fun onSubscribe(d: Disposable) {}
+                override fun onError(e: Throwable) {}
+                override fun onComplete() {
+                    mensajeError.value = "Viaje Indebido desactivado"
                 }
             })
     }

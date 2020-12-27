@@ -16,7 +16,7 @@ class CameraActivity : AppCompatActivity() {
                 .replace(
                     R.id.container,
                     CameraFragment.newInstance(
-                        b.getInt("usuarioId"), b.getInt("id")
+                        b.getInt("usuarioId"), b.getInt("id"),b.getInt("tipo")
                     )
                 ).commit()
         }

@@ -28,6 +28,7 @@ import javax.inject.Inject
 private const val ARG_PARAM1 = "param1"
 private const val ARG_PARAM2 = "param2"
 private const val ARG_PARAM3 = "param3"
+private const val ARG_PARAM4 = "param4"
 
 class DesmonteFragment : DaggerFragment(), View.OnClickListener {
 
@@ -47,10 +48,12 @@ class DesmonteFragment : DaggerFragment(), View.OnClickListener {
                     .putExtra("usuarioId", usuarioId)
                     .putExtra("tipo", 7)
                     .putExtra("tipoDesmonte", t)
+                    .putExtra("grupo", grupo)
+                    .putExtra("servicio", servicio)
             )
         } else {
             viewPager?.currentItem = 0
-            Util.toastMensaje(context!!, "Completar primer formulario",false)
+            Util.toastMensaje(context!!, "Completar primer formulario", false)
         }
     }
 
@@ -62,15 +65,25 @@ class DesmonteFragment : DaggerFragment(), View.OnClickListener {
     private var otId: Int = 0
     private var otDetalleId: Int = 0
     private var usuarioId: Int = 0
-    private var tipo: Int = 0
+    private var grupo: Int = 0
     private var estado: Int = 0
+    private var servicio: Int = 0
 
+    /**
+     * @grupo
+     * 3 ->	ROTURA
+     * 4 ->	REPARACION
+     * 5 ->	RECOJO
+     * @servicio
+     * 2 -> Emergencia Baja Tensión
+     */
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         arguments?.let {
             otId = it.getInt(ARG_PARAM1)
             usuarioId = it.getInt(ARG_PARAM2)
-            tipo = it.getInt(ARG_PARAM3)
+            grupo = it.getInt(ARG_PARAM3)
+            servicio = it.getInt(ARG_PARAM4)
         }
     }
 
@@ -90,13 +103,13 @@ class DesmonteFragment : DaggerFragment(), View.OnClickListener {
         otViewModel =
             ViewModelProvider(this, viewModelFactory).get(OtViewModel::class.java)
 
-        otViewModel.getOtById(otId).observe(viewLifecycleOwner, Observer {
+        otViewModel.getOtById(otId).observe(viewLifecycleOwner, {
             if (it != null) {
                 estado = it.estado
             }
         })
 
-        otViewModel.getMaxIdOtDetalle().observe(viewLifecycleOwner, Observer { s ->
+        otViewModel.getMaxIdOtDetalle().observe(viewLifecycleOwner, { s ->
             otDetalleId = if (s != null) {
                 s + 1
             } else
@@ -114,6 +127,8 @@ class DesmonteFragment : DaggerFragment(), View.OnClickListener {
                             .putExtra("tipo", o.tipoTrabajoId)
                             .putExtra("tipoDesmonte", o.tipoDesmonteId)
                             .putExtra("estado", o.estado)
+                            .putExtra("grupo", grupo)
+                            .putExtra("servicio", servicio)
                     )
                     R.id.imgDelete -> if (o.estado == 3) {
                         if (o.latitud.isNotEmpty() || o.longitud.isNotEmpty()) {
@@ -143,7 +158,7 @@ class DesmonteFragment : DaggerFragment(), View.OnClickListener {
             .observe(viewLifecycleOwner, Observer(otDetalleAdapter::submitList))
 
         otViewModel.mensajeError.observe(viewLifecycleOwner, {
-            Util.toastMensaje(context!!, it,false)
+            Util.toastMensaje(context!!, it, false)
         })
 
         fabDesmonteR.setOnClickListener(this)
@@ -166,12 +181,13 @@ class DesmonteFragment : DaggerFragment(), View.OnClickListener {
 
     companion object {
         @JvmStatic
-        fun newInstance(param1: Int, param2: Int, param3: Int) =
+        fun newInstance(param1: Int, param2: Int, param3: Int, param4: Int) =
             DesmonteFragment().apply {
                 arguments = Bundle().apply {
                     putInt(ARG_PARAM1, param1)
                     putInt(ARG_PARAM2, param2)
                     putInt(ARG_PARAM3, param3)
+                    putInt(ARG_PARAM4, param4)
                 }
             }
     }

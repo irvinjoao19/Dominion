@@ -28,6 +28,7 @@ import javax.inject.Inject
 private const val ARG_PARAM1 = "param1"
 private const val ARG_PARAM2 = "param2"
 private const val ARG_PARAM3 = "param3"
+private const val ARG_PARAM4 = "param4"
 
 class MedidasFragment : DaggerFragment(), View.OnClickListener {
 
@@ -40,6 +41,8 @@ class MedidasFragment : DaggerFragment(), View.OnClickListener {
                         .putExtra("otId", otId)
                         .putExtra("usuarioId", usuarioId)
                         .putExtra("tipo", 6)
+                        .putExtra("grupo", grupo)
+                        .putExtra("servicio", servicio)
                 )
             } else {
                 viewPager?.currentItem = 0
@@ -56,15 +59,25 @@ class MedidasFragment : DaggerFragment(), View.OnClickListener {
     private var otId: Int = 0
     private var otDetalleId: Int = 0
     private var usuarioId: Int = 0
-    private var tipo: Int = 0
+    private var grupo: Int = 0
     private var estado: Int = 0
+    private var servicio: Int = 0
 
+    /**
+     * @grupo
+     * 3 ->	ROTURA
+     * 4 ->	REPARACION
+     * 5 ->	RECOJO
+     * @servicio
+     * 2 -> Emergencia Baja Tensión
+    */
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         arguments?.let {
             otId = it.getInt(ARG_PARAM1)
             usuarioId = it.getInt(ARG_PARAM2)
-            tipo = it.getInt(ARG_PARAM3)
+            grupo = it.getInt(ARG_PARAM3)
+            servicio = it.getInt(ARG_PARAM4)
         }
     }
 
@@ -107,6 +120,8 @@ class MedidasFragment : DaggerFragment(), View.OnClickListener {
                             .putExtra("usuarioId", usuarioId)
                             .putExtra("tipo", o.tipoTrabajoId)
                             .putExtra("estado", o.estado)
+                            .putExtra("grupo", grupo)
+                            .putExtra("servicio", servicio)
                     )
                     R.id.imgDelete -> if (o.estado == 3) {
                         if (o.latitud.isNotEmpty() || o.longitud.isNotEmpty()) {
@@ -157,12 +172,13 @@ class MedidasFragment : DaggerFragment(), View.OnClickListener {
 
     companion object {
         @JvmStatic
-        fun newInstance(param1: Int, param2: Int, param3: Int) =
+        fun newInstance(param1: Int, param2: Int, param3: Int,param4:Int) =
             MedidasFragment().apply {
                 arguments = Bundle().apply {
                     putInt(ARG_PARAM1, param1)
                     putInt(ARG_PARAM2, param2)
                     putInt(ARG_PARAM3, param3)
+                    putInt(ARG_PARAM4, param4)
                 }
             }
     }

@@ -18,9 +18,6 @@ import io.reactivex.Observable
 import okhttp3.MediaType
 import okhttp3.RequestBody
 import retrofit2.Call
-import retrofit2.http.Body
-import retrofit2.http.Headers
-import retrofit2.http.POST
 import java.net.URISyntaxException
 import java.util.*
 import kotlin.collections.ArrayList
@@ -145,6 +142,10 @@ class AppRepoImp(private val apiService: ApiService, private val dataBase: AppDa
                     dataBase.usuarioDao().updateServicio(se[0].nombreServicio, se[0].servicioId)
                 }
             }
+            val s7: List<Sed>? = s.seds
+            if (s7 != null) {
+                dataBase.sedDao().insertSedListTask(s7)
+            }
         }
     }
 
@@ -192,10 +193,7 @@ class AppRepoImp(private val apiService: ApiService, private val dataBase: AppDa
 
     override fun insertOrUpdateOt(t: Ot): Completable {
         return Completable.fromAction {
-            val ot: Boolean = dataBase.otDao().getNroOt(t.nroObra, t.fechaXOt)
-            if (ot) {
-                error("Ingrese otro Nro de OT")
-            } else {
+            if (t.servicioId != 2) {
                 if (t.distritoId == 0) {
                     t.distritoId = dataBase.distritoDao()
                         .searchDistritoId(
@@ -207,17 +205,33 @@ class AppRepoImp(private val apiService: ApiService, private val dataBase: AppDa
                             )
                         )
                 }
-
-                val o: Ot? = dataBase.otDao().getOtIdTask(t.otId)
-                if (o == null) {
-                    dataBase.otDao().insertOtTask(t)
-                } else {
-                    val a = dataBase.otDetalleDao().getDetalleOts(t.otId)
-                    if (a > 0) {
-                        t.estado = 1
+            } else {
+                val d: Sed? = dataBase.sedDao().getSedById(t.nroSed)
+                if (d == null) {
+                    if (t.distritoId == 0) {
+                        error("Sed no encontrado")
                     }
-                    dataBase.otDao().updateOtTask(t)
+                } else {
+                    t.nroSed = d.codigo
+                    t.distritoId = d.distritoId
+                    t.distritoIdGps = d.distritoId
+                    t.nombreDistritoId = d.distrito
                 }
+            }
+
+            val o: Ot? = dataBase.otDao().getOtIdTask(t.otId)
+            if (o == null) {
+                val ot: Boolean = dataBase.otDao().getNroOt(t.nroObra, t.fechaXOt)
+                if (ot) {
+                    error("Ingrese otro Nro de OT")
+                }
+                dataBase.otDao().insertOtTask(t)
+            } else {
+                val a = dataBase.otDetalleDao().getDetalleOts(t.otId)
+                if (a > 0) {
+                    t.estado = 1
+                }
+                dataBase.otDao().updateOtTask(t)
             }
         }
     }
@@ -519,21 +533,30 @@ class AppRepoImp(private val apiService: ApiService, private val dataBase: AppDa
         }
     }
 
-    override fun getOtPhotoTask(): Observable<List<OtPhoto>> {
+    override fun getOtPhotoTask(): Observable<List<String>> {
         return Observable.create { e ->
-            val data: ArrayList<OtPhoto> = ArrayList()
+            val data: ArrayList<String> = ArrayList()
+            val v: List<Ot> = dataBase.otDao().getAllRegistroTask(1)
+            if (v.isNotEmpty()) {
+                for (r: Ot in v) {
+                    if (r.fotoCabecera.isNotEmpty()) {
+                        data.add(r.fotoCabecera)
+                    }
+                }
+            }
             val ot = dataBase.otDetalleDao().getAllRegistroDetalleActiveTask(1)
             if (ot.isEmpty()) {
                 e.onError(Throwable("Usted no tiene pendientes por enviar"))
                 e.onComplete()
                 return@create
             }
+
             for (p: OtDetalle in ot) {
                 val photos: List<OtPhoto>? =
                     dataBase.otPhotoDao().getOtPhotoIdTask(p.otDetalleId)
                 if (photos != null) {
                     for (f: OtPhoto in photos) {
-                        data.add(f)
+                        data.add(f.urlPhoto)
                     }
                 }
             }
@@ -550,4 +573,70 @@ class AppRepoImp(private val apiService: ApiService, private val dataBase: AppDa
         return apiService.sendOt(body)
     }
 
+    override fun getSed(sed: String): Observable<Sed> {
+        return Observable.create {
+            val d: Sed? = dataBase.sedDao().getSedById(sed)
+            if (d == null) {
+                it.onError(Throwable("Sed no encontrado"))
+                it.onComplete()
+                return@create
+            }
+            it.onNext(d)
+            it.onComplete()
+        }
+    }
+
+    override fun insertOtPhotoCabecera(t: OtDetalle): Observable<Int> {
+        return Observable.create {
+            val s = dataBase.otDetalleDao().getMaxIdOtDetalleTask()
+            val otDetalleId = if (s != 0) {
+                s + 1
+            } else 1
+
+            val o: OtDetalle? =
+                dataBase.otDetalleDao().getOtDetalleBajaTension(t.otId, t.tipoMaterialId)
+            if (o == null) {
+                t.otDetalleId = otDetalleId
+                dataBase.otDetalleDao().insertOtDetalleTask(t)
+                it.onNext(otDetalleId)
+            } else {
+                it.onNext(o.otDetalleId)
+            }
+            it.onComplete()
+        }
+    }
+
+    override fun insertOtPhoto(id: Int, t: List<OtPhoto>): Completable {
+        return Completable.fromAction {
+            val f: List<OtPhoto>? = t
+            if (f != null) {
+                for (d: OtPhoto in f) {
+                    val count = dataBase.otPhotoDao().getCountPhoto(id)
+                    if (count < 3) {
+                        d.otDetalleId = id
+                        dataBase.otPhotoDao().insertOtPhotoTask(d)
+                    }
+                }
+            }
+        }
+    }
+
+    override fun getCountOtPhotoBajaTension(otId: Int): LiveData<Int> {
+        return dataBase.otPhotoDao().getCountOtPhotoBajaTension(otId)
+    }
+
+    override fun getOtPhotoBajaTension(otId: Int): LiveData<List<OtPhoto>> {
+        return dataBase.otPhotoDao().getOtPhotoBajaTension(otId)
+    }
+
+    override fun deleteOtPhotoBajaTension(otId: Int, context: Context): Completable {
+        return Completable.fromAction {
+            dataBase.otDetalleDao().deleteOtDetalleBajaTension(otId, 24)
+            val f = dataBase.otPhotoDao().getOtPhotoBajaTensionTask(otId)
+            for (p: OtPhoto in f) {
+                Util.deletePhoto(p.urlPhoto, context)
+            }
+            dataBase.otPhotoDao().deletePhotoBajaTension(otId)
+        }
+    }
 }

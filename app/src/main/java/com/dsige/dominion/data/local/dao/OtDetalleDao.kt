@@ -27,13 +27,16 @@ interface OtDetalleDao {
     fun deleteAll()
 
     @Query("SELECT * FROM OtDetalle WHERE otId =:id AND tipoTrabajoId =:tipo")
-    fun getOtDetalleById(id: Int,tipo:Int): DataSource.Factory<Int, OtDetalle>
+    fun getOtDetalleById(id: Int, tipo: Int): DataSource.Factory<Int, OtDetalle>
 
     @Query("SELECT * FROM OtDetalle WHERE otDetalleId =:id")
     fun getOtDetalleIdTask(id: Int): OtDetalle
 
     @Query("SELECT otDetalleId FROM OtDetalle ORDER BY otDetalleId DESC LIMIT 1")
     fun getMaxIdOtDetalle(): LiveData<Int>
+
+    @Query("SELECT otDetalleId FROM OtDetalle ORDER BY otDetalleId DESC LIMIT 1")
+    fun getMaxIdOtDetalleTask(): Int
 
     @Query("SELECT * FROM OtDetalle WHERE otDetalleId =:id")
     fun getOtDetalleId(id: Int): LiveData<OtDetalle>
@@ -51,5 +54,11 @@ interface OtDetalleDao {
     fun getDetalleOts(id: Int): Int
 
     @Query("SELECT * FROM OtDetalle WHERE estado =:e")
-    fun getAllRegistroDetalleActiveTask(e:Int): List<OtDetalle>
+    fun getAllRegistroDetalleActiveTask(e: Int): List<OtDetalle>
+
+    @Query("SELECT * FROM OtDetalle WHERE otId=:id AND tipoMaterialId=:t")
+    fun getOtDetalleBajaTension(id: Int, t: Int): OtDetalle
+
+    @Query("DELETE FROM OtDetalle WHERE otId=:id AND tipoMaterialId=:t")
+    fun deleteOtDetalleBajaTension(id: Int, t: Int)
 }

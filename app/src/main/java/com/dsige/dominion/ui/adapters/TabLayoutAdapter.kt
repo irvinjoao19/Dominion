@@ -18,9 +18,9 @@ abstract class TabLayoutAdapter {
             return when (position) {
                 0 -> GeneralFragment.newInstance(otId, usuarioId, tipo, empresaId, servicioId,personalId)
                 1 -> if (tipo == 5) DesmonteFragment.newInstance(
-                    otId, usuarioId, tipo
-                ) else MedidasFragment.newInstance(otId, usuarioId, tipo)
-                2 -> DesmonteFragment.newInstance(otId, usuarioId, tipo)
+                    otId, usuarioId, tipo,servicioId
+                ) else MedidasFragment.newInstance(otId, usuarioId, tipo,servicioId)
+                2 -> DesmonteFragment.newInstance(otId, usuarioId, tipo,servicioId)
                 else -> Fragment()
             }
         }

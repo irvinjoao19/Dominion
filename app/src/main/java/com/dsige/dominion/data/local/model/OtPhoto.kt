@@ -12,4 +12,6 @@ open class OtPhoto {
     var nombrePhoto: String = ""
     var urlPhoto: String = ""
     var estado: Int = 0
+
+    var otId : Int = 0
 }

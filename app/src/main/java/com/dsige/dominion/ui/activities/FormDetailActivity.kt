@@ -63,6 +63,7 @@ class FormDetailActivity : DaggerAppCompatActivity(), View.OnClickListener, Text
     private var usuarioId: Int = 0
     private var size: Int = 0
     private var maxSize: Int = 10
+    private var tipo: Int = 0
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -70,13 +71,16 @@ class FormDetailActivity : DaggerAppCompatActivity(), View.OnClickListener, Text
         val b = intent.extras
         if (b != null) {
             d = OtDetalle()
+            tipo = b.getInt("tipo")
             bindUI(
                 b.getInt("otDetalleId"),
                 b.getInt("otId"),
                 b.getInt("usuarioId"),
                 b.getInt("tipo"),
                 b.getInt("tipoDesmonte"),
-                b.getInt("estado")
+                b.getInt("estado"),
+                b.getInt("grupo"),
+                b.getInt("servicio")
             )
         }
     }
@@ -88,8 +92,23 @@ class FormDetailActivity : DaggerAppCompatActivity(), View.OnClickListener, Text
      * @tipoDesmonte
      * 14 -> Desmonte Recojido
      * 15 -> Genera Ot Desmonte
+     * @grupo
+     * 3 ->	ROTURA
+     * 4 ->	REPARACION
+     * 5 ->	RECOJO
+     * @servicio
+     * 2 -> Emergencia Baja Tensión
      */
-    private fun bindUI(detalleId: Int, otId: Int, u: Int, tipo: Int, tipoDesmonte: Int, e: Int) {
+    private fun bindUI(
+        detalleId: Int,
+        otId: Int,
+        u: Int,
+        tipo: Int,
+        tipoDesmonte: Int,
+        e: Int,
+        g: Int,
+        s: Int
+    ) {
         setSupportActionBar(toolbar)
         supportActionBar!!.title = when {
             tipo == 6 -> "Ot Medidas"
@@ -157,8 +176,8 @@ class FormDetailActivity : DaggerAppCompatActivity(), View.OnClickListener, Text
             Util.toastMensaje(this, it, false)
         })
 
-        otViewModel.mensajeSuccess.observe(this, Observer { s ->
-            when (s) {
+        otViewModel.mensajeSuccess.observe(this, Observer {
+            when (it) {
                 "Ok" -> {
                     finish()
                     return@Observer
@@ -174,10 +193,11 @@ class FormDetailActivity : DaggerAppCompatActivity(), View.OnClickListener, Text
                 else -> {
                     startActivity(
                         Intent(this, PreviewCameraActivity::class.java)
-                            .putExtra("nameImg", s)
+                            .putExtra("nameImg", it)
                             .putExtra("usuarioId", usuarioId)
                             .putExtra("id", d.otDetalleId)
                             .putExtra("galery", true)
+                            .putExtra("tipo", 0)
                     )
                 }
             }
@@ -202,6 +222,17 @@ class FormDetailActivity : DaggerAppCompatActivity(), View.OnClickListener, Text
 
         if (e == 3) {
             fabMenu.visibility = View.GONE
+        }
+
+        if (s == 2) {
+            if (g == 3 || g == 4) {
+                textView2.visibility = View.VISIBLE
+                textView3.visibility = View.VISIBLE
+                textView4.visibility = View.VISIBLE
+                layout2.visibility = View.VISIBLE
+                layout3.visibility = View.VISIBLE
+                layout4.visibility = View.VISIBLE
+            }
         }
 
         editTextAncho.addTextChangedListener(this)
@@ -264,7 +295,10 @@ class FormDetailActivity : DaggerAppCompatActivity(), View.OnClickListener, Text
             else -> editTextEspesor.text.toString().toDouble()
         }
 
-        val result = a * b * c
+        val result = when (tipo) {
+            6 -> a * b * c * 10
+            else -> a * b * c
+        }
         textViewTotal.text = String.format("Total : %.2f", result)
         d.total = result
     }

@@ -2,14 +2,17 @@ package com.dsige.dominion.ui.fragments
 
 import android.annotation.SuppressLint
 import android.content.ActivityNotFoundException
+import android.content.Context
 import android.content.Intent
 import android.os.Bundle
 import android.speech.RecognizerIntent
 import android.text.Editable
 import android.text.TextWatcher
+import android.view.KeyEvent
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import android.view.inputmethod.InputMethodManager
 import android.widget.ProgressBar
 import android.widget.TextView
 import androidx.appcompat.app.AlertDialog
@@ -21,19 +24,28 @@ import androidx.recyclerview.widget.DividerItemDecoration
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import androidx.viewpager.widget.ViewPager
-
 import com.dsige.dominion.R
 import com.dsige.dominion.data.local.model.Distrito
 import com.dsige.dominion.data.local.model.Ot
+import com.dsige.dominion.data.local.model.Sed
 import com.dsige.dominion.data.viewModel.OtViewModel
+import com.dsige.dominion.data.viewModel.ViewModelFactory
 import com.dsige.dominion.helper.Gps
+import com.dsige.dominion.helper.Permission
 import com.dsige.dominion.helper.Util
+import com.dsige.dominion.ui.activities.CameraActivity
+import com.dsige.dominion.ui.activities.PreviewCameraActivity
 import com.dsige.dominion.ui.adapters.DistritoAdapter
 import com.dsige.dominion.ui.listeners.OnItemClickListener
-import com.dsige.dominion.data.viewModel.ViewModelFactory
+import com.google.android.material.checkbox.MaterialCheckBox
+import com.google.android.material.dialog.MaterialAlertDialogBuilder
 import com.google.android.material.textfield.TextInputEditText
 import com.google.android.material.textfield.TextInputLayout
 import dagger.android.support.DaggerFragment
+import io.reactivex.Observer
+import io.reactivex.android.schedulers.AndroidSchedulers
+import io.reactivex.disposables.Disposable
+import io.reactivex.schedulers.Schedulers
 import kotlinx.android.synthetic.main.fragment_general.*
 import java.util.*
 import javax.inject.Inject
@@ -45,16 +57,52 @@ private const val ARG_PARAM4 = "param4"
 private const val ARG_PARAM5 = "param5"
 private const val ARG_PARAM6 = "param6"
 
-class GeneralFragment : DaggerFragment(), View.OnClickListener {
+class GeneralFragment : DaggerFragment(), View.OnClickListener, TextView.OnEditorActionListener {
 
     override fun onClick(v: View) {
+        if (v is MaterialCheckBox) {
+            val checked: Boolean = v.isChecked
+            when (v.id) {
+                R.id.checkViaje -> {
+                    if (checked) {
+                        fabCamara.visibility = View.VISIBLE
+                    } else {
+                        confirmDeletePhotos()
+                    }
+                }
+            }
+            return
+        }
+
         when (v.id) {
             R.id.editTextDistritos -> spinnerDialog()
             R.id.imageViewDireccion -> getAddress()
             R.id.imageViewReferencia -> microPhone("Referencia", 1)
             R.id.imageViewDescripcion -> microPhone("Descripción de Trabajo", 2)
             R.id.fabGenerate -> formOt()
+            R.id.imageViewSed -> if (t.distritoIdGps != 0) {
+                clearSed()
+            } else {
+                if (editTextSed.text.toString().isNotEmpty()) {
+                    searchSed(editTextSed.text.toString())
+                } else
+                    otViewModel.setError("Ingrese Nro de Sed")
+            }
+
+            R.id.fabPreviewCamera -> goPreviewPhoto()
+            R.id.fabCamara -> if (t.estado != 0) {
+                goCamera()
+            } else
+                otViewModel.setError("Completar formulario")
         }
+    }
+
+    override fun onEditorAction(v: TextView, p1: Int, p2: KeyEvent?): Boolean {
+        val sed = v.text.toString()
+        if (sed.isNotEmpty()) {
+            searchSed(sed)
+        }
+        return false
     }
 
     private fun getAddress() {
@@ -67,7 +115,8 @@ class GeneralFragment : DaggerFragment(), View.OnClickListener {
                 editTextDistritos,
                 gps.getLatitude(),
                 gps.getLongitude(),
-                progressBarLugar
+                progressBarLugar,
+                servicioId
             )
         } else {
             gps.showSettingsAlert(context!!)
@@ -89,10 +138,11 @@ class GeneralFragment : DaggerFragment(), View.OnClickListener {
     private var empresaId: Int = 0
     private var servicioId: Int = 0
     private var personalId: Int = 0
+    private var size: Int = 0
+    private var maxSize: Int = 3
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-
         t = Ot()
 
         arguments?.let {
@@ -121,10 +171,34 @@ class GeneralFragment : DaggerFragment(), View.OnClickListener {
         otViewModel =
             ViewModelProvider(this, viewModelFactory).get(OtViewModel::class.java)
 
+        if (servicioId == 2) {
+            layoutSuministro.visibility = View.VISIBLE
+            layoutSed.visibility = View.VISIBLE
+            imageViewSed.visibility = View.VISIBLE
+            checkViaje.visibility = View.VISIBLE
+
+            otViewModel.getCountOtPhotoBajaTension(otId).observe(viewLifecycleOwner, {
+                size = it
+                if (it > 0) {
+                    fabPreviewCamera.visibility = View.VISIBLE
+                } else {
+                    fabPreviewCamera.visibility = View.GONE
+                }
+                if (it == maxSize) {
+                    fabCamara.visibility = View.INVISIBLE
+                } else {
+                    if (checkViaje.isChecked) {
+                        fabCamara.visibility = View.VISIBLE
+                    }
+                }
+            })
+        }
+
         otViewModel.getOtById(otId).observe(viewLifecycleOwner, {
             if (it != null) {
                 t = it
                 editTextNumero.setText(it.nroObra)
+                editTextNumero.isEnabled = false
                 editTextDireccion.setText(it.direccion)
                 editTextDistritos.setText(it.nombreDistritoId)
                 editTextReferencia.setText(it.referenciaOt)
@@ -132,17 +206,35 @@ class GeneralFragment : DaggerFragment(), View.OnClickListener {
                 if (it.estado == 0) {
                     fabGenerate.visibility = View.GONE
                 }
+                editTextSuministro.setText(it.suministroTD)
+                editTextSed.setText(it.nroSed)
+
+                if (it.viajeIndebido == 1) {
+                    checkViaje.isChecked = true
+                    fabCamara.visibility = View.VISIBLE
+                }
             }
         })
 
         otViewModel.mensajeError.observe(viewLifecycleOwner, {
             //closeLoad()
-            Util.toastMensaje(context!!, it,false)
+            Util.toastMensaje(context!!, it, false)
         })
 
         otViewModel.mensajeSuccess.observe(viewLifecycleOwner, {
-            viewPager?.currentItem = 1
-            Util.toastMensaje(context!!, it,false)
+            if (servicioId == 2) {
+                if (checkViaje.isChecked) {
+                    if (size == 0) {
+                        goCamera()
+                    }
+                } else {
+                    viewPager?.currentItem = 1
+                    Util.toastMensaje(context!!, it, false)
+                }
+            } else {
+                viewPager?.currentItem = 1
+                Util.toastMensaje(context!!, it, false)
+            }
         })
 
         editTextDistritos.setOnClickListener(this)
@@ -150,7 +242,14 @@ class GeneralFragment : DaggerFragment(), View.OnClickListener {
         imageViewDireccion.setOnClickListener(this)
         imageViewReferencia.setOnClickListener(this)
         imageViewDescripcion.setOnClickListener(this)
+
+        imageViewSed.setOnClickListener(this)
+        checkViaje.setOnClickListener(this)
+        fabCamara.setOnClickListener(this)
+        editTextSed.setOnEditorActionListener(this)
+        fabPreviewCamera.setOnClickListener(this)
     }
+
 
     private fun formOt() {
         val gps = Gps(context!!)
@@ -170,6 +269,9 @@ class GeneralFragment : DaggerFragment(), View.OnClickListener {
                 t.direccion = editTextDireccion.text.toString()
                 t.referenciaOt = editTextReferencia.text.toString()
                 t.nombreDistritoId = editTextDistritos.text.toString()
+                t.suministroTD = editTextSuministro.text.toString()
+                t.nroSed = editTextSed.text.toString()
+                t.viajeIndebido = if (checkViaje.isChecked) 1 else 0
                 t.latitud = gps.latitude.toString()
                 t.longitud = gps.longitude.toString()
                 t.fechaAsignacion = Util.getFecha()
@@ -270,7 +372,7 @@ class GeneralFragment : DaggerFragment(), View.OnClickListener {
         try {
             startActivityForResult(intent, permission)
         } catch (a: ActivityNotFoundException) {
-            Util.toastMensaje(context!!, "Dispositivo no compatible para esta opción",false)
+            Util.toastMensaje(context!!, "Dispositivo no compatible para esta opción", false)
         }
     }
 
@@ -302,5 +404,90 @@ class GeneralFragment : DaggerFragment(), View.OnClickListener {
                     putInt(ARG_PARAM6, p6)
                 }
             }
+    }
+
+    private fun searchSed(sed: String) {
+        otViewModel.getSed(sed)
+            .subscribeOn(Schedulers.io())
+            .observeOn(AndroidSchedulers.mainThread())
+            .subscribe(object : Observer<Sed> {
+                override fun onSubscribe(d: Disposable) {}
+                override fun onComplete() {}
+                override fun onNext(s: Sed) {
+                    t.nroSed = s.codigo
+                    t.distritoIdGps = s.distritoId
+                    t.distritoId = s.distritoId
+                    editTextDistritos.setText(s.distrito)
+                    editTextSed.isEnabled = false
+                    imageViewSed.setImageResource(R.drawable.ic_remove)
+                }
+
+                override fun onError(e: Throwable) {
+                    otViewModel.setError(e.message.toString())
+                }
+            })
+    }
+
+    private fun clearSed() {
+        t.nroSed = ""
+        t.distritoIdGps = 0
+        t.distritoId = 0
+        editTextDistritos.text = null
+        editTextSed.isEnabled = true
+        editTextSed.text = null
+
+        editTextSed.post {
+            editTextSed.requestFocusFromTouch()
+            val lManager: InputMethodManager =
+                activity!!.getSystemService(Context.INPUT_METHOD_SERVICE) as InputMethodManager
+            lManager.showSoftInput(editTextSed, 0)
+        }
+
+        imageViewSed.setImageResource(R.drawable.ic_send)
+    }
+
+    private fun goPreviewPhoto() {
+        startActivity(
+            Intent(context, PreviewCameraActivity::class.java)
+                .putExtra("id", otId)
+                .putExtra("usuarioId", usuarioId)
+                .putExtra("tipo", 2)
+                .putExtra("galery", false)
+                .putExtra("nameImg", "")
+        )
+    }
+
+    private fun goCamera(){
+        startActivity(
+            Intent(context, CameraActivity::class.java)
+                .putExtra("id", otId)
+                .putExtra("usuarioId", usuarioId)
+                .putExtra("tipo", 1)
+        )
+    }
+
+    private fun goGalery() {
+        otViewModel.setError("Maximo " + (maxSize - size) + " fotos para seleccionar")
+        val i = Intent(Intent.ACTION_GET_CONTENT)
+        i.type = "image/*"
+        i.putExtra(Intent.EXTRA_ALLOW_MULTIPLE, true)
+        startActivityForResult(i, Permission.GALERY_REQUEST)
+    }
+
+    private fun confirmDeletePhotos() {
+        val dialog = MaterialAlertDialogBuilder(context!!)
+            .setTitle("Mensaje")
+            .setMessage("Al desactivar se eliminaran las fotos pendientes ?")
+            .setPositiveButton("SI") { dialog, _ ->
+                otViewModel.deleteOtPhotoBajaTension(otId, context!!)
+                fabCamara.visibility = View.GONE
+                dialog.dismiss()
+            }
+            .setNegativeButton("NO") { dialog, _ ->
+                checkViaje.isChecked = true
+                fabCamara.visibility = View.VISIBLE
+                dialog.cancel()
+            }
+        dialog.show()
     }
 }

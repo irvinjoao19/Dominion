@@ -91,10 +91,13 @@ interface AppRepository {
     fun sendSocket(): Completable
 
     // nuevo
-    fun getOtPhotoTask(): Observable<List<OtPhoto>>
+    fun getOtPhotoTask(): Observable<List<String>>
     fun sendOtPhotos(body: RequestBody): Observable<String>
     fun sendOt(body: RequestBody): Observable<Mensaje>
-
-
-
+    fun getSed(sed: String): Observable<Sed>
+    fun insertOtPhotoCabecera(t: OtDetalle): Observable<Int>
+    fun insertOtPhoto(id:Int,t: List<OtPhoto>): Completable
+    fun getCountOtPhotoBajaTension(otId: Int): LiveData<Int>
+    fun getOtPhotoBajaTension(otId: Int): LiveData<List<OtPhoto>>
+    fun deleteOtPhotoBajaTension(otId: Int,context:Context): Completable
 }

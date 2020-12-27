@@ -47,10 +47,8 @@ internal constructor(private val roomRepository: AppRepository, private val retr
             .subscribeOn(Schedulers.io())
             .observeOn(AndroidSchedulers.mainThread())
             .subscribe(object : Observer<Usuario> {
-                override fun onSubscribe(d: Disposable) {
-
-                }
-
+                override fun onComplete() {}
+                override fun onSubscribe(d: Disposable) {}
                 override fun onNext(usuario: Usuario) {
                     insertUsuario(usuario, version)
                 }
@@ -68,9 +66,6 @@ internal constructor(private val roomRepository: AppRepository, private val retr
                         mensajeError.postValue(t.message)
                     }
                 }
-
-                override fun onComplete() {
-                }
             })
     }
 
@@ -80,11 +75,8 @@ internal constructor(private val roomRepository: AppRepository, private val retr
             .subscribeOn(Schedulers.computation())
             .observeOn(AndroidSchedulers.mainThread())
             .subscribe(object : CompletableObserver {
-                override fun onSubscribe(d: Disposable) {
-                }
-
+                override fun onSubscribe(d: Disposable) {}
                 override fun onComplete() {
-//                    getSync(u, v)
                     sync(u.usuarioId, u.empresaId, u.personalId)
                 }
 
@@ -172,18 +164,8 @@ internal constructor(private val roomRepository: AppRepository, private val retr
             .subscribeOn(Schedulers.io())
             .observeOn(AndroidSchedulers.mainThread())
             .subscribe(object : Observer<Sync> {
-                override fun onComplete() {
-
-                }
-
-                override fun onSubscribe(d: Disposable) {
-
-                }
-
-                override fun onNext(t: Sync) {
-                    insertSync(t)
-                }
-
+                override fun onComplete() {}
+                override fun onSubscribe(d: Disposable) {}
                 override fun onError(e: Throwable) {
                     if (e is HttpException) {
                         val body = e.response().errorBody()
@@ -198,6 +180,10 @@ internal constructor(private val roomRepository: AppRepository, private val retr
                         mensajeError.postValue(e.toString())
                     }
                 }
+
+                override fun onNext(t: Sync) {
+                    insertSync(t)
+                }
             })
     }
 
@@ -207,16 +193,15 @@ internal constructor(private val roomRepository: AppRepository, private val retr
             .subscribeOn(Schedulers.computation())
             .observeOn(AndroidSchedulers.mainThread())
             .subscribe(object : CompletableObserver {
-                override fun onSubscribe(d: Disposable) {
+                override fun onSubscribe(d: Disposable) {}
+                override fun onError(e: Throwable) {
+                    mensajeError.value = e.toString()
                 }
 
                 override fun onComplete() {
                     mensajeSuccess.value = "Sincronización Completa"
                 }
 
-                override fun onError(e: Throwable) {
-                    mensajeError.value = e.toString()
-                }
             })
     }
 
@@ -225,12 +210,12 @@ internal constructor(private val roomRepository: AppRepository, private val retr
     }
 
     fun sendOt(context: Context) {
-        val ot: Observable<List<OtPhoto>> = roomRepository.getOtPhotoTask()
+        val ot: Observable<List<String>> = roomRepository.getOtPhotoTask()
         ot.flatMap { observable ->
             Observable.fromIterable(observable).flatMap { a ->
                 val b = MultipartBody.Builder()
-                if (a.urlPhoto.isNotEmpty()) {
-                    val file = File(Util.getFolder(context), a.urlPhoto)
+                if (a.isNotEmpty()) {
+                    val file = File(Util.getFolder(context), a)
                     if (file.exists()) {
                         b.addFormDataPart(
                             "files", file.name,
@@ -250,14 +235,9 @@ internal constructor(private val roomRepository: AppRepository, private val retr
         }.subscribeOn(Schedulers.io())
             .observeOn(AndroidSchedulers.mainThread())
             .subscribe(object : Observer<String> {
-
-                override fun onSubscribe(d: Disposable) {
-                    Log.i("TAG", d.toString())
-                }
-
+                override fun onSubscribe(d: Disposable) {}
                 override fun onNext(m: String) {
                     Log.i("TAG", m)
-//                    updateParteDiario(m)
                 }
 
                 override fun onError(e: Throwable) {
@@ -298,11 +278,9 @@ internal constructor(private val roomRepository: AppRepository, private val retr
             .delay(1000, TimeUnit.MILLISECONDS)
             .observeOn(AndroidSchedulers.mainThread())
             .subscribe(object : Observer<Mensaje> {
+                override fun onSubscribe(d: Disposable) {}
                 override fun onComplete() {
                     sendSocket()
-                }
-
-                override fun onSubscribe(d: Disposable) {
                 }
 
                 override fun onNext(t: Mensaje) {
@@ -364,11 +342,9 @@ internal constructor(private val roomRepository: AppRepository, private val retr
             .delay(1000, TimeUnit.MILLISECONDS)
             .observeOn(AndroidSchedulers.mainThread())
             .subscribe(object : Observer<Mensaje> {
+                override fun onSubscribe(d: Disposable) {}
                 override fun onComplete() {
                     sendSocket()
-                }
-
-                override fun onSubscribe(d: Disposable) {
                 }
 
                 override fun onNext(t: Mensaje) {

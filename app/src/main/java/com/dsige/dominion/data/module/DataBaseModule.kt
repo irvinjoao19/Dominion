@@ -103,4 +103,9 @@ class DataBaseModule {
     internal fun provideOtPlazoDetalleDao(appDataBase: AppDataBase): OtPlazoDetalleDao {
         return appDataBase.otPlazoDetalleDao()
     }
+
+    @Provides
+    internal fun provideSedDao(appDataBase: AppDataBase): SedDao {
+        return appDataBase.sedDao()
+    }
 }

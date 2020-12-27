@@ -884,7 +884,8 @@ object Util {
         input2: TextInputEditText,
         latitude: Double,
         longitude: Double,
-        progressBar: ProgressBar
+        progressBar: ProgressBar,
+        tipo : Int
     ) {
         try {
             val addressObservable = Observable.just(
@@ -903,7 +904,9 @@ object Util {
 
                     override fun onNext(address: Address) {
                         input.setText(address.getAddressLine(0).toString())
-                        input2.setText(address.locality.toString())
+                        if (tipo != 2){
+                            input2.setText(address.locality.toString())
+                        }
                     }
 
                     override fun onError(e: Throwable) {

@@ -28,6 +28,7 @@ import io.reactivex.disposables.Disposable
 import io.reactivex.schedulers.Schedulers
 import kotlinx.android.synthetic.main.fragment_camera.*
 import java.io.File
+import java.lang.Exception
 import java.lang.Long.signum
 import java.util.*
 import java.util.concurrent.Semaphore
@@ -37,6 +38,7 @@ import kotlin.math.sqrt
 
 private const val ARG_PARAM1 = "param1"
 private const val ARG_PARAM2 = "param2"
+private const val ARG_PARAM3 = "param3"
 
 class CameraFragment : Fragment(), View.OnClickListener, View.OnTouchListener {
 
@@ -335,12 +337,14 @@ class CameraFragment : Fragment(), View.OnClickListener, View.OnTouchListener {
     private var registroId: Int = 0
     private var direccion: String = ""
     private var distrito: String = ""
+    private var tipo: Int = 0
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         arguments?.let {
             usuarioId = it.getInt(ARG_PARAM1)
             registroId = it.getInt(ARG_PARAM2)
+            tipo = it.getInt(ARG_PARAM3)
         }
     }
 
@@ -362,25 +366,29 @@ class CameraFragment : Fragment(), View.OnClickListener, View.OnTouchListener {
 
         val gps = Gps(context!!)
         if (gps.isLocationEnabled()) {
-            val addressObservable = Observable.just(
-                Geocoder(context)
-                    .getFromLocation(
-                        gps.getLatitude(), gps.getLongitude(), 1
-                    )[0]
-            )
-            addressObservable.subscribeOn(Schedulers.io())
-                .delay(1000, TimeUnit.MILLISECONDS)
-                .observeOn(AndroidSchedulers.mainThread())
-                .subscribe(object : Observer<Address> {
-                    override fun onSubscribe(d: Disposable) {}
-                    override fun onNext(address: Address) {
-                        direccion = address.getAddressLine(0).toString()
-                        distrito = address.locality.toString()
-                    }
+            try {
+                val addressObservable = Observable.just(
+                    Geocoder(context)
+                        .getFromLocation(
+                            gps.getLatitude(), gps.getLongitude(), 1
+                        )[0]
+                )
+                addressObservable.subscribeOn(Schedulers.io())
+                    .delay(1000, TimeUnit.MILLISECONDS)
+                    .observeOn(AndroidSchedulers.mainThread())
+                    .subscribe(object : Observer<Address> {
+                        override fun onSubscribe(d: Disposable) {}
+                        override fun onNext(address: Address) {
+                            direccion = address.getAddressLine(0).toString()
+                            distrito = address.locality.toString()
+                        }
 
-                    override fun onError(e: Throwable) {}
-                    override fun onComplete() {}
-                })
+                        override fun onError(e: Throwable) {}
+                        override fun onComplete() {}
+                    })
+            } catch (e: Exception) {
+                Log.i("TAG", e.toString())
+            }
         } else {
             gps.showSettingsAlert(context!!)
         }
@@ -484,7 +492,7 @@ class CameraFragment : Fragment(), View.OnClickListener, View.OnTouchListener {
         } catch (e: NullPointerException) {
             // Currently an NPE is thrown when the Camera2API is used but not supported on the
             // device this code runs.
-            Util.toastMensaje(context!!, "CAMERA ERROR",true)
+            Util.toastMensaje(context!!, "CAMERA ERROR", true)
 //            ErrorDialog.newInstance(getString(R.string.camera_error))
 //                .show(childFragmentManager, FRAGMENT_DIALOG)
         }
@@ -631,7 +639,7 @@ class CameraFragment : Fragment(), View.OnClickListener, View.OnTouchListener {
                     }
 
                     override fun onConfigureFailed(session: CameraCaptureSession) {
-                        Util.toastMensaje(context!!, "Failed",true)
+                        Util.toastMensaje(context!!, "Failed", true)
                     }
                 }, null
             )
@@ -768,6 +776,7 @@ class CameraFragment : Fragment(), View.OnClickListener, View.OnTouchListener {
                                 .putExtra("usuarioId", usuarioId)
                                 .putExtra("id", registroId)
                                 .putExtra("galery", false)
+                                .putExtra("tipo", tipo)
                         )
                         activity!!.finish()
 
@@ -783,7 +792,6 @@ class CameraFragment : Fragment(), View.OnClickListener, View.OnTouchListener {
         } catch (e: CameraAccessException) {
             Log.e(TAG, e.toString())
         }
-
     }
 
     /**
@@ -953,11 +961,12 @@ class CameraFragment : Fragment(), View.OnClickListener, View.OnTouchListener {
         }
 
         @JvmStatic
-        fun newInstance(param1: Int, param2: Int) =
+        fun newInstance(param1: Int, param2: Int, param3: Int) =
             CameraFragment().apply {
                 arguments = Bundle().apply {
                     putInt(ARG_PARAM1, param1)
                     putInt(ARG_PARAM2, param2)
+                    putInt(ARG_PARAM3, param3)
                 }
             }
     }

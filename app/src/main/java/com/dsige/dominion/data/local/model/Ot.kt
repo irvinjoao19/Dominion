@@ -40,10 +40,16 @@ open class Ot {
     var longitud: String = ""
     var usuarioId: Int = 0
     var identity: Int = 0
+    var distritoIdGps: Int = 0
+    var suministroTD: String = ""
+    var nroSed: String = ""
+    var fotoAnterior: String = ""
+    var fotoCabecera: String = ""
+    var viajeIndebido: Int = 0
 
     var estadoId: Int = 0 // 4 -> ejecutado  // 5 enviado aprobar
     var estado: Int = 0 // 1 -> para enviar , 2 -> incompleto  , 0 -> desabilitado
-    var fechaXOt :String = "" // solo un nro de ot por dia
+    var fechaXOt: String = "" // solo un nro de ot por dia
 
     var activeNotificacion: Int = 0
 

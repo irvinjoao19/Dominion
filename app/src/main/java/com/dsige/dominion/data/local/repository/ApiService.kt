@@ -54,14 +54,13 @@ interface ApiService {
     fun getOtPlazoDetalle(@Body body: RequestBody): Observable<List<OtPlazoDetalle>>
 
 
-
     // nuevo
     @Headers("Cache-Control: no-cache")
     @POST("SaveOtPhotos")
     fun sendOtPhotos(@Body body: RequestBody): Observable<String>
 
     @Headers("Cache-Control: no-cache")
-    @POST("SaveOt")
+    @POST("SaveOtNew3")
     fun sendOt(@Body body: RequestBody): Observable<Mensaje>
 
 }
