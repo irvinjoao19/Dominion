@@ -542,6 +542,14 @@ class AppRepoImp(private val apiService: ApiService, private val dataBase: AppDa
                     if (r.fotoCabecera.isNotEmpty()) {
                         data.add(r.fotoCabecera)
                     }
+                    if (r.tipoOrdenId == 3 || r.tipoOrdenId == 4){
+                        val d : List<OtDetalle>? = dataBase.otDetalleDao().getAllRegistroDetalleDesmonte(r.otId)
+                        if (d != null){
+                            e.onError(Throwable("Es obligatorio registrar un desmonte para cada ot"))
+                            e.onComplete()
+                            return@create
+                        }
+                    }
                 }
             }
             val ot = dataBase.otDetalleDao().getAllRegistroDetalleActiveTask(1)

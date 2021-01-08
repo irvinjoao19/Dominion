@@ -169,6 +169,9 @@ class FormDetailActivity : DaggerAppCompatActivity(), View.OnClickListener, Text
                 editTextAncho.setText(it.ancho.toString())
                 editTextLargo.setText(it.largo.toString())
                 editTextEspesor.setText(it.espesor.toString())
+                editTextCantidadPanos.setText(it.cantPanos.toString())
+                editTextHorizontal.setText(it.medHorizontal.toString())
+                editTextVertical.setText(it.medVertical.toString())
             }
         })
 
@@ -207,6 +210,16 @@ class FormDetailActivity : DaggerAppCompatActivity(), View.OnClickListener, Text
             textView1.hint = "Tipo de Material"
             editTextMaterial.setOnClickListener(this)
             editTextMaterial.isFocusable = false
+            if (s == 2) {
+                if (g == 3 || g == 4) {
+                    textView2.visibility = View.VISIBLE
+                    textView3.visibility = View.VISIBLE
+                    textView4.visibility = View.VISIBLE
+                    layout2.visibility = View.VISIBLE
+                    layout3.visibility = View.VISIBLE
+                    layout4.visibility = View.VISIBLE
+                }
+            }
         } else {
             textView1.hint = "Placa Vehiculo"
             editTextMaterial.setCompoundDrawables(
@@ -222,17 +235,6 @@ class FormDetailActivity : DaggerAppCompatActivity(), View.OnClickListener, Text
 
         if (e == 3) {
             fabMenu.visibility = View.GONE
-        }
-
-        if (s == 2) {
-            if (g == 3 || g == 4) {
-                textView2.visibility = View.VISIBLE
-                textView3.visibility = View.VISIBLE
-                textView4.visibility = View.VISIBLE
-                layout2.visibility = View.VISIBLE
-                layout3.visibility = View.VISIBLE
-                layout4.visibility = View.VISIBLE
-            }
         }
 
         editTextAncho.addTextChangedListener(this)
