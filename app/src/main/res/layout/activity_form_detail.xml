@@ -84,7 +84,6 @@
                     android:layout_width="0dp"
                     android:layout_height="wrap_content"
                     android:layout_margin="8dp"
-                    android:hint="@string/espesor"
                     android:inputType="numberDecimal"
                     android:textColorHint="@color/colorPrimary"
                     app:layout_constraintEnd_toEndOf="parent"

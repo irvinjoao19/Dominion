@@ -62,6 +62,6 @@ interface OtDetalleDao {
     @Query("DELETE FROM OtDetalle WHERE otId=:id AND tipoMaterialId=:t")
     fun deleteOtDetalleBajaTension(id: Int, t: Int)
 
-    @Query("SELECT * FROM OtDetalle WHERE otId =:id AND tipoTrabajoId = 7")
+    @Query("SELECT * FROM OtDetalle WHERE otId =:id AND tipoTrabajoId = 7 AND estado = 1")
     fun getAllRegistroDetalleDesmonte(id: Int): List<OtDetalle>
 }

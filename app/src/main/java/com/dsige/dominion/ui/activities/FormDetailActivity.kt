@@ -220,12 +220,14 @@ class FormDetailActivity : DaggerAppCompatActivity(), View.OnClickListener, Text
                     layout4.visibility = View.VISIBLE
                 }
             }
+            editTextEspesor.hint = "Espesor"
         } else {
             textView1.hint = "Placa Vehiculo"
             editTextMaterial.setCompoundDrawables(
                 null, null, null, null
             )
             editTextMaterial.inputType = InputType.TYPE_TEXT_FLAG_CAP_CHARACTERS
+            editTextEspesor.hint = "Altura"
         }
 
         if (tipoDesmonte == 15) {
@@ -296,11 +298,11 @@ class FormDetailActivity : DaggerAppCompatActivity(), View.OnClickListener, Text
             editTextEspesor.text.toString().isEmpty() -> 0.0
             else -> editTextEspesor.text.toString().toDouble()
         }
-
-        val result = when (tipo) {
-            6 -> a * b * c * 10
-            else -> a * b * c
-        }
+        val result = a * b * c
+//        val result = when (tipo) {
+//            6 -> a * b * c * 10
+//            else -> a * b * c
+//        }
         textViewTotal.text = String.format("Total : %.2f", result)
         d.total = result
     }

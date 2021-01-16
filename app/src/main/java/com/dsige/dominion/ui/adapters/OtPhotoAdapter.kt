@@ -40,29 +40,13 @@ class OtPhotoAdapter(private val listener: OnItemClickListener.OtPhotoListener) 
 
     inner class ViewHolder(itemView: View) : RecyclerView.ViewHolder(itemView) {
         fun bind(o: OtPhoto, listener: OnItemClickListener.OtPhotoListener) = with(itemView) {
-            val url = Util.UrlFoto + o.urlPhoto
-            Picasso.get()
-                .load(url)
-                .into(imageViewPhoto, object : Callback {
-                    override fun onSuccess() {
-                        progress.visibility = View.GONE
-                    }
-
-                    override fun onError(e: Exception) {
-                        val f = File(Util.getFolder(itemView.context), o.urlPhoto)
-                        Picasso.get()
-                            .load(f)
-                            .into(imageViewPhoto, object : Callback {
-                                override fun onSuccess() {
-                                    progress.visibility = View.GONE
-                                }
-
-                                override fun onError(e: Exception) {
-
-                                }
-                            })
-                    }
-                })
+            val f = File(Util.getFolder(itemView.context), o.urlPhoto)
+            if (f.exists()) {
+                Picasso.get().load(f).into(imageViewPhoto)
+            } else {
+                val url = Util.UrlFoto + o.urlPhoto
+                Picasso.get().load(url).into(imageViewPhoto)
+            }
             textViewName.text = o.urlPhoto
             itemView.setOnClickListener { v -> listener.onItemClick(o, v, adapterPosition) }
         }
