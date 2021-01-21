@@ -4,6 +4,8 @@ import android.annotation.SuppressLint
 import android.content.ActivityNotFoundException
 import android.content.Context
 import android.content.Intent
+import android.location.Address
+import android.location.Geocoder
 import android.os.Bundle
 import android.speech.RecognizerIntent
 import android.text.Editable
@@ -42,12 +44,15 @@ import com.google.android.material.dialog.MaterialAlertDialogBuilder
 import com.google.android.material.textfield.TextInputEditText
 import com.google.android.material.textfield.TextInputLayout
 import dagger.android.support.DaggerFragment
+import io.reactivex.Observable
 import io.reactivex.Observer
 import io.reactivex.android.schedulers.AndroidSchedulers
 import io.reactivex.disposables.Disposable
 import io.reactivex.schedulers.Schedulers
 import kotlinx.android.synthetic.main.fragment_general.*
+import java.io.IOException
 import java.util.*
+import java.util.concurrent.TimeUnit
 import javax.inject.Inject
 
 private const val ARG_PARAM1 = "param1"
@@ -66,6 +71,7 @@ class GeneralFragment : DaggerFragment(), View.OnClickListener, TextView.OnEdito
                 R.id.checkViaje -> {
                     if (checked) {
                         fabCamara.visibility = View.VISIBLE
+                        fabGaleria.visibility = View.VISIBLE
                     } else {
                         confirmDeletePhotos()
                     }
@@ -78,7 +84,7 @@ class GeneralFragment : DaggerFragment(), View.OnClickListener, TextView.OnEdito
             R.id.editTextDistritos -> spinnerDialog()
             R.id.imageViewDireccion -> getAddress()
             R.id.imageViewReferencia -> microPhone("Referencia", 1)
-            R.id.imageViewDescripcion -> microPhone("Descripción de Trabajo", 2)
+            R.id.imageViewDescripcion -> microPhone("Descripción de Trabajo", 3)
             R.id.fabGenerate -> formOt()
             R.id.imageViewSed -> if (t.distritoIdGps != 0) {
                 clearSed()
@@ -92,6 +98,10 @@ class GeneralFragment : DaggerFragment(), View.OnClickListener, TextView.OnEdito
             R.id.fabPreviewCamera -> goPreviewPhoto()
             R.id.fabCamara -> if (t.estado != 0) {
                 goCamera()
+            } else
+                otViewModel.setError("Completar formulario")
+            R.id.fabGaleria -> if (t.estado != 0) {
+                goGalery()
             } else
                 otViewModel.setError("Completar formulario")
         }
@@ -186,9 +196,11 @@ class GeneralFragment : DaggerFragment(), View.OnClickListener, TextView.OnEdito
                 }
                 if (it == maxSize) {
                     fabCamara.visibility = View.INVISIBLE
+                    fabGaleria.visibility = View.INVISIBLE
                 } else {
                     if (checkViaje.isChecked) {
                         fabCamara.visibility = View.VISIBLE
+                        fabGaleria.visibility = View.VISIBLE
                     }
                 }
             })
@@ -212,6 +224,7 @@ class GeneralFragment : DaggerFragment(), View.OnClickListener, TextView.OnEdito
                 if (it.viajeIndebido == 1) {
                     checkViaje.isChecked = true
                     fabCamara.visibility = View.VISIBLE
+                    fabGaleria.visibility = View.VISIBLE
                 }
             }
         })
@@ -222,6 +235,17 @@ class GeneralFragment : DaggerFragment(), View.OnClickListener, TextView.OnEdito
         })
 
         otViewModel.mensajeSuccess.observe(viewLifecycleOwner, {
+            startActivity(
+                Intent(requireContext(), PreviewCameraActivity::class.java)
+                    .putExtra("id", otId)
+                    .putExtra("usuarioId", usuarioId)
+                    .putExtra("tipo", 1)
+                    .putExtra("galery", true)
+                    .putExtra("nameImg", it)
+            )
+        })
+
+        otViewModel.mensajeGeneral.observe(viewLifecycleOwner){
             if (servicioId == 2) {
                 if (checkViaje.isChecked) {
                     if (size == 0) {
@@ -235,7 +259,7 @@ class GeneralFragment : DaggerFragment(), View.OnClickListener, TextView.OnEdito
                 viewPager?.currentItem = 1
                 Util.toastMensaje(context!!, it, false)
             }
-        })
+        }
 
         editTextDistritos.setOnClickListener(this)
         fabGenerate.setOnClickListener(this)
@@ -246,10 +270,10 @@ class GeneralFragment : DaggerFragment(), View.OnClickListener, TextView.OnEdito
         imageViewSed.setOnClickListener(this)
         checkViaje.setOnClickListener(this)
         fabCamara.setOnClickListener(this)
+        fabGaleria.setOnClickListener(this)
         editTextSed.setOnEditorActionListener(this)
         fabPreviewCamera.setOnClickListener(this)
     }
-
 
     private fun formOt() {
         val gps = Gps(context!!)
@@ -379,14 +403,52 @@ class GeneralFragment : DaggerFragment(), View.OnClickListener, TextView.OnEdito
     override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
         super.onActivityResult(requestCode, resultCode, data)
         if (resultCode == AppCompatActivity.RESULT_OK) {
-            val result: ArrayList<String>? =
-                data?.getStringArrayListExtra(RecognizerIntent.EXTRA_RESULTS)
-            val y = result?.get(0)!!
+            if (requestCode == Permission.GALERY_REQUEST) {
+                if (data != null) {
+                    val gps = Gps(requireContext())
+                    if (gps.isLocationEnabled()) {
+                        try {
+                            otViewModel.setError("Cargando imagenes seleccionadas...")
+                            val addressObservable = Observable.just(
+                                Geocoder(requireContext())
+                                    .getFromLocation(
+                                        gps.getLatitude(), gps.getLongitude(), 1
+                                    )[0]
+                            )
+                            addressObservable.subscribeOn(Schedulers.io())
+                                .delay(1000, TimeUnit.MILLISECONDS)
+                                .observeOn(AndroidSchedulers.mainThread())
+                                .subscribe(object : Observer<Address> {
+                                    override fun onSubscribe(d: Disposable) {}
+                                    override fun onNext(address: Address) {
+                                        otViewModel.generarArchivo(
+                                            (maxSize - size), usuarioId, requireContext(), data,
+                                            address.getAddressLine(0).toString(),
+                                            address.locality.toString()
+                                        )
+                                    }
 
-            if (requestCode == 1) {
-                editTextReferencia.setText(y)
+                                    override fun onError(e: Throwable) {}
+                                    override fun onComplete() {}
+                                })
+                        } catch (e: IOException) {
+                            otViewModel.setError(e.toString())
+                        }
+                    } else {
+                        gps.showSettingsAlert(requireContext())
+                    }
+                }
+
             } else {
-                editTextDescripcion.setText(y)
+                val result: ArrayList<String>? =
+                    data?.getStringArrayListExtra(RecognizerIntent.EXTRA_RESULTS)
+                val y = result?.get(0)!!
+
+                if (requestCode == 1) {
+                    editTextReferencia.setText(y)
+                } else {
+                    editTextDescripcion.setText(y)
+                }
             }
         }
     }
@@ -448,7 +510,7 @@ class GeneralFragment : DaggerFragment(), View.OnClickListener, TextView.OnEdito
 
     private fun goPreviewPhoto() {
         startActivity(
-            Intent(context, PreviewCameraActivity::class.java)
+            Intent(requireContext(), PreviewCameraActivity::class.java)
                 .putExtra("id", otId)
                 .putExtra("usuarioId", usuarioId)
                 .putExtra("tipo", 2)
@@ -457,7 +519,7 @@ class GeneralFragment : DaggerFragment(), View.OnClickListener, TextView.OnEdito
         )
     }
 
-    private fun goCamera(){
+    private fun goCamera() {
         startActivity(
             Intent(context, CameraActivity::class.java)
                 .putExtra("id", otId)
@@ -481,11 +543,13 @@ class GeneralFragment : DaggerFragment(), View.OnClickListener, TextView.OnEdito
             .setPositiveButton("SI") { dialog, _ ->
                 otViewModel.deleteOtPhotoBajaTension(otId, context!!)
                 fabCamara.visibility = View.GONE
+                fabGaleria.visibility = View.GONE
                 dialog.dismiss()
             }
             .setNegativeButton("NO") { dialog, _ ->
                 checkViaje.isChecked = true
                 fabCamara.visibility = View.VISIBLE
+                fabGaleria.visibility = View.VISIBLE
                 dialog.cancel()
             }
         dialog.show()

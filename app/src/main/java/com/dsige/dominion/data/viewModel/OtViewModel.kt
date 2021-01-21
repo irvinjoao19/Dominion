@@ -32,6 +32,7 @@ internal constructor(private val roomRepository: AppRepository, private val retr
 
     val mensajeError = MutableLiveData<String>()
     val mensajeSuccess = MutableLiveData<String>()
+    val mensajeGeneral = MutableLiveData<String>()
     val search: MutableLiveData<String> = MutableLiveData()
 
     val user: LiveData<Usuario>
@@ -108,11 +109,9 @@ internal constructor(private val roomRepository: AppRepository, private val retr
             .subscribeOn(Schedulers.io())
             .observeOn(AndroidSchedulers.mainThread())
             .subscribe(object : CompletableObserver {
+                override fun onSubscribe(d: Disposable) {}
                 override fun onComplete() {
-                    mensajeSuccess.value = "Ot Generado"
-                }
-
-                override fun onSubscribe(d: Disposable) {
+                    mensajeGeneral.value = "Ot Generado"
                 }
 
                 override fun onError(e: Throwable) {
@@ -160,20 +159,20 @@ internal constructor(private val roomRepository: AppRepository, private val retr
             }
         }
 
-        if (d.largo == 0.0) {
-            mensajeError.value = "Ingrese Largo"
-            return
-        }
-
-        if (d.ancho == 0.0) {
-            mensajeError.value = "Ingrese Ancho"
-            return
-        }
-
-        if (d.espesor == 0.0) {
-            mensajeError.value = "Ingrese Espesor"
-            return
-        }
+//        if (d.largo == 0.0) {
+//            mensajeError.value = "Ingrese Largo"
+//            return
+//        }
+//
+//        if (d.ancho == 0.0) {
+//            mensajeError.value = "Ingrese Ancho"
+//            return
+//        }
+//
+//        if (d.espesor == 0.0) {
+//            mensajeError.value = "Ingrese Espesor"
+//            return
+//        }
         insertOrUpdateOtDetalle(d, tipo)
     }
 
@@ -666,8 +665,8 @@ internal constructor(private val roomRepository: AppRepository, private val retr
         return roomRepository.getOtPhotoBajaTension(otId)
     }
 
-    fun deleteOtPhotoBajaTension(otId: Int,context:Context) {
-        roomRepository.deleteOtPhotoBajaTension(otId,context)
+    fun deleteOtPhotoBajaTension(otId: Int, context: Context) {
+        roomRepository.deleteOtPhotoBajaTension(otId, context)
             .subscribeOn(Schedulers.io())
             .observeOn(AndroidSchedulers.mainThread())
             .subscribe(object : CompletableObserver {

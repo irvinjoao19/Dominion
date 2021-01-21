@@ -115,4 +115,12 @@
     <string name="espesor">Altura</string>
     <string name="tipo_material">Tipo de Material</string>
     <string name="title_activity_general_maps">Map</string>
+    <string name="hint_ingresar_suministro">Ingresar Nro Suministro</string>
+    <string name="hint_ingresar_nro_sed">Ingresar Nro Sed</string>
+    <string name="hint_direccion">Dirección</string>
+    <string name="hint_distrito">Distrito</string>
+    <string name="hint_referencia">Referencia</string>
+    <string name="hint_descripcion_trabajo">Descripción del Trabajo</string>
+    <string name="hint_viaje_indebido">VIAJE INDEBIDO</string>
+    <string name="hint__ingresar_nro_ot_td">Ingresar Nro OT/TD</string>
 </resources>
