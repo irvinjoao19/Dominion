@@ -193,7 +193,7 @@ class AppRepoImp(private val apiService: ApiService, private val dataBase: AppDa
 
     override fun insertOrUpdateOt(t: Ot): Completable {
         return Completable.fromAction {
-            if (t.servicioId != 2) {
+            if (t.servicioId !=3) {
                 if (t.distritoId == 0) {
                     t.distritoId = dataBase.distritoDao()
                         .searchDistritoId(

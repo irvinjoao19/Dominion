@@ -64,6 +64,7 @@ class FormDetailActivity : DaggerAppCompatActivity(), View.OnClickListener, Text
     private var size: Int = 0
     private var maxSize: Int = 10
     private var tipo: Int = 0
+    private var grupo: Int = 0
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -118,6 +119,7 @@ class FormDetailActivity : DaggerAppCompatActivity(), View.OnClickListener, Text
         supportActionBar!!.setDisplayHomeAsUpEnabled(true)
         toolbar.setNavigationOnClickListener { finish() }
 
+        grupo = g
         usuarioId = u
         d.otDetalleId = detalleId
         d.otId = otId
@@ -205,6 +207,10 @@ class FormDetailActivity : DaggerAppCompatActivity(), View.OnClickListener, Text
                 }
             }
         })
+
+        if (g == 3 && tipo == 6) {
+            editTextEspesor.visibility = View.GONE
+        }
 
         if (tipo == 6) {
             textView1.hint = "Tipo de Material"
@@ -298,12 +304,19 @@ class FormDetailActivity : DaggerAppCompatActivity(), View.OnClickListener, Text
             editTextEspesor.text.toString().isEmpty() -> 0.0
             else -> editTextEspesor.text.toString().toDouble()
         }
-        val result = a * b * c
-//        val result = when (tipo) {
-//            6 -> a * b * c * 10
-//            else -> a * b * c
-//        }
-        textViewTotal.text = String.format("Total : %.2f", result)
+        val result = if (grupo != 3 && tipo == 6) {
+            a * b * c
+        } else {
+            a * b
+        }
+
+        val data = if (grupo == 4 && tipo == 6) {
+            result * 10
+        } else {
+            result
+        }
+
+        textViewTotal.text = String.format("Total : %.2f", data)
         d.total = result
     }
 

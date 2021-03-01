@@ -181,30 +181,29 @@ class GeneralFragment : DaggerFragment(), View.OnClickListener, TextView.OnEdito
         otViewModel =
             ViewModelProvider(this, viewModelFactory).get(OtViewModel::class.java)
 
-        if (servicioId == 2) {
-            layoutSuministro.visibility = View.VISIBLE
-            layoutSed.visibility = View.VISIBLE
-            imageViewSed.visibility = View.VISIBLE
-            checkViaje.visibility = View.VISIBLE
-
-            otViewModel.getCountOtPhotoBajaTension(otId).observe(viewLifecycleOwner, {
-                size = it
-                if (it > 0) {
-                    fabPreviewCamera.visibility = View.VISIBLE
-                } else {
-                    fabPreviewCamera.visibility = View.GONE
-                }
-                if (it == maxSize) {
-                    fabCamara.visibility = View.INVISIBLE
-                    fabGaleria.visibility = View.INVISIBLE
-                } else {
-                    if (checkViaje.isChecked) {
-                        fabCamara.visibility = View.VISIBLE
-                        fabGaleria.visibility = View.VISIBLE
-                    }
-                }
-            })
+        if (servicioId == 3) {
+            layoutSuministro.visibility = View.GONE
+            layoutSed.visibility = View.GONE
+            imageViewSed.visibility = View.GONE
         }
+
+        otViewModel.getCountOtPhotoBajaTension(otId).observe(viewLifecycleOwner, {
+            size = it
+            if (it > 0) {
+                fabPreviewCamera.visibility = View.VISIBLE
+            } else {
+                fabPreviewCamera.visibility = View.GONE
+            }
+            if (it == maxSize) {
+                fabCamara.visibility = View.INVISIBLE
+                fabGaleria.visibility = View.INVISIBLE
+            } else {
+                if (checkViaje.isChecked) {
+                    fabCamara.visibility = View.VISIBLE
+                    fabGaleria.visibility = View.VISIBLE
+                }
+            }
+        })
 
         otViewModel.getOtById(otId).observe(viewLifecycleOwner, {
             if (it != null) {
@@ -245,15 +244,10 @@ class GeneralFragment : DaggerFragment(), View.OnClickListener, TextView.OnEdito
             )
         })
 
-        otViewModel.mensajeGeneral.observe(viewLifecycleOwner){
-            if (servicioId == 2) {
-                if (checkViaje.isChecked) {
-                    if (size == 0) {
-                        goCamera()
-                    }
-                } else {
-                    viewPager?.currentItem = 1
-                    Util.toastMensaje(context!!, it, false)
+        otViewModel.mensajeGeneral.observe(viewLifecycleOwner) {
+            if (checkViaje.isChecked) {
+                if (size == 0) {
+                    goCamera()
                 }
             } else {
                 viewPager?.currentItem = 1

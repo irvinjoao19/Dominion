@@ -101,7 +101,7 @@
                     android:textStyle="bold"
                     app:layout_constraintEnd_toEndOf="parent"
                     app:layout_constraintStart_toStartOf="parent"
-                    app:layout_constraintTop_toBottomOf="@+id/editTextEspesor" />
+                    app:layout_constraintTop_toBottomOf="@+id/editTextAncho" />
 
                 <TextView
                     android:id="@+id/textView2"
@@ -109,7 +109,7 @@
                     android:layout_height="wrap_content"
                     android:layout_margin="8dp"
                     android:visibility="gone"
-                    android:text="Cant. Paños"
+                    android:text="@string/cant_panos"
                     android:textSize="18sp"
                     android:textStyle="bold"
                     app:layout_constraintStart_toStartOf="parent"
@@ -139,7 +139,7 @@
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:layout_margin="8dp"
-                    android:text="Med. Horizontal"
+                    android:text="@string/med_horizontal"
                     android:textSize="18sp"
                     android:textStyle="bold"
                     android:visibility="gone"
@@ -171,7 +171,7 @@
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:layout_margin="8dp"
-                    android:text="Med. Vertical"
+                    android:text="@string/med_vertical"
                     android:visibility="gone"
                     android:textSize="18sp"
                     android:textStyle="bold"
