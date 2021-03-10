@@ -138,7 +138,6 @@ class GeneralFragment : DaggerFragment(), View.OnClickListener, TextView.OnEdito
     lateinit var otViewModel: OtViewModel
 
     lateinit var builder: AlertDialog.Builder
-    private var dialog: AlertDialog? = null
     private var viewPager: ViewPager? = null
 
     lateinit var t: Ot
@@ -177,34 +176,36 @@ class GeneralFragment : DaggerFragment(), View.OnClickListener, TextView.OnEdito
     }
 
     private fun bindUI() {
-        viewPager = activity!!.findViewById(R.id.viewPager)
+        viewPager = requireActivity().findViewById(R.id.viewPager)
         otViewModel =
             ViewModelProvider(this, viewModelFactory).get(OtViewModel::class.java)
 
-        if (servicioId == 3) {
-            layoutSuministro.visibility = View.GONE
-            layoutSed.visibility = View.GONE
-            imageViewSed.visibility = View.GONE
-        }
 
-        otViewModel.getCountOtPhotoBajaTension(otId).observe(viewLifecycleOwner, {
-            size = it
-            if (it > 0) {
-                fabPreviewCamera.visibility = View.VISIBLE
-            } else {
-                fabPreviewCamera.visibility = View.GONE
-            }
-            if (it == maxSize) {
-                fabCamara.visibility = View.INVISIBLE
-                fabGaleria.visibility = View.INVISIBLE
-            } else {
-                if (checkViaje.isChecked) {
-                    fabCamara.visibility = View.VISIBLE
-                    fabGaleria.visibility = View.VISIBLE
+
+        if (servicioId == 2) {
+            layoutSuministro.visibility = View.VISIBLE
+            layoutSed.visibility = View.VISIBLE
+            imageViewSed.visibility = View.VISIBLE
+            checkViaje.visibility = View.VISIBLE
+
+            otViewModel.getCountOtPhotoBajaTension(otId).observe(viewLifecycleOwner, {
+                size = it
+                if (it > 0) {
+                    fabPreviewCamera.visibility = View.VISIBLE
+                } else {
+                    fabPreviewCamera.visibility = View.GONE
                 }
-            }
-        })
-
+                if (it == maxSize) {
+                    fabCamara.visibility = View.INVISIBLE
+                    fabGaleria.visibility = View.INVISIBLE
+                } else {
+                    if (checkViaje.isChecked) {
+                        fabCamara.visibility = View.VISIBLE
+                        fabGaleria.visibility = View.VISIBLE
+                    }
+                }
+            })
+        }
         otViewModel.getOtById(otId).observe(viewLifecycleOwner, {
             if (it != null) {
                 t = it
@@ -225,6 +226,11 @@ class GeneralFragment : DaggerFragment(), View.OnClickListener, TextView.OnEdito
                     fabCamara.visibility = View.VISIBLE
                     fabGaleria.visibility = View.VISIBLE
                 }
+                if (it.fechaInicioTrabajo.isEmpty()) {
+                    t.fechaInicioTrabajo = Util.getFechaActual()
+                }
+            } else {
+                t.fechaInicioTrabajo = Util.getFechaActual()
             }
         })
 
@@ -245,9 +251,14 @@ class GeneralFragment : DaggerFragment(), View.OnClickListener, TextView.OnEdito
         })
 
         otViewModel.mensajeGeneral.observe(viewLifecycleOwner) {
-            if (checkViaje.isChecked) {
-                if (size == 0) {
-                    goCamera()
+            if (servicioId == 2) {
+                if (checkViaje.isChecked) {
+                    if (size == 0) {
+                        goCamera()
+                    }
+                } else {
+                    viewPager?.currentItem = 1
+                    Util.toastMensaje(context!!, it, false)
                 }
             } else {
                 viewPager?.currentItem = 1
@@ -308,26 +319,6 @@ class GeneralFragment : DaggerFragment(), View.OnClickListener, TextView.OnEdito
         }
     }
 
-    private fun load() {
-        builder = AlertDialog.Builder(ContextThemeWrapper(context, R.style.AppTheme))
-        @SuppressLint("InflateParams") val view =
-            LayoutInflater.from(context).inflate(R.layout.dialog_login, null)
-        builder.setView(view)
-        val textViewTitle: TextView = view.findViewById(R.id.textView)
-        textViewTitle.text = String.format("Enviando..")
-        dialog = builder.create()
-        dialog!!.setCanceledOnTouchOutside(false)
-        dialog!!.setCancelable(false)
-        dialog!!.show()
-    }
-
-    private fun closeLoad() {
-        if (dialog != null) {
-            if (dialog!!.isShowing) {
-                dialog!!.dismiss()
-            }
-        }
-    }
 
     private fun spinnerDialog() {
         val builder = AlertDialog.Builder(ContextThemeWrapper(context, R.style.AppTheme))

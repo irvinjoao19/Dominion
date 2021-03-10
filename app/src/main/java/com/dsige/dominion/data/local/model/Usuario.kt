@@ -23,7 +23,9 @@ open class Usuario {
 
     var servicioId: Int = 0
     var nombreServicio: String = ""
+    var tipo: Int = 0
+    var nombreTipo: String = ""
 
     @Ignore
-    var accesos: List<Accesos> = ArrayList()
+    var accesos: List<Accesos>? = ArrayList()
 }

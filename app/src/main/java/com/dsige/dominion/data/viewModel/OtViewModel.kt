@@ -10,11 +10,9 @@ import androidx.lifecycle.ViewModel
 import androidx.paging.PagedList
 import com.dsige.dominion.data.local.model.*
 import com.dsige.dominion.data.local.repository.*
-import com.dsige.dominion.helper.Mensaje
 import com.dsige.dominion.helper.Util
 import com.google.gson.Gson
 import com.jakewharton.retrofit2.adapter.rxjava2.HttpException
-import io.reactivex.Completable
 import io.reactivex.CompletableObserver
 import io.reactivex.Observable
 import io.reactivex.Observer
@@ -44,6 +42,10 @@ internal constructor(private val roomRepository: AppRepository, private val retr
 
     fun getGrupos(): LiveData<List<Grupo>> {
         return roomRepository.getGrupos()
+    }
+
+    fun getGrupoByServicioId(id:Int):LiveData<List<Grupo>>{
+        return roomRepository.getGrupoByServicioId(id)
     }
 
     fun getEstados(): LiveData<List<Estado>> {
@@ -495,7 +497,7 @@ internal constructor(private val roomRepository: AppRepository, private val retr
                                     val body = t.response().errorBody()
                                     try {
                                         val error = retrofit.errorConverter.convert(body!!)
-                                        mensajeError.postValue(error.Message)
+                                        mensajeError.postValue(error!!.Message)
                                     } catch (e1: IOException) {
                                         e1.printStackTrace()
                                     }
@@ -568,7 +570,7 @@ internal constructor(private val roomRepository: AppRepository, private val retr
                                     val body = t.response().errorBody()
                                     try {
                                         val error = retrofit.errorConverter.convert(body!!)
-                                        mensajeError.postValue(error.Message)
+                                        mensajeError.postValue(error!!.Message)
                                     } catch (e1: IOException) {
                                         e1.printStackTrace()
                                     }
@@ -674,6 +676,19 @@ internal constructor(private val roomRepository: AppRepository, private val retr
                 override fun onError(e: Throwable) {}
                 override fun onComplete() {
                     mensajeError.value = "Viaje Indebido desactivado"
+                }
+            })
+    }
+
+    fun cerrarTrabajo(otId: Int) {
+        roomRepository.cerrarTrabajo(otId)
+            .subscribeOn(Schedulers.io())
+            .observeOn(AndroidSchedulers.mainThread())
+            .subscribe(object : CompletableObserver {
+                override fun onSubscribe(d: Disposable) {}
+                override fun onError(e: Throwable) {}
+                override fun onComplete() {
+                    mensajeSuccess.value = "Trabajo Cerrado"
                 }
             })
     }

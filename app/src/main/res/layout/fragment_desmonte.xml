@@ -1,5 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:fab="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
@@ -12,7 +13,25 @@
         android:layout_height="match_parent"
         android:scrollbars="vertical" />
 
+<!--    <com.google.android.material.floatingactionbutton.ExtendedFloatingActionButton-->
+<!--        android:id="@+id/fabClose"-->
+<!--        android:layout_width="wrap_content"-->
+<!--        android:layout_height="wrap_content"-->
+<!--        android:layout_gravity="center|bottom"-->
+<!--        android:layout_margin="32dp"-->
+<!--        android:layout_marginBottom="16dp"-->
+<!--        android:text="@string/close_register"-->
+<!--        android:textColor="@color/colorWhite"-->
+<!--        app:backgroundTint="@color/colorAccent"-->
+<!--        app:icon="@drawable/ic_save"-->
+<!--        app:iconTint="@color/colorWhite"-->
+<!--        app:layout_constraintBottom_toBottomOf="parent"-->
+<!--        app:layout_constraintEnd_toEndOf="parent"-->
+<!--        app:layout_constraintStart_toStartOf="parent"-->
+<!--        app:layout_constraintTop_toBottomOf="@+id/checkViaje" />-->
+
     <com.getbase.floatingactionbutton.FloatingActionsMenu
+        android:id="@+id/fabMenu"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
         android:layout_gravity="end|bottom"
@@ -39,5 +58,14 @@
             fab:fab_colorPressed="@color/white_pressed"
             fab:fab_icon="@drawable/ic_zoom"
             fab:fab_title="Genera Ot Desmonte" />
+
+        <com.getbase.floatingactionbutton.FloatingActionButton
+            android:id="@+id/fabClose"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            fab:fab_colorNormal="@color/colorBlack"
+            fab:fab_colorPressed="@color/transparentBlack"
+            fab:fab_icon="@drawable/ic_save"
+            fab:fab_title="@string/close_register" />
     </com.getbase.floatingactionbutton.FloatingActionsMenu>
 </FrameLayout>

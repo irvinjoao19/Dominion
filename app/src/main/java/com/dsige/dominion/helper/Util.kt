@@ -57,7 +57,6 @@ object Util {
     val UrlSocket = "http://190.223.38.245:5000/"
 
     private var FechaActual: String? = ""
-    private var date: Date? = null
 
     private const val img_height_default = 800
     private const val img_width_default = 600
@@ -74,7 +73,7 @@ object Util {
             val dateTime = SimpleDateFormat("dd/MM/yyyy HH:mm:ss a").parse(date)
 
             val calendar = Calendar.getInstance()
-            calendar.time = dateTime
+            calendar.time = dateTime!!
             val today = Calendar.getInstance()
             val yesterday = Calendar.getInstance()
             yesterday.add(Calendar.DATE, -1)
@@ -106,32 +105,32 @@ object Util {
     }
 
     fun getFecha(): String {
-        date = Date()
+        val date = Date()
         @SuppressLint("SimpleDateFormat") val format = SimpleDateFormat("dd/MM/yyyy")
         return format.format(date)
 //        return "05/10/2019"
     }
 
     fun getHora(): String {
-        date = Date()
+        val date = Date()
         @SuppressLint("SimpleDateFormat") val format = SimpleDateFormat("HH:mm aaa")
         return format.format(date)
     }
 
     fun getFechaActual(): String {
-        date = Date()
+        val date = Date()
         @SuppressLint("SimpleDateFormat") val format = SimpleDateFormat("dd/MM/yyyy HH:mm:ss")
         return format.format(date)
     }
 
     fun getHoraActual(): String {
-        date = Date()
+        val date = Date()
         @SuppressLint("SimpleDateFormat") val format = SimpleDateFormat("HH:mm:ss aaa")
         return format.format(date)
     }
 
     fun getFechaEditar(): String? {
-        date = Date()
+        val date = Date()
         @SuppressLint("SimpleDateFormat") val format = SimpleDateFormat("ddMMyyyy_HHmmssSSSS")
         FechaActual = format.format(date)
         return FechaActual
@@ -885,7 +884,7 @@ object Util {
         latitude: Double,
         longitude: Double,
         progressBar: ProgressBar,
-        tipo : Int
+        tipo: Int
     ) {
         try {
             val addressObservable = Observable.just(
@@ -904,13 +903,13 @@ object Util {
 
                     override fun onNext(address: Address) {
                         input.setText(address.getAddressLine(0).toString())
-                        if (tipo != 2){
+                        if (tipo != 2) {
                             input2.setText(address.locality.toString())
                         }
                     }
 
                     override fun onError(e: Throwable) {
-                        toastMensaje(context, context.getString(R.string.try_again),true)
+                        toastMensaje(context, context.getString(R.string.try_again), true)
                         progressBar.visibility = View.GONE
                     }
 
@@ -919,7 +918,7 @@ object Util {
                     }
                 })
         } catch (e: IOException) {
-            toastMensaje(context, e.toString(),true)
+            toastMensaje(context, e.toString(), true)
             progressBar.visibility = View.GONE
         }
     }

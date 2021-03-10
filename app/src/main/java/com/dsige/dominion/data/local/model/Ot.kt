@@ -53,6 +53,11 @@ open class Ot {
 
     var activeNotificacion: Int = 0
 
+    var fechaInicioTrabajo: String = ""
+    var fechaFinTrabajo: String = ""
+    var conDesmonte : Boolean = true // 1 -> permite que se pueda guardar la ot sin necesidad de un desmonte
+
+
     @Ignore
     var detalles: List<OtDetalle> = ArrayList()
 }

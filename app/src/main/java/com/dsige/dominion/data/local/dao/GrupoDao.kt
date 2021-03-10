@@ -24,4 +24,7 @@ interface GrupoDao {
 
     @Query("DELETE FROM Grupo")
     fun deleteAll()
+
+    @Query("SELECT * FROM Grupo WHERE servicioId=:id")
+    fun getGrupoByServicioId(id: Int): LiveData<List<Grupo>>
 }

@@ -5,7 +5,6 @@ import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
-import androidx.lifecycle.Observer
 import androidx.lifecycle.ViewModelProvider
 import androidx.recyclerview.widget.DefaultItemAnimator
 import androidx.recyclerview.widget.LinearLayoutManager
@@ -36,6 +35,7 @@ class DesmonteFragment : DaggerFragment(), View.OnClickListener {
         when (v.id) {
             R.id.fabDesmonteR -> goDesmonteActivity(14)
             R.id.fabDesmonteG -> goDesmonteActivity(15)
+            R.id.fabClose -> confirmClose()
         }
     }
 
@@ -53,7 +53,7 @@ class DesmonteFragment : DaggerFragment(), View.OnClickListener {
             )
         } else {
             viewPager?.currentItem = 0
-            Util.toastMensaje(context!!, "Completar primer formulario", false)
+            otViewModel.setError("Completar primer formulario")
         }
     }
 
@@ -68,6 +68,7 @@ class DesmonteFragment : DaggerFragment(), View.OnClickListener {
     private var grupo: Int = 0
     private var estado: Int = 0
     private var servicio: Int = 0
+    private var size: Int = 0
 
     /**
      * @grupo
@@ -99,7 +100,7 @@ class DesmonteFragment : DaggerFragment(), View.OnClickListener {
     }
 
     private fun bindUI() {
-        viewPager = activity!!.findViewById(R.id.viewPager)
+        viewPager = requireActivity().findViewById(R.id.viewPager)
         otViewModel =
             ViewModelProvider(this, viewModelFactory).get(OtViewModel::class.java)
 
@@ -150,33 +151,65 @@ class DesmonteFragment : DaggerFragment(), View.OnClickListener {
         })
 
         recyclerView.itemAnimator = DefaultItemAnimator()
-        recyclerView.layoutManager = LinearLayoutManager(context!!)
+        recyclerView.layoutManager = LinearLayoutManager(requireContext())
         recyclerView.setHasFixedSize(true)
         recyclerView.adapter = otDetalleAdapter
 
         otViewModel.getOtDetalleById(otId, 7)
-            .observe(viewLifecycleOwner, Observer(otDetalleAdapter::submitList))
+            .observe(viewLifecycleOwner, {
+                otDetalleAdapter.submitList(it)
+                size = it.size
+            })
 
-        otViewModel.mensajeError.observe(viewLifecycleOwner, {
-            Util.toastMensaje(context!!, it, false)
-        })
+        otViewModel.mensajeError.observe(viewLifecycleOwner) {
+            Util.toastMensaje(requireContext(), it, false)
+        }
 
+        otViewModel.mensajeSuccess.observe(viewLifecycleOwner) {
+            Util.toastMensaje(requireContext(), it, false)
+            requireActivity().finish()
+        }
+        fabMenu.collapseImmediately()
+        fabMenu.toggle()
         fabDesmonteR.setOnClickListener(this)
         fabDesmonteG.setOnClickListener(this)
+        fabClose.setOnClickListener(this)
     }
 
     private fun confirmDelete(o: OtDetalle) {
-        val dialog = MaterialAlertDialogBuilder(context!!)
+        val dialog = MaterialAlertDialogBuilder(requireContext())
             .setTitle("Mensaje")
             .setMessage("Se eliminaran las fotos que estan incluidas en este desmonte ?")
             .setPositiveButton("Eliminar") { dialog, _ ->
-                otViewModel.deleteOtDetalle(o, context!!)
+                otViewModel.deleteOtDetalle(o, requireContext())
                 dialog.dismiss()
             }
             .setNegativeButton("Cancelar") { dialog, _ ->
                 dialog.cancel()
             }
         dialog.show()
+    }
+
+    private fun confirmClose() {
+        if (estado != 0) {
+            val msj = when (size) {
+                0 -> "Esta seguro de cerrar el trabajo sin datos de desmonte ?"
+                else -> "Deseas cerrar trabajo ?"
+            }
+            MaterialAlertDialogBuilder(requireContext())
+                .setTitle("Mensaje")
+                .setMessage(msj)
+                .setPositiveButton("Cerrar") { dialog, _ ->
+                    otViewModel.cerrarTrabajo(otId)
+                    dialog.dismiss()
+                }
+                .setNegativeButton("No") { dialog, _ ->
+                    dialog.cancel()
+                }.show()
+        } else {
+            viewPager?.currentItem = 0
+            otViewModel.setError("Completar primer formulario")
+        }
     }
 
     companion object {

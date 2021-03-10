@@ -41,6 +41,8 @@ private const val ARG_PARAM2 = "param2"
 private const val ARG_PARAM3 = "param3"
 private const val ARG_PARAM4 = "param4"
 private const val ARG_PARAM5 = "param5"
+private const val ARG_PARAM6 = "param6"
+private const val ARG_PARAM7 = "param7"
 
 class MainFragment : DaggerFragment(), View.OnClickListener, TextView.OnEditorActionListener {
 
@@ -83,6 +85,7 @@ class MainFragment : DaggerFragment(), View.OnClickListener, TextView.OnEditorAc
     private var otId: Int = 0
     private var servicioId: Int = 0
     private var nombreServicio: String = ""
+    private var nombreTipo:String = ""
     lateinit var f: Filtro
 
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -92,11 +95,14 @@ class MainFragment : DaggerFragment(), View.OnClickListener, TextView.OnEditorAc
             empresaId = it.getInt(ARG_PARAM2)
             personalId = it.getInt(ARG_PARAM3)
             servicioId = it.getInt(ARG_PARAM4)
-            nombreServicio = it.getString(ARG_PARAM5)!!
+
+            nombreServicio = it.getString(ARG_PARAM5,"")
+            tipo = it.getInt(ARG_PARAM6)
+            nombreTipo = it.getString(ARG_PARAM7,"")
         }
 
 
-        f = Filtro("", 3, 3)
+        f = Filtro("", 3, tipo)
     }
 
     override fun onCreateView(
@@ -159,7 +165,7 @@ class MainFragment : DaggerFragment(), View.OnClickListener, TextView.OnEditorAc
         otViewModel.getOts()
             .observe(viewLifecycleOwner, Observer(otAdapter::submitList))
 
-        editTextGrupo.setText(String.format("ROTURA"))
+        editTextGrupo.setText(nombreTipo)
         editTextEstado.setText(String.format("Enviados al Jefe de Cuadrilla"))
 
         editTextServicio.setText(nombreServicio)
@@ -180,7 +186,7 @@ class MainFragment : DaggerFragment(), View.OnClickListener, TextView.OnEditorAc
         fab.setOnClickListener(this)
 
         otViewModel.mensajeError.observe(viewLifecycleOwner, {
-            Util.toastMensaje(context!!, it,false)
+            Util.toastMensaje(context!!, it, false)
         })
     }
 
@@ -220,6 +226,12 @@ class MainFragment : DaggerFragment(), View.OnClickListener, TextView.OnEditorAc
                 })
             }
             2 -> {
+                if (f.servicioId == 0) {
+                    otViewModel.setError("Seleccione Servicio Primero")
+                    dialog.dismiss()
+                    return
+                }
+
                 val grupoAdapter =
                     GrupoAdapter(object : OnItemClickListener.GrupoListener {
                         override fun onItemClick(g: Grupo, view: View, position: Int) {
@@ -230,7 +242,8 @@ class MainFragment : DaggerFragment(), View.OnClickListener, TextView.OnEditorAc
                         }
                     })
                 recyclerView.adapter = grupoAdapter
-                otViewModel.getGrupos().observe(this, {
+
+                otViewModel.getGrupoByServicioId(f.servicioId).observe(this, {
                     grupoAdapter.addItems(it)
                 })
             }
@@ -239,9 +252,13 @@ class MainFragment : DaggerFragment(), View.OnClickListener, TextView.OnEditorAc
                     ServicioAdapter(object : OnItemClickListener.ServicioListener {
                         override fun onItemClick(s: Servicio, view: View, position: Int) {
                             f.servicioId = s.servicioId
+                            f.tipo = 0
+                            editTextGrupo.text = null
                             otViewModel.search.value = Gson().toJson(f)
                             editTextServicio.setText(s.nombreServicio)
                             dialog.dismiss()
+
+                            spinnerDialog(2, "Tipo de Trabajo")
                         }
                     })
                 recyclerView.adapter = servicioAdapter
@@ -254,7 +271,7 @@ class MainFragment : DaggerFragment(), View.OnClickListener, TextView.OnEditorAc
 
     companion object {
         @JvmStatic
-        fun newInstance(p1: Int, p2: Int, p3: Int, p4: Int, p5: String) =
+        fun newInstance(p1: Int, p2: Int, p3: Int, p4: Int, p5: String,p6: Int,p7: String) =
             MainFragment().apply {
                 arguments = Bundle().apply {
                     putInt(ARG_PARAM1, p1)
@@ -262,6 +279,8 @@ class MainFragment : DaggerFragment(), View.OnClickListener, TextView.OnEditorAc
                     putInt(ARG_PARAM3, p3)
                     putInt(ARG_PARAM4, p4)
                     putString(ARG_PARAM5, p5)
+                    putInt(ARG_PARAM6, p6)
+                    putString(ARG_PARAM7, p7)
                 }
             }
     }

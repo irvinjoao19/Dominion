@@ -31,6 +31,7 @@ interface AppRepository {
 
     fun getAccesos(usuarioId: Int): LiveData<List<Accesos>>
     fun getGrupos(): LiveData<List<Grupo>>
+    fun getGrupoByServicioId(id:Int): LiveData<List<Grupo>>
     fun getEstados(): LiveData<List<Estado>>
 
     fun getOts(): LiveData<PagedList<Ot>>
@@ -100,4 +101,7 @@ interface AppRepository {
     fun getCountOtPhotoBajaTension(otId: Int): LiveData<Int>
     fun getOtPhotoBajaTension(otId: Int): LiveData<List<OtPhoto>>
     fun deleteOtPhotoBajaTension(otId: Int,context:Context): Completable
+
+    // nuevo
+    fun cerrarTrabajo(otId: Int): Completable
 }

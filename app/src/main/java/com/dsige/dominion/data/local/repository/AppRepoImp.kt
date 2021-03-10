@@ -119,31 +119,41 @@ class AppRepoImp(private val apiService: ApiService, private val dataBase: AppDa
                     }
                 }
             }
-            val g: List<Grupo>? = s.groups
-            if (g != null) {
+            val g: List<Grupo> = s.groups
+            if (g.isNotEmpty()) {
                 dataBase.grupoDao().insertGrupoListTask(g)
-            }
-            val e: List<Estado>? = s.estados
-            if (e != null) {
-                dataBase.estadoDao().insertEstadoListTask(e)
-            }
-            val d: List<Distrito>? = s.distritos
-            if (d != null) {
-                dataBase.distritoDao().insertDistritoListTask(d)
-            }
-            val m: List<Material>? = s.materials
-            if (m != null) {
-                dataBase.materialDao().insertMaterialListTask(m)
-            }
-            val se: List<Servicio>? = s.servicios
-            if (se != null) {
-                dataBase.servicioDao().insertServicioListTask(se)
+
+                val se: List<Servicio> = s.servicios
                 if (se.isNotEmpty()) {
-                    dataBase.usuarioDao().updateServicio(se[0].nombreServicio, se[0].servicioId)
+                    dataBase.servicioDao().insertServicioListTask(se)
+
+                    se.forEach {
+                        if (it.servicioId == g[0].servicioId) {
+                            dataBase.usuarioDao().updateServicio(
+                                it.nombreServicio,
+                                g[0].servicioId,
+                                g[0].grupoId,
+                                g[0].descripcion
+                            )
+                            return@forEach
+                        }
+                    }
                 }
             }
-            val s7: List<Sed>? = s.seds
-            if (s7 != null) {
+            val e: List<Estado> = s.estados
+            if (e.isNotEmpty()) {
+                dataBase.estadoDao().insertEstadoListTask(e)
+            }
+            val d: List<Distrito> = s.distritos
+            if (d.isNotEmpty()) {
+                dataBase.distritoDao().insertDistritoListTask(d)
+            }
+            val m: List<Material> = s.materials
+            if (m.isNotEmpty()) {
+                dataBase.materialDao().insertMaterialListTask(m)
+            }
+            val s7: List<Sed> = s.seds
+            if (s7.isNotEmpty()) {
                 dataBase.sedDao().insertSedListTask(s7)
             }
         }
@@ -155,6 +165,10 @@ class AppRepoImp(private val apiService: ApiService, private val dataBase: AppDa
 
     override fun getGrupos(): LiveData<List<Grupo>> {
         return dataBase.grupoDao().getGrupos()
+    }
+
+    override fun getGrupoByServicioId(id: Int): LiveData<List<Grupo>> {
+        return dataBase.grupoDao().getGrupoByServicioId(id)
     }
 
     override fun getEstados(): LiveData<List<Estado>> {
@@ -193,7 +207,7 @@ class AppRepoImp(private val apiService: ApiService, private val dataBase: AppDa
 
     override fun insertOrUpdateOt(t: Ot): Completable {
         return Completable.fromAction {
-            if (t.servicioId !=3) {
+            if (t.servicioId != 2) {
                 if (t.distritoId == 0) {
                     t.distritoId = dataBase.distritoDao()
                         .searchDistritoId(
@@ -542,25 +556,28 @@ class AppRepoImp(private val apiService: ApiService, private val dataBase: AppDa
                     if (r.fotoCabecera.isNotEmpty()) {
                         data.add(r.fotoCabecera)
                     }
+
                     if (r.tipoOrdenId == 3 || r.tipoOrdenId == 4) {
-                        val d: List<OtDetalle>? =
-                            dataBase.otDetalleDao().getAllRegistroDetalleDesmonte(r.otId)
-                        if (d != null) {
-                            if (d.isEmpty()) {
-                                e.onError(Throwable("Es obligatorio registrar un desmonte para cada ot"))
-                                e.onComplete()
-                                return@create
+                        if (r.conDesmonte) {
+                            val d: List<OtDetalle>? =
+                                dataBase.otDetalleDao().getAllRegistroDetalleDesmonte(r.otId)
+                            if (d != null) {
+                                if (d.isEmpty()) {
+                                    e.onError(Throwable("Es obligatorio registrar un desmonte para cada ot"))
+                                    e.onComplete()
+                                    return@create
+                                }
                             }
                         }
                     }
                 }
             }
             val ot = dataBase.otDetalleDao().getAllRegistroDetalleActiveTask(1)
-            if (ot.isEmpty()) {
-                e.onError(Throwable("Usted no tiene pendientes por enviar"))
-                e.onComplete()
-                return@create
-            }
+//            if (ot.isEmpty()) {
+//                e.onError(Throwable("Usted no tiene pendientes por enviar"))
+//                e.onComplete()
+//                return@create
+//            }
 
             for (p: OtDetalle in ot) {
                 val photos: List<OtPhoto>? =
@@ -619,8 +636,8 @@ class AppRepoImp(private val apiService: ApiService, private val dataBase: AppDa
 
     override fun insertOtPhoto(id: Int, t: List<OtPhoto>): Completable {
         return Completable.fromAction {
-            val f: List<OtPhoto>? = t
-            if (f != null) {
+            val f: List<OtPhoto> = t
+            if (f.isNotEmpty()) {
                 for (d: OtPhoto in f) {
                     val count = dataBase.otPhotoDao().getCountPhoto(id)
                     if (count < 3) {
@@ -648,6 +665,16 @@ class AppRepoImp(private val apiService: ApiService, private val dataBase: AppDa
                 Util.deletePhoto(p.urlPhoto, context)
             }
             dataBase.otPhotoDao().deletePhotoBajaTension(otId)
+        }
+    }
+
+    override fun cerrarTrabajo(otId: Int): Completable {
+        return Completable.fromAction {
+            val r = dataBase.otDao().getOtIdTask(otId)
+            r.fechaFinTrabajo = Util.getFechaActual()
+            r.estado = 1
+            r.conDesmonte = false
+            dataBase.otDao().updateOtTask(r)
         }
     }
 }

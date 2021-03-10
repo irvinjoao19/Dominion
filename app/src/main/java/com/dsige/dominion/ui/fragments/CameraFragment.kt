@@ -362,19 +362,18 @@ class CameraFragment : Fragment(), View.OnClickListener, View.OnTouchListener {
     override fun onActivityCreated(savedInstanceState: Bundle?) {
         super.onActivityCreated(savedInstanceState)
         nameImg = Util.getFechaActualForPhoto(usuarioId)
-        file = File(Util.getFolder(context!!), nameImg)
+        file = File(Util.getFolder(requireContext()), nameImg)
 
-        val gps = Gps(context!!)
+        val gps = Gps(requireContext())
         if (gps.isLocationEnabled()) {
             try {
                 val addressObservable = Observable.just(
-                    Geocoder(context)
+                    Geocoder(requireContext())
                         .getFromLocation(
                             gps.getLatitude(), gps.getLongitude(), 1
                         )[0]
                 )
                 addressObservable.subscribeOn(Schedulers.io())
-                    .delay(1000, TimeUnit.MILLISECONDS)
                     .observeOn(AndroidSchedulers.mainThread())
                     .subscribe(object : Observer<Address> {
                         override fun onSubscribe(d: Disposable) {}
@@ -387,10 +386,10 @@ class CameraFragment : Fragment(), View.OnClickListener, View.OnTouchListener {
                         override fun onComplete() {}
                     })
             } catch (e: Exception) {
-                Log.i("TAG", e.toString())
+                Util.toastMensaje(requireContext(), "Volver activar GPS", false)
             }
         } else {
-            gps.showSettingsAlert(context!!)
+            gps.showSettingsAlert(requireContext())
         }
     }
 
@@ -595,7 +594,7 @@ class CameraFragment : Fragment(), View.OnClickListener, View.OnTouchListener {
             val texture = textureView.surfaceTexture
 
             // We configure the size of default buffer to be the size of camera preview we want.
-            texture.setDefaultBufferSize(previewSize.width, previewSize.height)
+            texture?.setDefaultBufferSize(previewSize.width, previewSize.height)
 
             // This is the output Surface we need to start preview.
             val surface = Surface(texture)
@@ -658,8 +657,7 @@ class CameraFragment : Fragment(), View.OnClickListener, View.OnTouchListener {
      * @param viewHeight The height of `textureView`
      */
     private fun configureTransform(viewWidth: Int, viewHeight: Int) {
-        activity ?: return
-        val rotation = activity!!.windowManager.defaultDisplay.rotation
+        val rotation = requireActivity().windowManager.defaultDisplay.rotation
         val matrix = Matrix()
         val viewRect = RectF(0f, 0f, viewWidth.toFloat(), viewHeight.toFloat())
         val bufferRect = RectF(0f, 0f, previewSize.height.toFloat(), previewSize.width.toFloat())
@@ -856,7 +854,6 @@ class CameraFragment : Fragment(), View.OnClickListener, View.OnTouchListener {
          * Conversion from screen rotation to JPEG orientation.
          */
         private val ORIENTATIONS = SparseIntArray()
-        private val FRAGMENT_DIALOG = "dialog"
 
         init {
             ORIENTATIONS.append(Surface.ROTATION_0, 90)

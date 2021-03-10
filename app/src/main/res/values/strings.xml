@@ -126,4 +126,5 @@
     <string name="med_horizontal">Med. Horizontal</string>
     <string name="cant_panos">Cant. Paños</string>
     <string name="med_vertical">Med. Vertical</string>
+    <string name="close_register">Cerrar Registro</string>
 </resources>

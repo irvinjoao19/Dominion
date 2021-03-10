@@ -304,10 +304,12 @@ class FormDetailActivity : DaggerAppCompatActivity(), View.OnClickListener, Text
             editTextEspesor.text.toString().isEmpty() -> 0.0
             else -> editTextEspesor.text.toString().toDouble()
         }
-        val result = if (grupo != 3 && tipo == 6) {
-            a * b * c
-        } else {
+
+
+        val result = if (grupo == 3 && tipo == 6) {
             a * b
+        } else {
+            a * b * c
         }
 
         val data = if (grupo == 4 && tipo == 6) {

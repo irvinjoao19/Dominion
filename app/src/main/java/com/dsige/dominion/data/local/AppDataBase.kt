@@ -27,7 +27,7 @@ import com.dsige.dominion.data.local.model.*
         Sed::class
     ],
     views = [OtNotify::class],
-    version = 10, // version 5 en play store
+    version = 12, // version 5 en play store
     exportSchema = false
 )
 abstract class AppDataBase : RoomDatabase() {

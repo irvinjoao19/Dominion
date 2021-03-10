@@ -42,7 +42,9 @@ class MainActivity : DaggerAppCompatActivity(), NavigationView.OnNavigationItemS
     private var empresaId: Int = 0
     private var personalId: Int = 0
     private var servicioId: Int = 0
+    private var tipo: Int = 0
     private var nombreServicio: String = ""
+    private var nombreTipo: String = ""
     private var logout: String = "off"
 
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -118,7 +120,7 @@ class MainActivity : DaggerAppCompatActivity(), NavigationView.OnNavigationItemS
             )
             "Lista de Ordenes" -> changeFragment(
                 MainFragment.newInstance(
-                    usuarioId, empresaId, personalId, servicioId, nombreServicio
+                    usuarioId, empresaId, personalId, servicioId, nombreServicio,tipo,nombreTipo
                 ), item.title.toString()
             )
             "Resumen de Ordenes de Trabajo por Proveedor" -> changeFragment(
@@ -174,7 +176,7 @@ class MainActivity : DaggerAppCompatActivity(), NavigationView.OnNavigationItemS
             .replace(
                 R.id.content_frame,
                 MainFragment.newInstance(
-                    usuarioId, empresaId, personalId, servicioId, nombreServicio
+                    usuarioId, empresaId, personalId, servicioId, nombreServicio,tipo,nombreTipo
                 )
             )
             .commit()
@@ -192,6 +194,8 @@ class MainActivity : DaggerAppCompatActivity(), NavigationView.OnNavigationItemS
         personalId = u.personalId
         servicioId = u.servicioId
         nombreServicio = u.nombreServicio
+        tipo = u.tipo
+        nombreTipo = u.nombreTipo
     }
 
     private fun goLogin() {
