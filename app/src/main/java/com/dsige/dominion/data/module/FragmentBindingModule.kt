@@ -19,6 +19,9 @@ abstract class FragmentBindingModule {
 
         @ContributesAndroidInjector
         internal abstract fun providPlazoFragment(): PlazoFragment
+
+        @ContributesAndroidInjector
+        internal abstract fun providPdfFragment(): PdfFragment
     }
 
     @Module

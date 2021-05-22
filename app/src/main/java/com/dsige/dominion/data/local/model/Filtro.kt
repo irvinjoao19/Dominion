@@ -44,10 +44,11 @@ open class Filtro {
         this.pageSize = pageSize
     }
 
-    constructor(usuarioId: Int, empresaId: Int, personalId: Int) {
+    constructor(usuarioId: Int, empresaId: Int, personalId: Int,version: String) {
         this.usuarioId = usuarioId
         this.empresaId = empresaId
         this.personalId = personalId
+        this.version = version
     }
 
     constructor(search: String, estadoId: Int, tipo: Int) {

@@ -9,6 +9,7 @@ import android.location.Geocoder
 import android.os.Bundle
 import android.speech.RecognizerIntent
 import android.text.Editable
+import android.text.InputType
 import android.text.TextWatcher
 import android.view.KeyEvent
 import android.view.LayoutInflater
@@ -116,11 +117,11 @@ class GeneralFragment : DaggerFragment(), View.OnClickListener, TextView.OnEdito
     }
 
     private fun getAddress() {
-        val gps = Gps(context!!)
+        val gps = Gps(requireContext())
         if (gps.isLocationEnabled()) {
             progressBarLugar.visibility = View.VISIBLE
             Util.getLocationName(
-                context!!,
+                requireContext(),
                 editTextDireccion,
                 editTextDistritos,
                 gps.getLatitude(),
@@ -129,7 +130,7 @@ class GeneralFragment : DaggerFragment(), View.OnClickListener, TextView.OnEdito
                 servicioId
             )
         } else {
-            gps.showSettingsAlert(context!!)
+            gps.showSettingsAlert(requireContext())
         }
     }
 
@@ -181,8 +182,8 @@ class GeneralFragment : DaggerFragment(), View.OnClickListener, TextView.OnEdito
             ViewModelProvider(this, viewModelFactory).get(OtViewModel::class.java)
 
 
-
         if (servicioId == 2) {
+            editTextNumero.inputType = InputType.TYPE_CLASS_NUMBER or InputType.TYPE_NUMBER_VARIATION_NORMAL
             layoutSuministro.visibility = View.VISIBLE
             layoutSed.visibility = View.VISIBLE
             imageViewSed.visibility = View.VISIBLE
@@ -205,6 +206,8 @@ class GeneralFragment : DaggerFragment(), View.OnClickListener, TextView.OnEdito
                     }
                 }
             })
+        }else{
+            editTextNumero.inputType = InputType.TYPE_TEXT_FLAG_CAP_CHARACTERS
         }
         otViewModel.getOtById(otId).observe(viewLifecycleOwner, {
             if (it != null) {

@@ -24,10 +24,11 @@ import com.dsige.dominion.data.local.model.*
         OtReporte::class,
         OtPlazo::class,
         OtPlazoDetalle::class,
-        Sed::class
+        Sed::class,
+        CodigOts::class
     ],
     views = [OtNotify::class],
-    version = 12, // version 5 en play store
+    version = 13, // version 5 en play store
     exportSchema = false
 )
 abstract class AppDataBase : RoomDatabase() {
@@ -48,6 +49,7 @@ abstract class AppDataBase : RoomDatabase() {
     abstract fun otPlazoDao(): OtPlazoDao
     abstract fun otPlazoDetalleDao(): OtPlazoDetalleDao
     abstract fun sedDao(): SedDao
+    abstract fun codigOtsDao(): CodigOtsDao
 
     companion object {
         @Volatile

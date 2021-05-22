@@ -76,7 +76,7 @@ internal constructor(private val roomRepository: AppRepository, private val retr
             .subscribe(object : CompletableObserver {
                 override fun onSubscribe(d: Disposable) {}
                 override fun onComplete() {
-                    sync(u.usuarioId, u.empresaId, u.personalId)
+                    sync(u.usuarioId, u.empresaId, u.personalId, v)
                 }
 
                 override fun onError(e: Throwable) {
@@ -140,26 +140,23 @@ internal constructor(private val roomRepository: AppRepository, private val retr
             })
     }
 
-    fun getSync(u: Int, e: Int, p: Int) {
+    fun getSync(u: Int, e: Int, p: Int, v: String) {
         roomRepository.deleteSync()
             .subscribeOn(Schedulers.computation())
             .observeOn(AndroidSchedulers.mainThread())
             .subscribe(object : CompletableObserver {
-                override fun onSubscribe(d: Disposable) {
-                }
-
-                override fun onComplete() {
-                    sync(u, e, p)
-                }
-
+                override fun onSubscribe(d: Disposable) {}
                 override fun onError(e: Throwable) {
                     mensajeError.value = e.toString()
+                }
+                override fun onComplete() {
+                    sync(u, e, p, v)
                 }
             })
     }
 
-    fun sync(u: Int, e: Int, p: Int) {
-        roomRepository.getSync(u, e, p)
+    fun sync(u: Int, e: Int, p: Int, v: String) {
+        roomRepository.getSync(u, e, p, v)
             .subscribeOn(Schedulers.io())
             .observeOn(AndroidSchedulers.mainThread())
             .subscribe(object : Observer<Sync> {

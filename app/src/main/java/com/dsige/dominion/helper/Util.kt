@@ -10,6 +10,7 @@ import android.content.Context.MODE_PRIVATE
 import android.content.Intent
 import android.database.Cursor
 import android.graphics.*
+import android.graphics.pdf.PdfDocument
 import android.location.Address
 import android.location.Geocoder
 import android.location.Location
@@ -20,7 +21,6 @@ import android.provider.Settings
 import android.telephony.TelephonyManager
 import android.text.Html
 import android.text.Spanned
-import android.util.Log
 import android.view.View
 import android.view.inputmethod.InputMethodManager
 import android.widget.EditText
@@ -242,7 +242,7 @@ object Util {
 //            cursor.moveToFirst()
 //            result = cursor.getString(columnIndex)
 //        }
-        return result
+        //return result
     }
 
     fun getFolder(context: Context): File {
@@ -263,7 +263,7 @@ object Util {
         return df.format(date)
     }
 
-    fun getDateTimeFormatString(): String {
+    private fun getDateTimeFormatString(): String {
         val date = Date()
         @SuppressLint("SimpleDateFormat") val df = SimpleDateFormat("dd/MM/yyyy - hh:mm:ss a")
         return df.format(date)
@@ -272,7 +272,6 @@ object Util {
     private fun copyBitmatToFile(filename: String, bitmap: Bitmap): String {
         return try {
             val f = File(filename)
-
             val bos = ByteArrayOutputStream()
             bitmap.compress(Bitmap.CompressFormat.JPEG, 60, bos)
             val bitmapdata = bos.toByteArray()
@@ -280,11 +279,9 @@ object Util {
             val fos = FileOutputStream(f)
             fos.write(bitmapdata)
             "true"
-
         } catch (ex: IOException) {
             ex.message.toString()
         }
-
     }
 
 
@@ -520,17 +517,13 @@ object Util {
     @SuppressLint("HardwareIds", "MissingPermission")
     fun getImei(context: Context): String {
         val deviceUniqueIdentifier: String
-        val telephonyManager: TelephonyManager? =
+        val telephonyManager: TelephonyManager =
             context.getSystemService(Context.TELEPHONY_SERVICE) as TelephonyManager
-        deviceUniqueIdentifier = if (telephonyManager != null) {
-            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
-                telephonyManager.imei
-            } else {
-                @Suppress("DEPRECATION")
-                telephonyManager.deviceId
-            }
+        deviceUniqueIdentifier = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+            telephonyManager.imei
         } else {
-            Settings.Secure.getString(context.contentResolver, Settings.Secure.ANDROID_ID)
+            @Suppress("DEPRECATION")
+            telephonyManager.deviceId
         }
         return deviceUniqueIdentifier
     }
@@ -687,8 +680,8 @@ object Util {
 
     fun isNumeric(strNum: String): Boolean {
         try {
-            val d = Integer.parseInt(strNum)
-            Log.i("TAG", d.toString())
+            Integer.parseInt(strNum)
+//            Log.i("TAG", d.toString())
         } catch (nfe: NumberFormatException) {
             return false
         } catch (nfe: NullPointerException) {
@@ -699,8 +692,7 @@ object Util {
 
     fun isDecimal(s: String): Boolean {
         try {
-            val d = s.toDouble()
-            Log.i("TAG", d.toString())
+            s.toDouble()
         } catch (nfe: NumberFormatException) {
             return false
         } catch (nfe: NullPointerException) {
@@ -813,11 +805,10 @@ object Util {
     ): String {
         try {
             val ei = ExifInterface(photoPath)
-            val orientation =
-                ei.getAttributeInt(ExifInterface.TAG_ORIENTATION, ExifInterface.ORIENTATION_NORMAL)
-            val degree: Int
-
-            degree = when (orientation) {
+            val degree: Int = when (ei.getAttributeInt(
+                ExifInterface.TAG_ORIENTATION,
+                ExifInterface.ORIENTATION_NORMAL
+            )) {
                 ExifInterface.ORIENTATION_NORMAL -> 0
                 ExifInterface.ORIENTATION_ROTATE_90 -> 90
                 ExifInterface.ORIENTATION_ROTATE_180 -> 180
@@ -870,6 +861,9 @@ object Util {
             fOut.flush()
             fOut.close()
             b!!.recycle()
+
+            generatePdf(context, direccion)
+
         } catch (e: Exception) {
             e.printStackTrace()
         }
@@ -928,8 +922,6 @@ object Util {
         direccion: String, distrito: String
     ): Observable<ArrayList<String>> {
         return Observable.create {
-//            var imageEncoded = ""
-//            val filePathColumn = arrayOf(MediaStore.Images.Media.DATA)
             val imagesEncodedList = ArrayList<String>()
             if (data.clipData != null) {
                 val mClipData: ClipData? = data.clipData
@@ -948,11 +940,7 @@ object Util {
                     val f = File(imagepath)
                     if (!f.exists()) {
                         try {
-                            val success = f.createNewFile()
-                            if (success) {
-                                Log.i("TAG", "FILE CREATED")
-                            }
-
+                            f.createNewFile()
                             copyFile(File(getImageFilePath(context, uri)), f)
 //                            copyFile(File(getRealPathFromURI(context, uri)), f)
                             getAngleImage(context, imagepath, direccion, distrito)
@@ -972,10 +960,7 @@ object Util {
                     val f = File(imagepath)
                     if (!f.exists()) {
                         try {
-                            val success = f.createNewFile()
-                            if (success) {
-                                Log.i("TAG", "FILE CREATED")
-                            }
+                            f.createNewFile()
                             copyFile(File(getImageFilePath(context, data.data!!)), f)
 //                            copyFile(File(getRealPathFromURI(context, data.data!!)), f)
                             getAngleImage(context, imagepath, direccion, distrito)
@@ -988,6 +973,33 @@ object Util {
                     it.onComplete()
                     return@create
                 }
+            }
+        }
+    }
+
+    fun getFolderAdjuntoPdf(
+        usuarioId: Int, context: Context, data: Intent,
+        direccion: String, distrito: String
+    ): Observable<String> {
+        return Observable.create {
+
+            if (data.data != null) {
+                val file = getFechaActualForPhoto(usuarioId)
+                val imagepath = getFolder(context).toString() + "/" + file
+                val f = File(imagepath)
+                if (!f.exists()) {
+                    try {
+                        f.createNewFile()
+                        copyFile(File(getImageFilePath(context, data.data!!)), f)
+//                            copyFile(File(getRealPathFromURI(context, data.data!!)), f)
+                        getAngleImage(context, imagepath, file, distrito)
+                    } catch (e: IOException) {
+                        e.printStackTrace()
+                    }
+                }
+                it.onNext(file)
+                it.onComplete()
+                return@create
             }
         }
     }
@@ -1038,5 +1050,27 @@ object Util {
             y += paint.descent() - paint.ascent()
         }
         return bitmap
+    }
+
+    private fun generatePdf(context: Context, nameImg: String) {
+        val file = File(getFolder(context), nameImg)
+        val bitmap = BitmapFactory.decodeFile(file.absolutePath)
+
+        val ancho = bitmap.width + (bitmap.width * 0.05)
+        val alto = bitmap.height + (bitmap.height * 0.05)
+        val pdfDocument = PdfDocument()
+        val myPageInfo = PdfDocument.PageInfo.Builder(ancho.toInt(), alto.toInt(), 1).create()
+        val page = pdfDocument.startPage(myPageInfo)
+
+        val left = (ancho / 2 - ancho * 0.05 / 2) * 0.05
+        val top = (alto / 2 - alto * 0.05 / 2) * 0.05
+
+        page.canvas.drawBitmap(bitmap, left.toFloat(), top.toFloat(), Paint())
+        pdfDocument.finishPage(page)
+
+        val filePdf = "${nameImg.substring(0, nameImg.length - 4)}.pdf"
+        val myPDFFile = File(getFolder(context), filePdf)
+        pdfDocument.writeTo(FileOutputStream(myPDFFile))
+        pdfDocument.close()
     }
 }

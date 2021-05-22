@@ -45,6 +45,9 @@ interface OtDao {
     @Query("SELECT * FROM Ot WHERE otId =:id")
     fun getOtIdTask(id: Int): Ot
 
+    @Query("SELECT * FROM Ot WHERE otId =:id")
+    fun getOtExistIdTask(id: Int): Ot?
+
     @Query("SELECT otId FROM Ot ORDER BY otId DESC LIMIT 1")
     fun getMaxIdOt(): LiveData<Int>
 

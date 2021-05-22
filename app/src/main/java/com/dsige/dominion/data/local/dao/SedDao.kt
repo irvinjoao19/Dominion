@@ -23,7 +23,7 @@ interface SedDao {
     fun getSed(): LiveData<Sed>
 
     @Query("SELECT * FROM Sed WHERE codigo =:id")
-    fun getSedById(id: String): Sed
+    fun getSedById(id: String): Sed?
 
     @Query("DELETE FROM Sed")
     fun deleteAll()

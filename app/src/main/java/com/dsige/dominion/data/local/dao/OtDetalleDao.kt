@@ -30,7 +30,7 @@ interface OtDetalleDao {
     fun getOtDetalleById(id: Int, tipo: Int): DataSource.Factory<Int, OtDetalle>
 
     @Query("SELECT * FROM OtDetalle WHERE otDetalleId =:id")
-    fun getOtDetalleIdTask(id: Int): OtDetalle
+    fun getOtDetalleIdTask(id: Int): OtDetalle?
 
     @Query("SELECT otDetalleId FROM OtDetalle ORDER BY otDetalleId DESC LIMIT 1")
     fun getMaxIdOtDetalle(): LiveData<Int>
@@ -57,7 +57,7 @@ interface OtDetalleDao {
     fun getAllRegistroDetalleActiveTask(e: Int): List<OtDetalle>
 
     @Query("SELECT * FROM OtDetalle WHERE otId=:id AND tipoMaterialId=:t")
-    fun getOtDetalleBajaTension(id: Int, t: Int): OtDetalle
+    fun getOtDetalleBajaTension(id: Int, t: Int): OtDetalle?
 
     @Query("DELETE FROM OtDetalle WHERE otId=:id AND tipoMaterialId=:t")
     fun deleteOtDetalleBajaTension(id: Int, t: Int)

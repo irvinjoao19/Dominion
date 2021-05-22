@@ -1,4 +1,4 @@
-<resources>
+<resources xmlns:tools="http://schemas.android.com/tools">
     <string name="app_name">AppDominion</string>
     <string name="singin">Acceder</string>
     <string name="img">Imagen</string>
@@ -111,7 +111,7 @@
     <string name="largo">Largo</string>
     <string name="estado">Seleccione Estado</string>
     <string name="next">Siguiente</string>
-    <string name="c1">campo1</string>
+    <string name="c1" tools:ignore="Typos">campo1</string>
     <string name="espesor">Altura</string>
     <string name="tipo_material">Tipo de Material</string>
     <string name="title_activity_general_maps">Map</string>
@@ -127,4 +127,6 @@
     <string name="cant_panos">Cant. Paños</string>
     <string name="med_vertical">Med. Vertical</string>
     <string name="close_register">Cerrar Registro</string>
+    <string name="pdf">Pdf</string>
+    <string name="camara">Galeria</string>
 </resources>

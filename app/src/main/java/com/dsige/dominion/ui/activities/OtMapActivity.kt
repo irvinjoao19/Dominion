@@ -178,13 +178,9 @@ class OtMapActivity : AppCompatActivity(), OnMapReadyCallback, LocationListener 
 
     }
 
-    override fun onProviderEnabled(provider: String?) {
+    override fun onProviderEnabled(provider: String?) {    }
 
-    }
-
-    override fun onProviderDisabled(provider: String?) {
-
-    }
+    override fun onProviderDisabled(provider: String?) {    }
 
     @SuppressLint("StaticFieldLeak")
     private inner class FetchURL : AsyncTask<String, Void, String>() {
@@ -202,11 +198,11 @@ class OtMapActivity : AppCompatActivity(), OnMapReadyCallback, LocationListener 
         override fun onPostExecute(s: String) {
             super.onPostExecute(s)
             val map: MapPrincipal = Gson().fromJson(s, MapPrincipal::class.java)
-            val mapRoutes: List<MapRoute>? = map.routes
-            if (mapRoutes != null) {
+            val mapRoutes: List<MapRoute> = map.routes
+            if (mapRoutes.isNotEmpty()) {
                 for (r: MapRoute in map.routes) {
-                    val mapLegs: List<MapLegs>? = r.legs
-                    if (mapLegs != null) {
+                    val mapLegs: List<MapLegs> = r.legs
+                    if (mapLegs.isNotEmpty()) {
                         for (m: MapLegs in mapLegs) {
                             val start: MapStartLocation? = m.start_location
                             if (start != null) {
@@ -222,7 +218,6 @@ class OtMapActivity : AppCompatActivity(), OnMapReadyCallback, LocationListener 
                                             )
                                         )
                                 )
-
                             }
                         }
                     }

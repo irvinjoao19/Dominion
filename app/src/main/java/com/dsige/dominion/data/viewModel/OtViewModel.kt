@@ -2,7 +2,6 @@ package com.dsige.dominion.data.viewModel
 
 import android.content.Context
 import android.content.Intent
-import android.util.Log
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.Transformations
@@ -27,7 +26,6 @@ class OtViewModel @Inject
 internal constructor(private val roomRepository: AppRepository, private val retrofit: ApiError) :
     ViewModel() {
 
-
     val mensajeError = MutableLiveData<String>()
     val mensajeSuccess = MutableLiveData<String>()
     val mensajeGeneral = MutableLiveData<String>()
@@ -44,7 +42,7 @@ internal constructor(private val roomRepository: AppRepository, private val retr
         return roomRepository.getGrupos()
     }
 
-    fun getGrupoByServicioId(id:Int):LiveData<List<Grupo>>{
+    fun getGrupoByServicioId(id: Int): LiveData<List<Grupo>> {
         return roomRepository.getGrupoByServicioId(id)
     }
 
@@ -218,6 +216,7 @@ internal constructor(private val roomRepository: AppRepository, private val retr
             .observeOn(AndroidSchedulers.mainThread())
             .subscribe(object : Observer<ArrayList<String>> {
                 override fun onSubscribe(d: Disposable) {}
+                override fun onComplete() {}
                 override fun onNext(t: ArrayList<String>) {
                     mensajeSuccess.value = t.toString()
                 }
@@ -225,8 +224,26 @@ internal constructor(private val roomRepository: AppRepository, private val retr
                 override fun onError(e: Throwable) {
                     mensajeError.value = e.message
                 }
+            })
+    }
 
+    fun generarArchivoPdf(
+        usuarioId: Int, context: Context,
+        data: Intent, direccion: String, distrito: String
+    ) {
+        Util.getFolderAdjuntoPdf(usuarioId, context, data, direccion, distrito)
+            .subscribeOn(Schedulers.io())
+            .observeOn(AndroidSchedulers.mainThread())
+            .subscribe(object : Observer<String> {
+                override fun onSubscribe(d: Disposable) {}
                 override fun onComplete() {}
+                override fun onNext(t: String) {
+                    mensajeSuccess.value = t
+                }
+
+                override fun onError(e: Throwable) {
+                    mensajeError.value = e.message
+                }
             })
     }
 
@@ -239,13 +256,9 @@ internal constructor(private val roomRepository: AppRepository, private val retr
                     mensajeSuccess.value = "Ok"
                 }
 
-                override fun onSubscribe(d: Disposable) {
+                override fun onSubscribe(d: Disposable) {}
 
-                }
-
-                override fun onError(e: Throwable) {
-                    Log.i("TAG", e.toString())
-                }
+                override fun onError(e: Throwable) {}
             })
     }
 
@@ -258,13 +271,9 @@ internal constructor(private val roomRepository: AppRepository, private val retr
                     mensajeError.value = "Foto Eliminada"
                 }
 
-                override fun onSubscribe(d: Disposable) {
+                override fun onSubscribe(d: Disposable) {}
 
-                }
-
-                override fun onError(e: Throwable) {
-
-                }
+                override fun onError(e: Throwable) {}
             })
     }
 
@@ -277,13 +286,9 @@ internal constructor(private val roomRepository: AppRepository, private val retr
                     mensajeError.value = "Foto Eliminada"
                 }
 
-                override fun onSubscribe(d: Disposable) {
+                override fun onSubscribe(d: Disposable) {}
 
-                }
-
-                override fun onError(e: Throwable) {
-
-                }
+                override fun onError(e: Throwable) {}
             })
     }
 
@@ -552,12 +557,9 @@ internal constructor(private val roomRepository: AppRepository, private val retr
                         .subscribeOn(Schedulers.io())
                         .observeOn(AndroidSchedulers.mainThread())
                         .subscribe(object : Observer<List<OtPlazoDetalle>> {
+                            override fun onSubscribe(d: Disposable) {}
                             override fun onComplete() {
                                 mensajeSuccess.value = "finish"
-                            }
-
-                            override fun onSubscribe(d: Disposable) {
-
                             }
 
                             override fun onNext(t: List<OtPlazoDetalle>) {
@@ -581,13 +583,9 @@ internal constructor(private val roomRepository: AppRepository, private val retr
                         })
                 }
 
-                override fun onSubscribe(d: Disposable) {
+                override fun onSubscribe(d: Disposable) {}
 
-                }
-
-                override fun onError(e: Throwable) {
-
-                }
+                override fun onError(e: Throwable) {}
 
             })
     }
@@ -597,17 +595,9 @@ internal constructor(private val roomRepository: AppRepository, private val retr
             .subscribeOn(Schedulers.io())
             .observeOn(AndroidSchedulers.mainThread())
             .subscribe(object : CompletableObserver {
-                override fun onComplete() {
-
-                }
-
-                override fun onSubscribe(d: Disposable) {
-
-                }
-
-                override fun onError(e: Throwable) {
-
-                }
+                override fun onComplete() {}
+                override fun onSubscribe(d: Disposable) {}
+                override fun onError(e: Throwable) {}
             })
     }
 

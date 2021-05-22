@@ -275,7 +275,7 @@ class FormDetailActivity : DaggerAppCompatActivity(), View.OnClickListener, Text
                 DividerItemDecoration.VERTICAL
             )
         )
-        textViewTitulo.text = String.format("Distritos")
+        textViewTitulo.text = String.format("Tipo de Material")
 
         val materialAdapter = MaterialAdapter(object : OnItemClickListener.MaterialListener {
             override fun onItemClick(m: Material, view: View, position: Int) {
@@ -312,13 +312,13 @@ class FormDetailActivity : DaggerAppCompatActivity(), View.OnClickListener, Text
             a * b * c
         }
 
-        val data = if (grupo == 4 && tipo == 6) {
-            result * 10
-        } else {
-            result
-        }
+//        val data = if (grupo == 4 && tipo == 6) {
+//            result * 10
+//        } else {
+//            result
+//        }
 
-        textViewTotal.text = String.format("Total : %.2f", data)
+        textViewTotal.text = String.format("Total : %.2f", result)
         d.total = result
     }
 

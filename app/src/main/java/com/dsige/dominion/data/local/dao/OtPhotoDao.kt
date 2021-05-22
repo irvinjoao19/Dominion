@@ -30,7 +30,7 @@ interface OtPhotoDao {
     fun getOtPhotoById(id: Int): LiveData<List<OtPhoto>>
 
     @Query("SELECT * FROM OtPhoto WHERE urlPhoto =:img")
-    fun getOtPhotoName(img: String): OtPhoto
+    fun getOtPhotoName(img: String): OtPhoto?
 
     @Query("SELECT * FROM OtPhoto WHERE otDetalleId =:id")
     fun getOtPhotoIdTask(id: Int): List<OtPhoto>

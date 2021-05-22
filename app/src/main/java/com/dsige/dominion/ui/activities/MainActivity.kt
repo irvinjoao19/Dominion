@@ -17,12 +17,9 @@ import com.dsige.dominion.R
 import com.dsige.dominion.data.local.model.Usuario
 import com.dsige.dominion.data.viewModel.UsuarioViewModel
 import com.dsige.dominion.helper.Util
-import com.dsige.dominion.ui.fragments.GeneralMapFragment
-import com.dsige.dominion.ui.fragments.MainFragment
-import com.dsige.dominion.ui.fragments.PlazoFragment
-import com.dsige.dominion.ui.fragments.ResumenFragment
 import com.dsige.dominion.ui.services.SocketServices
 import com.dsige.dominion.data.viewModel.ViewModelFactory
+import com.dsige.dominion.ui.fragments.*
 import com.google.android.material.dialog.MaterialAlertDialogBuilder
 import com.google.android.material.navigation.NavigationView
 import dagger.android.support.DaggerAppCompatActivity
@@ -91,6 +88,8 @@ class MainActivity : DaggerAppCompatActivity(), NavigationView.OnNavigationItemS
                     s2.getItem(1).setIcon(R.drawable.ic_send)
                     s2.add("Cerrar Sesión")
                     s2.getItem(2).setIcon(R.drawable.ic_exit)
+//                    s2.add("Prueba Pdf")
+//                    s2.getItem(3).setIcon(R.drawable.ic_exit)
                     navigationView.invalidate()
                 })
 
@@ -120,7 +119,7 @@ class MainActivity : DaggerAppCompatActivity(), NavigationView.OnNavigationItemS
             )
             "Lista de Ordenes" -> changeFragment(
                 MainFragment.newInstance(
-                    usuarioId, empresaId, personalId, servicioId, nombreServicio,tipo,nombreTipo
+                    usuarioId, empresaId, personalId, servicioId, nombreServicio, tipo, nombreTipo
                 ), item.title.toString()
             )
             "Resumen de Ordenes de Trabajo por Proveedor" -> changeFragment(
@@ -136,6 +135,9 @@ class MainActivity : DaggerAppCompatActivity(), NavigationView.OnNavigationItemS
             "Ubicacion del Personal" -> Util.toastMensaje(this, item.title.toString(), true)
             "Enviar Pendientes" -> dialogFunction(2, "Deseas enviar registros ?")
             "Cerrar Sesión" -> dialogFunction(3, "Deseas Salir ?")
+            "Prueba Pdf" -> changeFragment(
+                PdfFragment.newInstance("", ""), item.title.toString()
+            )
         }
         drawerLayout.closeDrawer(GravityCompat.START)
         return true
@@ -176,7 +178,7 @@ class MainActivity : DaggerAppCompatActivity(), NavigationView.OnNavigationItemS
             .replace(
                 R.id.content_frame,
                 MainFragment.newInstance(
-                    usuarioId, empresaId, personalId, servicioId, nombreServicio,tipo,nombreTipo
+                    usuarioId, empresaId, personalId, servicioId, nombreServicio, tipo, nombreTipo
                 )
             )
             .commit()
@@ -236,7 +238,12 @@ class MainActivity : DaggerAppCompatActivity(), NavigationView.OnNavigationItemS
                 when (tipo) {
                     1 -> {
                         load("Sincronizando..")
-                        usuarioViewModel.getSync(usuarioId, empresaId, personalId)
+                        usuarioViewModel.getSync(
+                            usuarioId,
+                            empresaId,
+                            personalId,
+                            Util.getVersion(this)
+                        )
                     }
                     2 -> {
                         load("Enviando..")

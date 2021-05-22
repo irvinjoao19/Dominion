@@ -26,7 +26,7 @@ interface AppRepository {
     fun insertUsuario(u: Usuario): Completable
     fun deleteSesion(): Completable
     fun deleteSync(): Completable
-    fun getSync(u: Int, e: Int, p: Int): Observable<Sync>
+    fun getSync(u: Int, e: Int, p: Int,v:String): Observable<Sync>
     fun saveSync(s: Sync): Completable
 
     fun getAccesos(usuarioId: Int): LiveData<List<Accesos>>

@@ -1,7 +1,7 @@
 package com.dsige.dominion.data.local.repository
 
 import android.content.Context
-import android.util.Log
+//import android.util.Log
 import androidx.lifecycle.LiveData
 import androidx.paging.Config
 import androidx.paging.PagedList
@@ -42,7 +42,7 @@ class AppRepoImp(private val apiService: ApiService, private val dataBase: AppDa
     ): Observable<Usuario> {
         val u = Filtro(usuario, password, imei, version)
         val json = Gson().toJson(u)
-        Log.i("TAG", json)
+//        Log.i("TAG", json)
         val body = RequestBody.create(MediaType.parse("application/json; charset=utf-8"), json)
         return apiService.getLogin(body)
     }
@@ -50,7 +50,7 @@ class AppRepoImp(private val apiService: ApiService, private val dataBase: AppDa
     override fun getLogout(login: String): Observable<Mensaje> {
         val u = Filtro(login)
         val json = Gson().toJson(u)
-        Log.i("TAG", json)
+//        Log.i("TAG", json)
         val body = RequestBody.create(MediaType.parse("application/json; charset=utf-8"), json)
         return apiService.getLogout(body)
     }
@@ -77,6 +77,7 @@ class AppRepoImp(private val apiService: ApiService, private val dataBase: AppDa
             dataBase.materialDao().deleteAll()
             dataBase.distritoDao().deleteAll()
             dataBase.servicioDao().deleteAll()
+            dataBase.codigOtsDao().deleteAll()
         }
     }
 
@@ -90,13 +91,14 @@ class AppRepoImp(private val apiService: ApiService, private val dataBase: AppDa
             dataBase.materialDao().deleteAll()
             dataBase.distritoDao().deleteAll()
             dataBase.servicioDao().deleteAll()
+            dataBase.codigOtsDao().deleteAll()
         }
     }
 
-    override fun getSync(u: Int, e: Int, p: Int): Observable<Sync> {
-        val f = Filtro(u, e, p)
+    override fun getSync(u: Int, e: Int, p: Int,v:String): Observable<Sync> {
+        val f = Filtro(u, e, p,v)
         val json = Gson().toJson(f)
-        Log.i("TAG", json)
+//        Log.i("TAG", json)
         val body = RequestBody.create(MediaType.parse("application/json; charset=utf-8"), json)
         return apiService.getSync(body)
     }
@@ -111,20 +113,20 @@ class AppRepoImp(private val apiService: ApiService, private val dataBase: AppDa
                     if (d != null) {
                         dataBase.otDetalleDao().insertOtDetalleListTask(d)
                         for (p: OtDetalle in d) {
-                            val f: List<OtPhoto>? = p.photos
-                            if (f != null) {
+                            val f: List<OtPhoto> = p.photos
+                            if (f.isNotEmpty()) {
                                 dataBase.otPhotoDao().insertOtPhotoListTask(f)
                             }
                         }
                     }
                 }
             }
-            val g: List<Grupo> = s.groups
-            if (g.isNotEmpty()) {
+            val g: List<Grupo>? = s.groups
+            if (g != null) {
                 dataBase.grupoDao().insertGrupoListTask(g)
 
-                val se: List<Servicio> = s.servicios
-                if (se.isNotEmpty()) {
+                val se: List<Servicio>? = s.servicios
+                if (se != null) {
                     dataBase.servicioDao().insertServicioListTask(se)
 
                     se.forEach {
@@ -140,21 +142,25 @@ class AppRepoImp(private val apiService: ApiService, private val dataBase: AppDa
                     }
                 }
             }
-            val e: List<Estado> = s.estados
-            if (e.isNotEmpty()) {
+            val e: List<Estado>? = s.estados
+            if (e != null) {
                 dataBase.estadoDao().insertEstadoListTask(e)
             }
-            val d: List<Distrito> = s.distritos
-            if (d.isNotEmpty()) {
+            val d: List<Distrito>? = s.distritos
+            if (d != null) {
                 dataBase.distritoDao().insertDistritoListTask(d)
             }
-            val m: List<Material> = s.materials
-            if (m.isNotEmpty()) {
+            val m: List<Material>? = s.materials
+            if (m != null) {
                 dataBase.materialDao().insertMaterialListTask(m)
             }
-            val s7: List<Sed> = s.seds
-            if (s7.isNotEmpty()) {
+            val s7: List<Sed>? = s.seds
+            if (s7 != null) {
                 dataBase.sedDao().insertSedListTask(s7)
+            }
+            val s8 : List<CodigOts>? = s.codigos
+            if (s8 != null){
+                dataBase.codigOtsDao().insertCodigOtsListTask(s8)
             }
         }
     }
@@ -207,6 +213,12 @@ class AppRepoImp(private val apiService: ApiService, private val dataBase: AppDa
 
     override fun insertOrUpdateOt(t: Ot): Completable {
         return Completable.fromAction {
+
+            val otr: Boolean = dataBase.codigOtsDao().getCodigOts(t.nroObra)
+            if (otr) {
+                error("OT ya registrada")
+            }
+
             if (t.servicioId != 2) {
                 if (t.distritoId == 0) {
                     t.distritoId = dataBase.distritoDao()
@@ -233,11 +245,11 @@ class AppRepoImp(private val apiService: ApiService, private val dataBase: AppDa
                 }
             }
 
-            val o: Ot? = dataBase.otDao().getOtIdTask(t.otId)
+            val o: Ot? = dataBase.otDao().getOtExistIdTask(t.otId)
             if (o == null) {
                 val ot: Boolean = dataBase.otDao().getNroOt(t.nroObra, t.fechaXOt)
                 if (ot) {
-                    error("Ingrese otro Nro de OT")
+                    error("OT ya registrada")
                 }
                 dataBase.otDao().insertOtTask(t)
             } else {
@@ -378,8 +390,8 @@ class AppRepoImp(private val apiService: ApiService, private val dataBase: AppDa
 
     override fun deleteOtDetalle(o: OtDetalle, context: Context): Completable {
         return Completable.fromAction {
-            val photos: List<OtPhoto>? = dataBase.otPhotoDao().getOtPhotoIdTask(o.otDetalleId)
-            if (photos != null) {
+            val photos: List<OtPhoto> = dataBase.otPhotoDao().getOtPhotoIdTask(o.otDetalleId)
+            if (photos.isNotEmpty()) {
                 for (p: OtPhoto in photos) {
                     Util.deletePhoto(p.urlPhoto, context)
                     dataBase.otPhotoDao().deleteOtPhotoTask(p)
@@ -391,7 +403,7 @@ class AppRepoImp(private val apiService: ApiService, private val dataBase: AppDa
 
     override fun getProveedor(f: Filtro): Observable<List<Proveedor>> {
         val json = Gson().toJson(f)
-        Log.i("TAG", json)
+//        Log.i("TAG", json)
         val body = RequestBody.create(MediaType.parse("application/json; charset=utf-8"), json)
         return apiService.getProveedor(body)
     }
@@ -416,7 +428,7 @@ class AppRepoImp(private val apiService: ApiService, private val dataBase: AppDa
 
     override fun getEmpresa(f: Filtro): Observable<List<OtReporte>> {
         val json = Gson().toJson(f)
-        Log.i("TAG", json)
+//        Log.i("TAG", json)
         val body = RequestBody.create(MediaType.parse("application/json; charset=utf-8"), json)
         return apiService.getEmpresa(body)
     }
@@ -437,7 +449,7 @@ class AppRepoImp(private val apiService: ApiService, private val dataBase: AppDa
 
     override fun getJefeCuadrilla(f: Filtro): Observable<List<JefeCuadrilla>> {
         val json = Gson().toJson(f)
-        Log.i("TAG", json)
+//        Log.i("TAG", json)
         val body = RequestBody.create(MediaType.parse("application/json; charset=utf-8"), json)
         return apiService.getJefeCuadrilla(body)
     }
@@ -464,7 +476,7 @@ class AppRepoImp(private val apiService: ApiService, private val dataBase: AppDa
 
     override fun getOtPlazo(f: Filtro): Observable<List<OtPlazo>> {
         val json = Gson().toJson(f)
-        Log.i("TAG", json)
+//        Log.i("TAG", json)
         val body = RequestBody.create(MediaType.parse("application/json; charset=utf-8"), json)
         return apiService.getOtPlazo(body)
     }
@@ -477,7 +489,7 @@ class AppRepoImp(private val apiService: ApiService, private val dataBase: AppDa
 
     override fun getOtPlazoDetalle(f: Filtro): Observable<List<OtPlazoDetalle>> {
         val json = Gson().toJson(f)
-        Log.i("TAG", json)
+//        Log.i("TAG", json)
         val body = RequestBody.create(MediaType.parse("application/json; charset=utf-8"), json)
         return apiService.getOtPlazoDetalle(body)
     }
@@ -537,7 +549,7 @@ class AppRepoImp(private val apiService: ApiService, private val dataBase: AppDa
             }
 
             val web = Gson().toJson(list)
-            Log.i("socket", web)
+//            Log.i("socket", web)
             try {
                 val socket = IO.socket(Util.UrlSocket)
                 socket.emit("Notificacion_movil_web_OT", web)
@@ -559,9 +571,9 @@ class AppRepoImp(private val apiService: ApiService, private val dataBase: AppDa
 
                     if (r.tipoOrdenId == 3 || r.tipoOrdenId == 4) {
                         if (r.conDesmonte) {
-                            val d: List<OtDetalle>? =
+                            val d: List<OtDetalle> =
                                 dataBase.otDetalleDao().getAllRegistroDetalleDesmonte(r.otId)
-                            if (d != null) {
+                            if (d.isNotEmpty()) {
                                 if (d.isEmpty()) {
                                     e.onError(Throwable("Es obligatorio registrar un desmonte para cada ot"))
                                     e.onComplete()
@@ -580,9 +592,9 @@ class AppRepoImp(private val apiService: ApiService, private val dataBase: AppDa
 //            }
 
             for (p: OtDetalle in ot) {
-                val photos: List<OtPhoto>? =
+                val photos: List<OtPhoto> =
                     dataBase.otPhotoDao().getOtPhotoIdTask(p.otDetalleId)
-                if (photos != null) {
+                if (photos.isNotEmpty()) {
                     for (f: OtPhoto in photos) {
                         data.add(f.urlPhoto)
                     }

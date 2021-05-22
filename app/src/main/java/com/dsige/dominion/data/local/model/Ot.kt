@@ -59,5 +59,5 @@ open class Ot {
 
 
     @Ignore
-    var detalles: List<OtDetalle> = ArrayList()
+    var detalles: List<OtDetalle>? = ArrayList()
 }

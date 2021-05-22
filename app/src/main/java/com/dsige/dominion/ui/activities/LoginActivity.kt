@@ -55,7 +55,7 @@ class LoginActivity : DaggerAppCompatActivity(), View.OnClickListener {
                 if (usuario.isNotEmpty()) {
                     if (pass.isNotEmpty()) {
                         load()
-                        if (Build.VERSION.SDK_INT == 29) {
+                        if (Build.VERSION.SDK_INT >= 29) {
                             usuarioViewModel.getLogin(
                                 usuario, pass, pass, Util.getVersion(this)
                             )

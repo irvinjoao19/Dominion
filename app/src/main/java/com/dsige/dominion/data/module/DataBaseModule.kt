@@ -108,4 +108,9 @@ class DataBaseModule {
     internal fun provideSedDao(appDataBase: AppDataBase): SedDao {
         return appDataBase.sedDao()
     }
+
+    @Provides
+    internal fun provideCodigOtsDao(appDataBase: AppDataBase): CodigOtsDao {
+        return appDataBase.codigOtsDao()
+    }
 }

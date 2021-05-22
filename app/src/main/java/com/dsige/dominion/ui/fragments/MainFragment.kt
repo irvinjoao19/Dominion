@@ -55,21 +55,24 @@ class MainFragment : DaggerFragment(), View.OnClickListener, TextView.OnEditorAc
         return false
     }
 
-
     override fun onClick(v: View) {
         when (v.id) {
             R.id.editTextEstado -> spinnerDialog(1, "Estado")
             R.id.editTextGrupo -> spinnerDialog(2, "Tipo de Trabajo")
             R.id.editTextServicio -> spinnerDialog(3, "Servicios")
             R.id.fab -> if (f.servicioId != 0) {
-                startActivity(
-                    Intent(context, FormActivity::class.java)
-                        .putExtra("otId", otId)
-                        .putExtra("usuarioId", usuarioId)
-                        .putExtra("tipo", f.tipo)
-                        .putExtra("empresaId", empresaId)
-                        .putExtra("servicioId", f.servicioId)
-                )
+                if (f.tipo != 0) {
+                    startActivity(
+                        Intent(context, FormActivity::class.java)
+                            .putExtra("otId", otId)
+                            .putExtra("usuarioId", usuarioId)
+                            .putExtra("tipo", f.tipo)
+                            .putExtra("empresaId", empresaId)
+                            .putExtra("servicioId", f.servicioId)
+                    )
+                } else {
+                    otViewModel.setError("Seleccione Tipo de Trabajo")
+                }
             } else
                 otViewModel.setError("Seleccione Servicio")
         }
@@ -85,7 +88,7 @@ class MainFragment : DaggerFragment(), View.OnClickListener, TextView.OnEditorAc
     private var otId: Int = 0
     private var servicioId: Int = 0
     private var nombreServicio: String = ""
-    private var nombreTipo:String = ""
+    private var nombreTipo: String = ""
     lateinit var f: Filtro
 
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -96,9 +99,9 @@ class MainFragment : DaggerFragment(), View.OnClickListener, TextView.OnEditorAc
             personalId = it.getInt(ARG_PARAM3)
             servicioId = it.getInt(ARG_PARAM4)
 
-            nombreServicio = it.getString(ARG_PARAM5,"")
+            nombreServicio = it.getString(ARG_PARAM5, "")
             tipo = it.getInt(ARG_PARAM6)
-            nombreTipo = it.getString(ARG_PARAM7,"")
+            nombreTipo = it.getString(ARG_PARAM7, "")
         }
 
 
@@ -271,7 +274,7 @@ class MainFragment : DaggerFragment(), View.OnClickListener, TextView.OnEditorAc
 
     companion object {
         @JvmStatic
-        fun newInstance(p1: Int, p2: Int, p3: Int, p4: Int, p5: String,p6: Int,p7: String) =
+        fun newInstance(p1: Int, p2: Int, p3: Int, p4: Int, p5: String, p6: Int, p7: String) =
             MainFragment().apply {
                 arguments = Bundle().apply {
                     putInt(ARG_PARAM1, p1)
