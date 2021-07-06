@@ -157,8 +157,9 @@ class DesmonteFragment : DaggerFragment(), View.OnClickListener {
 
         otViewModel.getOtDetalleById(otId, 7)
             .observe(viewLifecycleOwner, {
-                otDetalleAdapter.submitList(it)
-                size = it.size
+                otDetalleAdapter.submitData(lifecycle, it)
+                size = otDetalleAdapter.itemCount
+//                size = it.
             })
 
         otViewModel.mensajeError.observe(viewLifecycleOwner) {

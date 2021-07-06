@@ -30,6 +30,8 @@ open class OtDetalle {
     var medHorizontal : Double = 0.0
     var medVertical : Double = 0.0
 
+    var viajeIndebido : Int = 0
+
     @Ignore
     var photos: List<OtPhoto> = ArrayList()
 }

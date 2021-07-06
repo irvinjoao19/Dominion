@@ -4,7 +4,7 @@ import android.annotation.SuppressLint
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
-import androidx.paging.PagedListAdapter
+import androidx.paging.PagingDataAdapter
 import androidx.recyclerview.widget.DiffUtil
 import androidx.recyclerview.widget.RecyclerView
 import com.dsige.dominion.R
@@ -13,7 +13,7 @@ import com.dsige.dominion.ui.listeners.OnItemClickListener
 import kotlinx.android.synthetic.main.cardview_ot_plazo_detalle.view.*
 
 class OtPlazoDetalleAdapter(private val listener: OnItemClickListener.OtPlazoDetalleListener) :
-    PagedListAdapter<OtPlazoDetalle, OtPlazoDetalleAdapter.ViewHolder>(diffCallback) {
+    PagingDataAdapter<OtPlazoDetalle, OtPlazoDetalleAdapter.ViewHolder>(diffCallback) {
 
     override fun onBindViewHolder(holder: ViewHolder, position: Int) {
         val s = getItem(position)
@@ -26,7 +26,7 @@ class OtPlazoDetalleAdapter(private val listener: OnItemClickListener.OtPlazoDet
         val v =
             LayoutInflater.from(parent.context)
                 .inflate(R.layout.cardview_ot_plazo_detalle, parent, false)
-        return ViewHolder(v!!)
+        return ViewHolder(v)
     }
 
     inner class ViewHolder(itemView: View) : RecyclerView.ViewHolder(itemView) {
@@ -41,22 +41,26 @@ class OtPlazoDetalleAdapter(private val listener: OnItemClickListener.OtPlazoDet
                 textView7.text = p.fechaAsignacion
                 textView8.text = p.fueraPlazoHoras
                 textView9.text = p.fueraPlazoDias
-                imgMap.setOnClickListener { v -> listener.onItemClick(p, v, adapterPosition) }
+                imgMap.setOnClickListener { v ->
+                    listener.onItemClick(
+                        p,
+                        v,
+                        bindingAdapterPosition
+                    )
+                }
             }
     }
 
     companion object {
         private val diffCallback = object : DiffUtil.ItemCallback<OtPlazoDetalle>() {
             override fun areItemsTheSame(
-                oldItem: OtPlazoDetalle,
-                newItem: OtPlazoDetalle
+                oldItem: OtPlazoDetalle, newItem: OtPlazoDetalle
             ): Boolean =
                 oldItem.otId == newItem.otId
 
             @SuppressLint("DiffUtilEquals")
             override fun areContentsTheSame(
-                oldItem: OtPlazoDetalle,
-                newItem: OtPlazoDetalle
+                oldItem: OtPlazoDetalle, newItem: OtPlazoDetalle
             ): Boolean =
                 oldItem == newItem
         }

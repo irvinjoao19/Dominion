@@ -6,7 +6,7 @@ import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.Transformations
 import androidx.lifecycle.ViewModel
-import androidx.paging.PagedList
+import androidx.paging.PagingData
 import com.dsige.dominion.data.local.model.*
 import com.dsige.dominion.data.local.repository.*
 import com.dsige.dominion.helper.Util
@@ -31,8 +31,8 @@ internal constructor(private val roomRepository: AppRepository, private val retr
     val mensajeGeneral = MutableLiveData<String>()
     val search: MutableLiveData<String> = MutableLiveData()
 
-    val user: LiveData<Usuario>
-        get() = roomRepository.getUsuario()
+//    val user: LiveData<Usuario>
+//        get() = roomRepository.getUsuario()
 
     fun setError(s: String) {
         mensajeError.value = s
@@ -50,7 +50,35 @@ internal constructor(private val roomRepository: AppRepository, private val retr
         return roomRepository.getEstados()
     }
 
-    fun getOts(): LiveData<PagedList<Ot>> {
+//    fun getOts(): LiveData<PagedList<Ot>> {
+//        return Transformations.switchMap(search) { input ->
+//            if (input == null || input.isEmpty()) {
+//                roomRepository.getOts()
+//            } else {
+//                val f = Gson().fromJson(search.value, Filtro::class.java)
+//                if (f.servicioId == 0) {
+//                    if (f.search.isNotEmpty()) {
+//                        roomRepository.getOts(
+//                            f.tipo, f.estadoId, String.format("%s%s%s", "%", f.search, "%")
+//                        )
+//                    } else {
+//                        roomRepository.getOts(f.tipo, f.estadoId)
+//                    }
+//                } else {
+//                    if (f.search.isEmpty()) {
+//                        roomRepository.getOts(f.tipo, f.estadoId, f.servicioId)
+//                    } else {
+//                        roomRepository.getOts(
+//                            f.tipo, f.estadoId, f.servicioId,
+//                            String.format("%s%s%s", "%", f.search, "%")
+//                        )
+//                    }
+//                }
+//            }
+//        }
+//    }
+
+    fun getOts(): LiveData<PagingData<Ot>> {
         return Transformations.switchMap(search) { input ->
             if (input == null || input.isEmpty()) {
                 roomRepository.getOts()
@@ -78,6 +106,7 @@ internal constructor(private val roomRepository: AppRepository, private val retr
         }
     }
 
+
     fun validateOt(t: Ot) {
         if (t.nroObra.isEmpty()) {
             mensajeError.value = "Ingresar Nro OT/TD"
@@ -98,6 +127,23 @@ internal constructor(private val roomRepository: AppRepository, private val retr
         if (t.servicioId != 2) {
             if (t.nombreDistritoId.isEmpty()) {
                 mensajeError.value = "Seleccione Distrito"
+                return
+            }
+        }
+
+        if (t.descripcionOt.isEmpty()) {
+            mensajeError.value = "Ingresar Descripcón"
+            return
+        }
+
+        if (t.referenciaOt.isEmpty()) {
+            mensajeError.value = "Ingresar Referencia"
+            return
+        }
+
+        if (t.servicioId == 2 || t.servicioId == 4) {
+            if (t.viajeIndebido == 0) {
+                mensajeError.value = "Viaje Indebido es obligatorio"
                 return
             }
         }
@@ -124,7 +170,7 @@ internal constructor(private val roomRepository: AppRepository, private val retr
         return roomRepository.getOtById(otId)
     }
 
-    fun getOtDetalleById(otId: Int, tipo: Int): LiveData<PagedList<OtDetalle>> {
+    fun getOtDetalleById(otId: Int, tipo: Int): LiveData<PagingData<OtDetalle>> {
         return roomRepository.getOtDetalleById(otId, tipo)
     }
 
@@ -207,57 +253,20 @@ internal constructor(private val roomRepository: AppRepository, private val retr
         return roomRepository.getOtDetalleId(detalleId)
     }
 
-    fun generarArchivo(
-        size: Int, usuarioId: Int, context: Context,
-        data: Intent, direccion: String, distrito: String
-    ) {
-        Util.getFolderAdjunto(size, usuarioId, context, data, direccion, distrito)
-            .subscribeOn(Schedulers.io())
-            .observeOn(AndroidSchedulers.mainThread())
-            .subscribe(object : Observer<ArrayList<String>> {
-                override fun onSubscribe(d: Disposable) {}
-                override fun onComplete() {}
-                override fun onNext(t: ArrayList<String>) {
-                    mensajeSuccess.value = t.toString()
-                }
-
-                override fun onError(e: Throwable) {
-                    mensajeError.value = e.message
-                }
-            })
-    }
-
-    fun generarArchivoPdf(
-        usuarioId: Int, context: Context,
-        data: Intent, direccion: String, distrito: String
-    ) {
-        Util.getFolderAdjuntoPdf(usuarioId, context, data, direccion, distrito)
-            .subscribeOn(Schedulers.io())
-            .observeOn(AndroidSchedulers.mainThread())
-            .subscribe(object : Observer<String> {
-                override fun onSubscribe(d: Disposable) {}
-                override fun onComplete() {}
-                override fun onNext(t: String) {
-                    mensajeSuccess.value = t
-                }
-
-                override fun onError(e: Throwable) {
-                    mensajeError.value = e.message
-                }
-            })
-    }
-
-    fun insertPhoto(f: OtPhoto) {
+    fun insertPhoto(f: OtPhoto, foto: Boolean) {
         roomRepository.insertPhoto(f)
             .subscribeOn(Schedulers.io())
             .observeOn(AndroidSchedulers.mainThread())
             .subscribe(object : CompletableObserver {
                 override fun onComplete() {
-                    mensajeSuccess.value = "Ok"
+                    if (foto) {
+                        mensajeSuccess.value = "3"
+                    } else {
+                        mensajeSuccess.value = "Ok"
+                    }
                 }
 
                 override fun onSubscribe(d: Disposable) {}
-
                 override fun onError(e: Throwable) {}
             })
     }
@@ -355,10 +364,9 @@ internal constructor(private val roomRepository: AppRepository, private val retr
             })
     }
 
-    fun getProveedores(): LiveData<PagedList<Proveedor>> {
+    fun getProveedores(): LiveData<PagingData<Proveedor>> {
         return roomRepository.getProveedores()
     }
-
 
     // TODO Empresas Ot Reporte
 
@@ -468,7 +476,7 @@ internal constructor(private val roomRepository: AppRepository, private val retr
 
     // TODO Ot Plazo
 
-    fun getOtPlazos(): LiveData<PagedList<OtPlazo>> {
+    fun getOtPlazos(): LiveData<PagingData<OtPlazo>> {
         return roomRepository.getOtPlazos()
     }
 
@@ -601,7 +609,7 @@ internal constructor(private val roomRepository: AppRepository, private val retr
             })
     }
 
-    fun getOtPlazoDetalles(): LiveData<PagedList<OtPlazoDetalle>> {
+    fun getOtPlazoDetalles(): LiveData<PagingData<OtPlazoDetalle>> {
         return roomRepository.getOtPlazoDetalles()
     }
 
@@ -679,6 +687,76 @@ internal constructor(private val roomRepository: AppRepository, private val retr
                 override fun onError(e: Throwable) {}
                 override fun onComplete() {
                     mensajeSuccess.value = "Trabajo Cerrado"
+                }
+            })
+    }
+
+    fun getFilesFromGallery(
+        size: Int,
+        usuarioId: Int,
+        context: Context,
+        data: Intent,
+        direccion: String,
+        distrito: String,
+        toPdf: Boolean
+    ) {
+        Util.getFilesFromGallery(size, usuarioId, context, data, direccion, distrito, toPdf)
+            .subscribeOn(Schedulers.io())
+            .observeOn(AndroidSchedulers.mainThread())
+            .subscribe(object : Observer<ArrayList<String>> {
+                override fun onSubscribe(d: Disposable) {}
+                override fun onComplete() {}
+                override fun onNext(t: ArrayList<String>) {
+                    mensajeSuccess.value = t.toString()
+                }
+
+                override fun onError(e: Throwable) {
+                    mensajeError.value = e.message
+                }
+            })
+    }
+
+    fun generatePhoto(
+        nameImg: String,
+        context: Context,
+        direccion: String,
+        distrito: String,
+        id: Int,
+        toPdf: Boolean
+    ) {
+        Util.generatePhoto(nameImg, context, direccion, distrito, id, toPdf)
+            .subscribeOn(Schedulers.io())
+            .observeOn(AndroidSchedulers.mainThread())
+            .subscribe(object : Observer<OtPhoto> {
+                override fun onSubscribe(d: Disposable) {}
+                override fun onComplete() {}
+                override fun onNext(t: OtPhoto) {
+                    insertPhoto(t, true)
+                }
+
+                override fun onError(e: Throwable) {
+                    mensajeError.value = e.message
+                }
+            })
+    }
+
+    fun generatePdfFile(
+        nameImg: String,
+        context: Context,
+        direccion: String,
+        distrito: String,
+        id: Int,
+        toPdf: Boolean
+    ) {
+        Util.generatePdfFile(nameImg, context, direccion, distrito, id, toPdf)
+            .subscribeOn(Schedulers.io())
+            .observeOn(AndroidSchedulers.mainThread())
+            .subscribe(object : Observer<OtDetalle> {
+                override fun onSubscribe(d: Disposable) {}
+                override fun onComplete() {}
+                override fun onError(e: Throwable) {}
+                override fun onNext(t: OtDetalle) {
+                    insertOtPhotoCabecera(t)
                 }
             })
     }

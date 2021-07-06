@@ -5,7 +5,7 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import androidx.core.content.ContextCompat
-import androidx.paging.PagedListAdapter
+import androidx.paging.PagingDataAdapter
 import androidx.recyclerview.widget.DiffUtil
 import androidx.recyclerview.widget.RecyclerView
 import com.dsige.dominion.R
@@ -14,7 +14,7 @@ import com.dsige.dominion.ui.listeners.OnItemClickListener
 import kotlinx.android.synthetic.main.cardview_ot_detalle.view.*
 
 class OtDetalleAdapter(private val listener: OnItemClickListener.OtDetalleListener) :
-    PagedListAdapter<OtDetalle, OtDetalleAdapter.ViewHolder>(diffCallback) {
+    PagingDataAdapter<OtDetalle, OtDetalleAdapter.ViewHolder>(diffCallback) {
 
     override fun onBindViewHolder(holder: ViewHolder, position: Int) {
         val s = getItem(position)
@@ -26,7 +26,7 @@ class OtDetalleAdapter(private val listener: OnItemClickListener.OtDetalleListen
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): ViewHolder {
         val v =
             LayoutInflater.from(parent.context).inflate(R.layout.cardview_ot_detalle, parent, false)
-        return ViewHolder(v!!)
+        return ViewHolder(v)
     }
 
     inner class ViewHolder(itemView: View) : RecyclerView.ViewHolder(itemView) {
@@ -51,7 +51,6 @@ class OtDetalleAdapter(private val listener: OnItemClickListener.OtDetalleListen
                     } else {
                         o.nombreTipoDemonte
                     }
-
                 }
 
                 textView2.text =
@@ -63,8 +62,12 @@ class OtDetalleAdapter(private val listener: OnItemClickListener.OtDetalleListen
                         ContextCompat.getColor(itemView.context, R.color.colorSecondaryText)
                     )
                 }
-                imgEdit.setOnClickListener { v -> listener.onItemClick(o, v, adapterPosition) }
-                imgDelete.setOnClickListener { v -> listener.onItemClick(o, v, adapterPosition) }
+                imgEdit.setOnClickListener { v -> listener.onItemClick(o, v, bindingAdapterPosition) }
+                imgDelete.setOnClickListener { v -> listener.onItemClick(o, v, bindingAdapterPosition) }
+
+                if (o.viajeIndebido == 1){
+                    textView2.visibility = View.GONE
+                }
             }
     }
 

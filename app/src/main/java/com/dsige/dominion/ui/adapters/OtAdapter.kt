@@ -4,7 +4,7 @@ import android.annotation.SuppressLint
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
-import androidx.paging.PagedListAdapter
+import androidx.paging.PagingDataAdapter
 import androidx.recyclerview.widget.DiffUtil
 import androidx.recyclerview.widget.RecyclerView
 import com.dsige.dominion.R
@@ -13,7 +13,7 @@ import com.dsige.dominion.ui.listeners.OnItemClickListener
 import kotlinx.android.synthetic.main.cardview_ot.view.*
 
 class OtAdapter(private val listener: OnItemClickListener.OtListener) :
-    PagedListAdapter<Ot, OtAdapter.ViewHolder>(diffCallback) {
+    PagingDataAdapter<Ot, OtAdapter.ViewHolder>(diffCallback) {
 
     override fun onBindViewHolder(holder: ViewHolder, position: Int) {
         val s = getItem(position)
@@ -40,7 +40,7 @@ class OtAdapter(private val listener: OnItemClickListener.OtListener) :
                 textView7.text = String.format("Dia Vcto: %s", o.vencimiento)
                 textView8.text = String.format("Hora Asignación: %s", o.horaAsignacion)
 
-                itemView.setOnClickListener { v -> listener.onItemClick(o, v, adapterPosition) }
+                itemView.setOnClickListener { v -> listener.onItemClick(o, v, bindingAdapterPosition) }
             }
     }
 

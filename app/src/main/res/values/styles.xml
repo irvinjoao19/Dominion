@@ -55,4 +55,8 @@
         <item name="android:background">@color/colorTrans</item>
         <item name="android:textColor">@color/colorPrimary</item>
     </style>
+
+    <style name="toolbarColored" parent="AppTheme">
+        <item name="android:textColorSecondary">@color/colorBlack</item>
+    </style>
 </resources>

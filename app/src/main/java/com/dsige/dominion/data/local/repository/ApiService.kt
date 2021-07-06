@@ -63,4 +63,10 @@ interface ApiService {
     @POST("SaveOtNew5")
     fun sendOt(@Body body: RequestBody): Observable<Mensaje>
 
+    @POST("SaveOperarioBattery")
+    fun saveOperarioBattery(@Body movil: RequestBody): Observable<Mensaje>
+
+    @POST("SaveOperarioGps")
+    fun saveOperarioGps(@Body gps: RequestBody): Observable<Mensaje>
+
 }

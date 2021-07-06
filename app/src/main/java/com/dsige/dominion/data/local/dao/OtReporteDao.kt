@@ -1,7 +1,6 @@
 package com.dsige.dominion.data.local.dao
 
 import androidx.lifecycle.LiveData
-import androidx.paging.DataSource
 import androidx.room.*
 import com.dsige.dominion.data.local.model.OtReporte
 

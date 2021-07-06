@@ -10,6 +10,7 @@ import android.location.LocationListener
 import android.location.LocationManager
 import android.os.Bundle
 import android.os.Handler
+import android.os.Looper
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
@@ -109,7 +110,7 @@ class PersonalMapFragment : DaggerFragment(), OnMapReadyCallback, GoogleMap.OnMa
                                 MarkerOptions()
                                     .position(LatLng(s.latitud.toDouble(), s.longitud.toDouble()))
                                     .title(s.cuadrillaId.toString())
-                                    .icon(BitmapDescriptorFactory.fromBitmap(bitmap))
+                                    .icon(BitmapDescriptorFactory.fromBitmap(bitmap!!))
                             )
                         }
                     })
@@ -133,12 +134,12 @@ class PersonalMapFragment : DaggerFragment(), OnMapReadyCallback, GoogleMap.OnMa
     override fun onMapReady(googleMap: GoogleMap) {
         mMap = googleMap
         locationManager =
-            context!!.getSystemService(DaggerAppCompatActivity.LOCATION_SERVICE) as LocationManager
+            requireContext().getSystemService(DaggerAppCompatActivity.LOCATION_SERVICE) as LocationManager
         if (ActivityCompat.checkSelfPermission(
-                context!!,
+                requireContext(),
                 Manifest.permission.ACCESS_FINE_LOCATION
             ) != PackageManager.PERMISSION_GRANTED && ActivityCompat.checkSelfPermission(
-                context!!,
+                requireContext(),
                 Manifest.permission.ACCESS_COARSE_LOCATION
             ) != PackageManager.PERMISSION_GRANTED
         ) {
@@ -163,11 +164,11 @@ class PersonalMapFragment : DaggerFragment(), OnMapReadyCallback, GoogleMap.OnMa
     }
 
     override fun onMarkerClick(p: Marker): Boolean {
-        dialogJefeCuadrilla(p.title.toInt())
+        dialogJefeCuadrilla(p.title!!.toInt())
         return false
     }
 
-    override fun onLocationChanged(location: Location?) {
+    override fun onLocationChanged(location: Location) {
         if (isFirstTime) {
             zoomToLocation(location)
         }
@@ -178,13 +179,9 @@ class PersonalMapFragment : DaggerFragment(), OnMapReadyCallback, GoogleMap.OnMa
 
     }
 
-    override fun onProviderEnabled(p0: String?) {
+    override fun onProviderEnabled(p0: String) {    }
 
-    }
-
-    override fun onProviderDisabled(p0: String?) {
-
-    }
+    override fun onProviderDisabled(p0: String) {    }
 
     private fun zoomToLocation(location: Location?) {
         if (location != null) {
@@ -201,7 +198,7 @@ class PersonalMapFragment : DaggerFragment(), OnMapReadyCallback, GoogleMap.OnMa
                     MarkerOptions()
                         .position(LatLng(location.latitude, location.longitude))
                         .title("YO")
-                        .icon(Util.bitmapDescriptorFromVector(context!!, R.drawable.ic_place))
+                        .icon(Util.bitmapDescriptorFromVector(requireContext(), R.drawable.ic_place))
                 )
             }
         }
@@ -227,17 +224,19 @@ class PersonalMapFragment : DaggerFragment(), OnMapReadyCallback, GoogleMap.OnMa
 
         imageViewClose.setOnClickListener { dialog.dismiss() }
 
-        Handler().postDelayed({
-            otViewModel.getJefeCuadrillaById(id)
-                .observe(this, {
-                    textViewTitle.text = it.nombreJefe
-                    textView1.text = it.empresa
-                    textView2.text = String.format("Cant Ot Asignados : %s", it.asignado)
-                    textView3.text = String.format("Cant Ot Terminados : %s", it.terminado)
-                    textView4.text = String.format("Cant Ot Pendiente : %s", it.pendiente)
-                    linearLayoutLoad.visibility = View.GONE
-                    linearLayoutPrincipal.visibility = View.VISIBLE
-                })
-        }, 800)
+        Looper.myLooper()?.let { looper ->
+            Handler(looper).postDelayed({
+                otViewModel.getJefeCuadrillaById(id)
+                    .observe(this, {
+                        textViewTitle.text = it.nombreJefe
+                        textView1.text = it.empresa
+                        textView2.text = String.format("Cant Ot Asignados : %s", it.asignado)
+                        textView3.text = String.format("Cant Ot Terminados : %s", it.terminado)
+                        textView4.text = String.format("Cant Ot Pendiente : %s", it.pendiente)
+                        linearLayoutLoad.visibility = View.GONE
+                        linearLayoutPrincipal.visibility = View.VISIBLE
+                    })
+            }, 800)
+        }
     }
 }

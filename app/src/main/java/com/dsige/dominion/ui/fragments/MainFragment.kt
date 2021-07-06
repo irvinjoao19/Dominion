@@ -34,6 +34,7 @@ import com.dsige.dominion.data.viewModel.ViewModelFactory
 import com.google.gson.Gson
 import dagger.android.support.DaggerFragment
 import kotlinx.android.synthetic.main.fragment_main.*
+import kotlinx.coroutines.flow.collectLatest
 import javax.inject.Inject
 
 private const val ARG_PARAM1 = "param1"
@@ -126,7 +127,7 @@ class MainFragment : DaggerFragment(), View.OnClickListener, TextView.OnEditorAc
         val otAdapter = OtAdapter(object : OnItemClickListener.OtListener {
             override fun onItemClick(o: Ot, view: View, position: Int) {
 //                if (o.estado != 0) {
-                val popupMenu = PopupMenu(context!!, view)
+                val popupMenu = PopupMenu(requireContext(), view)
                 popupMenu.menu.add(0, 1, 0, getText(R.string.edit))
                 popupMenu.menu.add(0, 2, 0, getText(R.string.mapa))
                 popupMenu.setOnMenuItemClickListener { item ->
@@ -161,12 +162,13 @@ class MainFragment : DaggerFragment(), View.OnClickListener, TextView.OnEditorAc
         })
 
         recyclerView.itemAnimator = DefaultItemAnimator()
-        recyclerView.layoutManager = LinearLayoutManager(context!!)
+        recyclerView.layoutManager = LinearLayoutManager(requireContext())
         recyclerView.setHasFixedSize(true)
         recyclerView.adapter = otAdapter
 
-        otViewModel.getOts()
-            .observe(viewLifecycleOwner, Observer(otAdapter::submitList))
+        otViewModel.getOts().observe(viewLifecycleOwner){
+            otAdapter.submitData(lifecycle, it)
+        }
 
         editTextGrupo.setText(nombreTipo)
         editTextEstado.setText(String.format("Enviados al Jefe de Cuadrilla"))
@@ -189,7 +191,7 @@ class MainFragment : DaggerFragment(), View.OnClickListener, TextView.OnEditorAc
         fab.setOnClickListener(this)
 
         otViewModel.mensajeError.observe(viewLifecycleOwner, {
-            Util.toastMensaje(context!!, it, false)
+            Util.toastMensaje(requireContext(), it, false)
         })
     }
 

@@ -3,8 +3,8 @@ package com.dsige.dominion.ui.activities
 import android.content.Intent
 import android.os.Bundle
 import android.os.Handler
+import android.os.Looper
 import android.view.View
-import androidx.lifecycle.Observer
 import androidx.lifecycle.ViewModelProvider
 import androidx.recyclerview.widget.DefaultItemAnimator
 import androidx.recyclerview.widget.LinearLayoutManager
@@ -71,10 +71,15 @@ class OtPlazoActivity : DaggerAppCompatActivity() {
         recyclerView.setHasFixedSize(true)
         recyclerView.adapter = otPlazoDetalleAdapter
 
-        Handler().postDelayed({
-            otViewModel.getOtPlazoDetalles()
-                .observe(this, Observer(otPlazoDetalleAdapter::submitList))
-        }, 200)
+        Looper.myLooper()?.let {
+            Handler(it).postDelayed({
+                otViewModel.getOtPlazoDetalles()
+                    .observe(this, { opd ->
+                        otPlazoDetalleAdapter.submitData(lifecycle, opd)
+                    })
+            }, 200)
+        }
+
 
         otViewModel.mensajeSuccess.observe(this, {
             if (it == "finish") {
@@ -84,7 +89,7 @@ class OtPlazoActivity : DaggerAppCompatActivity() {
         })
 
         otViewModel.mensajeError.observe(this, {
-            Util.toastMensaje(this, it,false)
+            Util.toastMensaje(this, it, false)
         })
     }
 }

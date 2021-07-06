@@ -25,10 +25,12 @@ import com.dsige.dominion.data.local.model.*
         OtPlazo::class,
         OtPlazoDetalle::class,
         Sed::class,
-        CodigOts::class
+        CodigOts::class,
+        OperarioGps::class,
+        OperarioBattery::class,
     ],
     views = [OtNotify::class],
-    version = 13, // version 5 en play store
+    version = 15, // version 5 en play store
     exportSchema = false
 )
 abstract class AppDataBase : RoomDatabase() {
@@ -51,10 +53,13 @@ abstract class AppDataBase : RoomDatabase() {
     abstract fun sedDao(): SedDao
     abstract fun codigOtsDao(): CodigOtsDao
 
+    abstract fun operarioGpsDao(): OperarioGpsDao
+    abstract fun operarioBatteryDao(): OperarioBatteryDao
+
     companion object {
         @Volatile
         var INSTANCE: AppDataBase? = null
-        val DB_NAME = "dominion_db"
+        const val DB_NAME = "dominion_db"
     }
 
     fun getDatabase(context: Context): AppDataBase {
@@ -63,7 +68,7 @@ abstract class AppDataBase : RoomDatabase() {
                 if (INSTANCE == null) {
                     INSTANCE = Room.databaseBuilder(
                         context.applicationContext,
-                        AppDataBase::class.java, "dominion_db"
+                        AppDataBase::class.java, DB_NAME
                     )
                         .fallbackToDestructiveMigration()
                         .build()

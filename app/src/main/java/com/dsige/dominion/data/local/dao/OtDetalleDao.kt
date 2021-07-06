@@ -1,7 +1,7 @@
 package com.dsige.dominion.data.local.dao
 
 import androidx.lifecycle.LiveData
-import androidx.paging.DataSource
+import androidx.paging.PagingSource
 import androidx.room.*
 import com.dsige.dominion.data.local.model.OtDetalle
 
@@ -21,13 +21,13 @@ interface OtDetalleDao {
     fun deleteOtDetalleTask(c: OtDetalle)
 
     @Query("SELECT * FROM OtDetalle")
-    fun getOtDetalles(): DataSource.Factory<Int, OtDetalle>
+    fun getOtDetalles(): PagingSource<Int, OtDetalle>
 
     @Query("DELETE FROM OtDetalle")
     fun deleteAll()
 
     @Query("SELECT * FROM OtDetalle WHERE otId =:id AND tipoTrabajoId =:tipo")
-    fun getOtDetalleById(id: Int, tipo: Int): DataSource.Factory<Int, OtDetalle>
+    fun getOtDetalleById(id: Int, tipo: Int): PagingSource<Int, OtDetalle>
 
     @Query("SELECT * FROM OtDetalle WHERE otDetalleId =:id")
     fun getOtDetalleIdTask(id: Int): OtDetalle?
@@ -64,4 +64,10 @@ interface OtDetalleDao {
 
     @Query("SELECT * FROM OtDetalle WHERE otId =:id AND tipoTrabajoId = 7 AND estado = 1")
     fun getAllRegistroDetalleDesmonte(id: Int): List<OtDetalle>
+
+    @Query("SELECT * FROM OtDetalle WHERE otId =:id AND estado = 1")
+    fun getOtDetalleViajeIndebido(id: Int): OtDetalle?
+
+    @Query("UPDATE OtDetalle SET estado =:e WHERE otDetalleId=:id")
+    fun updateViajeIndebido(id: Int,e:Int)
 }

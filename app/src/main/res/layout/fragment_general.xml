@@ -9,7 +9,6 @@
     <androidx.core.widget.NestedScrollView
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:layout_marginBottom="40dp"
         tools:ignore="UselessParent">
 
         <androidx.constraintlayout.widget.ConstraintLayout
@@ -241,19 +240,6 @@
                 app:layout_constraintEnd_toStartOf="@+id/fabCamara"
                 app:layout_constraintTop_toBottomOf="@+id/layout5"
                 app:srcCompat="@drawable/ic_attach"
-                app:tint="@color/colorWhite" />
-
-            <com.google.android.material.floatingactionbutton.FloatingActionButton
-                android:id="@+id/fabPreviewCamera"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_margin="8dp"
-                android:contentDescription="@string/img"
-                android:visibility="gone"
-                app:backgroundTint="@color/colorPrimary"
-                app:layout_constraintEnd_toStartOf="@+id/fabGaleria"
-                app:layout_constraintTop_toBottomOf="@+id/layout5"
-                app:srcCompat="@drawable/ic_galery"
                 app:tint="@color/colorWhite" />
 
             <com.google.android.material.checkbox.MaterialCheckBox

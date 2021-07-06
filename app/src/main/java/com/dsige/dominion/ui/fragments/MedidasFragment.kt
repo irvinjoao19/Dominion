@@ -5,7 +5,6 @@ import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
-import androidx.lifecycle.Observer
 import androidx.lifecycle.ViewModelProvider
 import androidx.recyclerview.widget.DefaultItemAnimator
 import androidx.recyclerview.widget.LinearLayoutManager
@@ -46,7 +45,7 @@ class MedidasFragment : DaggerFragment(), View.OnClickListener {
                 )
             } else {
                 viewPager?.currentItem = 0
-                Util.toastMensaje(context!!, "Completar primer formulario",false)
+                Util.toastMensaje(requireContext(), "Completar primer formulario", false)
             }
         }
     }
@@ -70,7 +69,7 @@ class MedidasFragment : DaggerFragment(), View.OnClickListener {
      * 5 ->	RECOJO
      * @servicio
      * 2 -> Emergencia Baja Tensión
-    */
+     */
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         arguments?.let {
@@ -93,7 +92,7 @@ class MedidasFragment : DaggerFragment(), View.OnClickListener {
     }
 
     private fun bindUI() {
-        viewPager = activity!!.findViewById(R.id.viewPager)
+        viewPager = requireActivity().findViewById(R.id.viewPager)
         otViewModel =
             ViewModelProvider(this, viewModelFactory).get(OtViewModel::class.java)
 
@@ -122,6 +121,8 @@ class MedidasFragment : DaggerFragment(), View.OnClickListener {
                             .putExtra("estado", o.estado)
                             .putExtra("grupo", grupo)
                             .putExtra("servicio", servicio)
+                            .putExtra("viajeIndebido", o.viajeIndebido)
+
                     )
                     R.id.imgDelete -> if (o.estado == 3) {
                         if (o.latitud.isNotEmpty() || o.longitud.isNotEmpty()) {
@@ -143,25 +144,27 @@ class MedidasFragment : DaggerFragment(), View.OnClickListener {
         })
 
         recyclerView.itemAnimator = DefaultItemAnimator()
-        recyclerView.layoutManager = LinearLayoutManager(context!!)
+        recyclerView.layoutManager = LinearLayoutManager(requireContext())
         recyclerView.setHasFixedSize(true)
         recyclerView.adapter = otDetalleAdapter
 
         otViewModel.getOtDetalleById(otId, 6)
-            .observe(viewLifecycleOwner, Observer(otDetalleAdapter::submitList))
+            .observe(viewLifecycleOwner, {
+                otDetalleAdapter.submitData(lifecycle, it)
+            })
 
         otViewModel.mensajeError.observe(viewLifecycleOwner, {
-            Util.toastMensaje(context!!, it,false)
+            Util.toastMensaje(requireContext(), it, false)
         })
         fab.setOnClickListener(this)
     }
 
     private fun confirmDelete(o: OtDetalle) {
-        val dialog = MaterialAlertDialogBuilder(context!!)
+        val dialog = MaterialAlertDialogBuilder(requireContext())
             .setTitle("Mensaje")
             .setMessage("Se eliminaran las fotos que estan incluidas en esta medida ?")
             .setPositiveButton("Eliminar") { dialog, _ ->
-                otViewModel.deleteOtDetalle(o, context!!)
+                otViewModel.deleteOtDetalle(o, requireContext())
                 dialog.dismiss()
             }
             .setNegativeButton("Cancelar") { dialog, _ ->
@@ -172,7 +175,7 @@ class MedidasFragment : DaggerFragment(), View.OnClickListener {
 
     companion object {
         @JvmStatic
-        fun newInstance(param1: Int, param2: Int, param3: Int,param4:Int) =
+        fun newInstance(param1: Int, param2: Int, param3: Int, param4: Int) =
             MedidasFragment().apply {
                 arguments = Bundle().apply {
                     putInt(ARG_PARAM1, param1)

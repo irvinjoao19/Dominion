@@ -2,10 +2,7 @@ package com.dsige.dominion.data.components
 
 import android.app.Application
 import com.dsige.dominion.data.App
-import com.dsige.dominion.data.module.ActivityBindingModule
-import com.dsige.dominion.data.module.DataBaseModule
-import com.dsige.dominion.data.module.RetrofitModule
-import com.dsige.dominion.data.module.ServicesModule
+import com.dsige.dominion.data.module.*
 import dagger.BindsInstance
 import dagger.Component
 import dagger.android.AndroidInjector
@@ -19,7 +16,8 @@ import javax.inject.Singleton
         ActivityBindingModule::class,
         RetrofitModule::class,
         DataBaseModule::class,
-        ServicesModule::class
+        ServicesModule::class,
+        WorkerModule::class
     ]
 )
 interface ApplicationComponent : AndroidInjector<App> {

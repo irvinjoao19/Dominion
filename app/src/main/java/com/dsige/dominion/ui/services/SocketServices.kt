@@ -14,8 +14,7 @@ import android.net.Uri
 import android.os.Build
 import android.os.Handler
 import android.os.IBinder
-import android.util.Log
-import android.view.View
+import android.os.Looper
 import androidx.core.app.NotificationCompat
 import com.dsige.dominion.R
 import com.dsige.dominion.data.local.model.Notificacion
@@ -26,13 +25,8 @@ import com.github.nkzawa.socketio.client.IO
 import com.github.nkzawa.socketio.client.Socket
 import com.google.gson.Gson
 import com.google.gson.reflect.TypeToken
-import com.squareup.picasso.Callback
-import com.squareup.picasso.Picasso
 import dagger.android.AndroidInjection
-import kotlinx.android.synthetic.main.activity_preview_camera.*
-import java.io.File
 import java.net.URISyntaxException
-import java.util.*
 import javax.inject.Inject
 
 class SocketServices : Service() {
@@ -51,30 +45,31 @@ class SocketServices : Service() {
     }
 
     override fun onStartCommand(intent: Intent?, flags: Int, startId: Int): Int {
-        val handler = Handler()
-        handler.post {
-            try {
-                mSocket = IO.socket(Util.UrlSocket)
-                mSocket.on("Alertas_web_OT") { s ->
-                    Log.i("TAG", s[0].toString())
-                    val myType = object : TypeToken<List<Notificacion>>() {}.type
-                    val n = Gson().fromJson<List<Notificacion>>(s[0].toString(), myType)
-                    for ((id, m: Notificacion) in n.withIndex()) {
-                        if (m.idCuadrilla == "0") {
-                            val e = roomRepository.getEmpresaIdTask()
-                            if (m.idEmpresa == e.toString()) {
-                                notificationSocket(id, this, m.titulo, m.mensaje)
-                            }
-                        } else {
-                            val u = roomRepository.getUsuarioIdTask()
-                            if (u.toString() == m.idCuadrilla) {
-                                notificationSocket(id, this, m.titulo, m.mensaje)
+        Looper.myLooper()?.let {
+            Handler(it).post {
+                try {
+                    mSocket = IO.socket(Util.UrlSocket)
+                    mSocket.connect()
+                    mSocket.on("Alertas_web_OT") { s ->
+                        //Log.i("TAG", s[0].toString())
+                        val myType = object : TypeToken<List<Notificacion>>() {}.type
+                        val n = Gson().fromJson<List<Notificacion>>(s[0].toString(), myType)
+                        for ((id, m: Notificacion) in n.withIndex()) {
+                            if (m.idCuadrilla == "0") {
+                                val e = roomRepository.getEmpresaIdTask()
+                                if (m.idEmpresa == e.toString()) {
+                                    notificationSocket(id, this, m.titulo, m.mensaje)
+                                }
+                            } else {
+                                val u = roomRepository.getUsuarioIdTask()
+                                if (u.toString() == m.idCuadrilla) {
+                                    notificationSocket(id, this, m.titulo, m.mensaje)
+                                }
                             }
                         }
                     }
+                } catch (ignored: URISyntaxException) {
                 }
-                mSocket.connect()
-            } catch (ignored: URISyntaxException) {
             }
         }
         return super.onStartCommand(intent, flags, startId)
@@ -85,7 +80,7 @@ class SocketServices : Service() {
         intent.flags = Intent.FLAG_ACTIVITY_CLEAR_TOP
         val pendingIntent =
             PendingIntent.getActivity(context, 0, intent, PendingIntent.FLAG_ONE_SHOT)
-        val nBuilder = getBasicNotificationBuilder(context, CHANNEL_ID_TIMER, false)
+        val nBuilder = getBasicNotificationBuilder(context)
         nBuilder.setContentTitle(title)
             .setContentText(s)
             .setAutoCancel(true)
@@ -99,11 +94,11 @@ class SocketServices : Service() {
         nManager.notify(id, nBuilder.build())
     }
 
-    private fun getBasicNotificationBuilder(context: Context, channelId: String, playSound: Boolean)
+    private fun getBasicNotificationBuilder(context: Context)
             : NotificationCompat.Builder {
         val notificationSound: Uri =
             RingtoneManager.getDefaultUri(RingtoneManager.TYPE_NOTIFICATION)
-        val nBuilder = NotificationCompat.Builder(context, channelId)
+        return NotificationCompat.Builder(context, CHANNEL_ID_TIMER)
             .setSmallIcon(R.mipmap.ic_launcher)
             .setLargeIcon(
                 BitmapFactory.decodeResource(
@@ -112,8 +107,7 @@ class SocketServices : Service() {
             )
             .setAutoCancel(true)
             .setDefaults(0)
-        if (playSound) nBuilder.setSound(notificationSound)
-        return nBuilder
+            .setSound(notificationSound)
     }
 
     @TargetApi(26)

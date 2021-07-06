@@ -33,7 +33,6 @@
         android:usesCleartextTraffic="true"
         tools:ignore="AllowBackup,GoogleAppIndexingWarning"
         tools:targetApi="q">
-
         <!--
              The API key for Google Maps-based APIs is defined as a string resource.
              (See the file "res/values/google_maps_api.xml").
@@ -51,7 +50,7 @@
         <activity android:name=".ui.activities.OtMapActivity" />
         <activity android:name=".ui.activities.FormDetailActivity" />
         <activity android:name=".ui.activities.PreviewCameraActivity" />
-        <activity android:name=".ui.activities.CameraActivity" />
+        <activity android:name=".ui.activities.PreviewPdfActivity"/>
         <activity android:name=".ui.activities.FormActivity" />
         <activity android:name=".ui.activities.LoginActivity" />
         <activity android:name=".ui.activities.MainActivity">
@@ -62,28 +61,16 @@
             </intent-filter>
         </activity>
 
-        <receiver
-            android:name=".ui.broadcasts.GpsReceiver"
-            android:enabled="true"
-            android:exported="false" />
-        <receiver
-            android:name=".ui.broadcasts.MovilReceiver"
-            android:enabled="true"
-            android:exported="false" />
-
-        <service
-            android:name=".ui.services.GpsService"
-            android:enabled="true"
-            android:exported="false" />
-        <service
-            android:name=".ui.services.MovilService"
-            android:enabled="true"
-            android:exported="false" />
         <service
             android:name=".ui.services.SocketServices"
             android:enabled="true"
             android:exported="false" />
 
+        <provider
+            android:name="androidx.work.impl.WorkManagerInitializer"
+            android:authorities="${applicationId}.workmanager-init"
+            android:exported="false"
+            tools:node="remove" />
         <provider
             android:name="androidx.core.content.FileProvider"
             android:authorities="${applicationId}.fileprovider"

@@ -10,7 +10,6 @@ import android.widget.ProgressBar
 import android.widget.TextView
 import androidx.appcompat.app.AlertDialog
 import androidx.appcompat.view.ContextThemeWrapper
-import androidx.lifecycle.Observer
 import androidx.lifecycle.ViewModelProvider
 import androidx.recyclerview.widget.DefaultItemAnimator
 import androidx.recyclerview.widget.DividerItemDecoration
@@ -112,12 +111,14 @@ class PlazoFragment : DaggerFragment(), View.OnClickListener {
         })
 
         recyclerView.itemAnimator = DefaultItemAnimator()
-        recyclerView.layoutManager = LinearLayoutManager(context!!)
+        recyclerView.layoutManager = LinearLayoutManager(requireContext())
         recyclerView.setHasFixedSize(true)
         recyclerView.adapter = otPlazoAdapter
 
         otViewModel.getOtPlazos()
-            .observe(viewLifecycleOwner, Observer(otPlazoAdapter::submitList))
+            .observe(viewLifecycleOwner, {
+                otPlazoAdapter.submitData(lifecycle,it)
+            })
 
         otViewModel.mensajeSuccess.observe(viewLifecycleOwner, {
             if (it == "finish") {
@@ -127,7 +128,7 @@ class PlazoFragment : DaggerFragment(), View.OnClickListener {
         })
 
         otViewModel.mensajeError.observe(viewLifecycleOwner, {
-            Util.toastMensaje(context!!, it,false)
+            Util.toastMensaje(requireContext(), it,false)
         })
 
         editTextServicio.setOnClickListener(this)

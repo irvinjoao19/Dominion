@@ -113,4 +113,14 @@ class DataBaseModule {
     internal fun provideCodigOtsDao(appDataBase: AppDataBase): CodigOtsDao {
         return appDataBase.codigOtsDao()
     }
+
+    @Provides
+    internal fun provideOperarioGpsDao(appDataBase: AppDataBase): OperarioGpsDao {
+        return appDataBase.operarioGpsDao()
+    }
+
+    @Provides
+    internal fun provideOperarioBatteryGpsDao(appDataBase: AppDataBase): OperarioBatteryDao {
+        return appDataBase.operarioBatteryDao()
+    }
 }

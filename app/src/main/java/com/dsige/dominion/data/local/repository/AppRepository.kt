@@ -2,17 +2,19 @@ package com.dsige.dominion.data.local.repository
 
 import android.content.Context
 import androidx.lifecycle.LiveData
-import androidx.paging.PagedList
+import androidx.paging.PagingData
 import com.dsige.dominion.data.local.model.*
 import com.dsige.dominion.helper.Mensaje
 import io.reactivex.Completable
 import io.reactivex.Observable
+import kotlinx.coroutines.flow.Flow
 import okhttp3.RequestBody
 import retrofit2.Call
 
 interface AppRepository {
 
     fun getUsuarioIdTask(): Int
+    fun getUsuarioId(): Observable<Int>
 
     fun getEmpresaIdTask(): Int
 
@@ -34,14 +36,15 @@ interface AppRepository {
     fun getGrupoByServicioId(id:Int): LiveData<List<Grupo>>
     fun getEstados(): LiveData<List<Estado>>
 
-    fun getOts(): LiveData<PagedList<Ot>>
-    fun getOts(t: Int, e: Int): LiveData<PagedList<Ot>>
-    fun getOts(t: Int, e: Int, s: String): LiveData<PagedList<Ot>>
-    fun getOts(t: Int, e: Int, s: Int): LiveData<PagedList<Ot>>
-    fun getOts(t: Int, e: Int, sId: Int, s: String): LiveData<PagedList<Ot>>
+    fun getOts(): LiveData<PagingData<Ot>>
+    fun getOts(t: Int, e: Int): LiveData<PagingData<Ot>>
+    fun getOts(t: Int, e: Int, s: String): LiveData<PagingData<Ot>>
+    fun getOts(t: Int, e: Int, s: Int): LiveData<PagingData<Ot>>
+    fun getOts(t: Int, e: Int, sId: Int, s: String): LiveData<PagingData<Ot>>
+
     fun insertOrUpdateOt(t: Ot): Completable
     fun getOtById(otId: Int): LiveData<Ot>
-    fun getOtDetalleById(otId: Int, tipo: Int): LiveData<PagedList<OtDetalle>>
+    fun getOtDetalleById(otId: Int, tipo: Int): LiveData<PagingData<OtDetalle>>
     fun getOtPhotoById(id: Int): LiveData<List<OtPhoto>>
 
     fun getDistritos(): LiveData<List<Distrito>>
@@ -68,7 +71,7 @@ interface AppRepository {
     fun deleteOtDetalle(o: OtDetalle, context: Context): Completable
 
     fun getProveedor(f: Filtro): Observable<List<Proveedor>>
-    fun getProveedores(): LiveData<PagedList<Proveedor>>
+    fun getProveedores(): LiveData<PagingData<Proveedor>>
     fun clearProveedores(): Completable
     fun insertProveedor(t: List<Proveedor>): Completable
     fun getEmpresa(f: Filtro): Observable<List<OtReporte>>
@@ -80,13 +83,13 @@ interface AppRepository {
     fun getJefeCuadrillas(): LiveData<List<JefeCuadrilla>>
     fun getJefeCuadrillaById(id: Int): LiveData<JefeCuadrilla>
 
-    fun getOtPlazos(): LiveData<PagedList<OtPlazo>>
+    fun getOtPlazos(): LiveData<PagingData<OtPlazo>>
     fun getOtPlazo(f: Filtro): Observable<List<OtPlazo>>
     fun insertOtPlazo(t: List<OtPlazo>): Completable
     fun getOtPlazoDetalle(f: Filtro): Observable<List<OtPlazoDetalle>>
     fun insertOtPlazoDetalle(t: List<OtPlazoDetalle>): Completable
     fun clearOtPlazo(): Completable
-    fun getOtPlazoDetalles(): LiveData<PagedList<OtPlazoDetalle>>
+    fun getOtPlazoDetalles(): LiveData<PagingData<OtPlazoDetalle>>
     fun clearOtPlazoDetalle(): Completable
 
     fun sendSocket(): Completable
@@ -104,4 +107,16 @@ interface AppRepository {
 
     // nuevo
     fun cerrarTrabajo(otId: Int): Completable
+
+    //gps
+    fun insertGps(e: OperarioGps): Completable
+    fun getSendGps(): Observable<List<OperarioGps>>
+    fun saveOperarioGps(e: OperarioGps): Observable<Mensaje>
+    fun updateEnabledGps(t: Mensaje): Completable
+
+    //batterry
+    fun insertBattery(e: OperarioBattery): Completable
+    fun getSendBattery(): Observable<List<OperarioBattery>>
+    fun saveOperarioBattery(e: OperarioBattery): Observable<Mensaje>
+    fun updateEnabledBattery(t: Mensaje): Completable
 }

@@ -25,7 +25,12 @@ class FormActivity : DaggerAppCompatActivity() {
     /**
      * s => Servicio
      * 3 -> MT
-     * 2 -> Emergencia Baja Tension (BT)
+     * 1 ->	Obras distribucion
+     * 2 ->	Emergencia Baja Tension
+     * 3 ->	Emergencia MT
+     * 4 ->	Alumbrado Publico
+     * 5 ->	MTTO Preventivo
+     * 8 ->	Lineas Energizadas
      */
     private fun bind(otId: Int, u: Int, t: Int, e: Int, s: Int, p: Int) {
         setSupportActionBar(toolbar)

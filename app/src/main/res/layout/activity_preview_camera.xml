@@ -33,7 +33,6 @@
         android:layout_width="match_parent"
         android:layout_height="0dp"
         android:contentDescription="@string/img"
-
         app:layout_constraintBottom_toTopOf="@+id/recyclerView"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
@@ -48,7 +47,8 @@
         app:layout_constraintBottom_toTopOf="@+id/recyclerView"
         app:layout_constraintEnd_toEndOf="parent"
         app:srcCompat="@drawable/ic_check"
-        app:tint="@color/colorWhite" />
+        app:tint="@color/colorWhite"
+        android:contentDescription="@string/img" />
 
     <androidx.recyclerview.widget.RecyclerView
         android:id="@+id/recyclerView"

@@ -1,11 +1,11 @@
 package com.dsige.dominion.data.local.repository
 
 import android.content.Context
-//import android.util.Log
 import androidx.lifecycle.LiveData
-import androidx.paging.Config
-import androidx.paging.PagedList
-import androidx.paging.toLiveData
+import androidx.paging.Pager
+import androidx.paging.PagingConfig
+import androidx.paging.PagingData
+import androidx.paging.liveData
 import com.dsige.dominion.data.local.AppDataBase
 import com.dsige.dominion.data.local.model.*
 import com.dsige.dominion.helper.Mensaje
@@ -27,6 +27,14 @@ class AppRepoImp(private val apiService: ApiService, private val dataBase: AppDa
 
     override fun getUsuarioIdTask(): Int {
         return dataBase.usuarioDao().getUsuarioIdTask()
+    }
+
+    override fun getUsuarioId(): Observable<Int> {
+        return Observable.create {
+            val id = dataBase.usuarioDao().getUsuarioIdTask()
+            it.onNext(id)
+            it.onComplete()
+        }
     }
 
     override fun getEmpresaIdTask(): Int {
@@ -95,8 +103,8 @@ class AppRepoImp(private val apiService: ApiService, private val dataBase: AppDa
         }
     }
 
-    override fun getSync(u: Int, e: Int, p: Int,v:String): Observable<Sync> {
-        val f = Filtro(u, e, p,v)
+    override fun getSync(u: Int, e: Int, p: Int, v: String): Observable<Sync> {
+        val f = Filtro(u, e, p, v)
         val json = Gson().toJson(f)
 //        Log.i("TAG", json)
         val body = RequestBody.create(MediaType.parse("application/json; charset=utf-8"), json)
@@ -158,8 +166,8 @@ class AppRepoImp(private val apiService: ApiService, private val dataBase: AppDa
             if (s7 != null) {
                 dataBase.sedDao().insertSedListTask(s7)
             }
-            val s8 : List<CodigOts>? = s.codigos
-            if (s8 != null){
+            val s8: List<CodigOts>? = s.codigos
+            if (s8 != null) {
                 dataBase.codigOtsDao().insertCodigOtsListTask(s8)
             }
         }
@@ -181,34 +189,51 @@ class AppRepoImp(private val apiService: ApiService, private val dataBase: AppDa
         return dataBase.estadoDao().getEstados()
     }
 
-    override fun getOts(): LiveData<PagedList<Ot>> {
-        return dataBase.otDao().getOts().toLiveData(
-            Config(pageSize = 20, enablePlaceholders = true)
-        )
+    override fun getOts(): LiveData<PagingData<Ot>> {
+        return Pager(
+            PagingConfig(
+                pageSize = 20, enablePlaceholders = true,
+                maxSize = 200
+            )
+        ) {
+            dataBase.otDao().getOts()
+        }.liveData
     }
 
-    override fun getOts(t: Int, e: Int): LiveData<PagedList<Ot>> {
-        return dataBase.otDao().getOts(t, e).toLiveData(
-            Config(pageSize = 20, enablePlaceholders = true)
-        )
+    override fun getOts(t: Int, e: Int): LiveData<PagingData<Ot>> {
+        return Pager(
+            PagingConfig(
+                pageSize = 20, enablePlaceholders = true,
+                maxSize = 200
+            )
+        ) { dataBase.otDao().getOts(t, e) }.liveData
     }
 
-    override fun getOts(t: Int, e: Int, s: String): LiveData<PagedList<Ot>> {
-        return dataBase.otDao().getOts(t, e, s).toLiveData(
-            Config(pageSize = 20, enablePlaceholders = true)
-        )
+    override fun getOts(t: Int, e: Int, s: String): LiveData<PagingData<Ot>> {
+        return Pager(
+            PagingConfig(
+                pageSize = 20, enablePlaceholders = true,
+                maxSize = 200
+            )
+        ) { dataBase.otDao().getOts(t, e, s) }.liveData
     }
 
-    override fun getOts(t: Int, e: Int, s: Int): LiveData<PagedList<Ot>> {
-        return dataBase.otDao().getOts(t, e, s).toLiveData(
-            Config(pageSize = 20, enablePlaceholders = true)
-        )
+    override fun getOts(t: Int, e: Int, s: Int): LiveData<PagingData<Ot>> {
+        return Pager(
+            PagingConfig(
+                pageSize = 20, enablePlaceholders = true,
+                maxSize = 200
+            )
+        ) { dataBase.otDao().getOts(t, e, s) }.liveData
     }
 
-    override fun getOts(t: Int, e: Int, sId: Int, s: String): LiveData<PagedList<Ot>> {
-        return dataBase.otDao().getOts(t, e, sId, s).toLiveData(
-            Config(pageSize = 20, enablePlaceholders = true)
-        )
+    override fun getOts(t: Int, e: Int, sId: Int, s: String): LiveData<PagingData<Ot>> {
+        return Pager(
+            PagingConfig(
+                pageSize = 20, enablePlaceholders = true,
+                maxSize = 200
+            )
+        ) { dataBase.otDao().getOts(t, e, sId, s) }.liveData
     }
 
     override fun insertOrUpdateOt(t: Ot): Completable {
@@ -226,7 +251,7 @@ class AppRepoImp(private val apiService: ApiService, private val dataBase: AppDa
                             String.format(
                                 "%s%s%s",
                                 "%",
-                                t.nombreDistritoId.toUpperCase(Locale.getDefault()),
+                                t.nombreDistritoId.uppercase(),
                                 "%"
                             )
                         )
@@ -266,10 +291,13 @@ class AppRepoImp(private val apiService: ApiService, private val dataBase: AppDa
         return dataBase.otDao().getOtById(otId)
     }
 
-    override fun getOtDetalleById(otId: Int, tipo: Int): LiveData<PagedList<OtDetalle>> {
-        return dataBase.otDetalleDao().getOtDetalleById(otId, tipo).toLiveData(
-            Config(pageSize = 20, enablePlaceholders = true)
-        )
+    override fun getOtDetalleById(otId: Int, tipo: Int): LiveData<PagingData<OtDetalle>> {
+        return Pager(
+            PagingConfig(
+                pageSize = 20, enablePlaceholders = true,
+                maxSize = 200
+            )
+        ) { dataBase.otDetalleDao().getOtDetalleById(otId, tipo) }.liveData
     }
 
     override fun getOtPhotoById(id: Int): LiveData<List<OtPhoto>> {
@@ -335,6 +363,14 @@ class AppRepoImp(private val apiService: ApiService, private val dataBase: AppDa
     override fun deletePhoto(o: OtPhoto, context: Context): Completable {
         return Completable.fromAction {
             Util.deletePhoto(o.urlPhoto, context)
+
+            if (o.toPdf) {
+                dataBase.otDetalleDao().updateViajeIndebido(o.otDetalleId, 2)
+                Util.deletePhoto(o.urlPdf, context)
+            }
+
+
+
             dataBase.otPhotoDao().deleteOtPhotoTask(o)
         }
     }
@@ -408,10 +444,13 @@ class AppRepoImp(private val apiService: ApiService, private val dataBase: AppDa
         return apiService.getProveedor(body)
     }
 
-    override fun getProveedores(): LiveData<PagedList<Proveedor>> {
-        return dataBase.proveedorDao().getProveedores().toLiveData(
-            Config(pageSize = 20, enablePlaceholders = true)
-        )
+    override fun getProveedores(): LiveData<PagingData<Proveedor>> {
+        return Pager(
+            PagingConfig(
+                pageSize = 20, enablePlaceholders = true,
+                maxSize = 200
+            )
+        ) { dataBase.proveedorDao().getProveedores() }.liveData
     }
 
     override fun clearProveedores(): Completable {
@@ -468,10 +507,13 @@ class AppRepoImp(private val apiService: ApiService, private val dataBase: AppDa
         return dataBase.jefeCuadrillaDao().getJefeCuadrillaById(id)
     }
 
-    override fun getOtPlazos(): LiveData<PagedList<OtPlazo>> {
-        return dataBase.otPlazoDao().getOtPlazos().toLiveData(
-            Config(pageSize = 20, enablePlaceholders = true)
-        )
+    override fun getOtPlazos(): LiveData<PagingData<OtPlazo>> {
+        return Pager(
+            PagingConfig(
+                pageSize = 20, enablePlaceholders = true,
+                maxSize = 200
+            )
+        ) { dataBase.otPlazoDao().getOtPlazos() }.liveData
     }
 
     override fun getOtPlazo(f: Filtro): Observable<List<OtPlazo>> {
@@ -506,10 +548,13 @@ class AppRepoImp(private val apiService: ApiService, private val dataBase: AppDa
         }
     }
 
-    override fun getOtPlazoDetalles(): LiveData<PagedList<OtPlazoDetalle>> {
-        return dataBase.otPlazoDetalleDao().getOtPlazoDetalles().toLiveData(
-            Config(pageSize = 20, enablePlaceholders = true)
-        )
+    override fun getOtPlazoDetalles(): LiveData<PagingData<OtPlazoDetalle>> {
+        return Pager(
+            PagingConfig(
+                pageSize = 20, enablePlaceholders = true,
+                maxSize = 200
+            )
+        ) { dataBase.otPlazoDetalleDao().getOtPlazoDetalles() }.liveData
     }
 
     override fun clearOtPlazoDetalle(): Completable {
@@ -552,8 +597,8 @@ class AppRepoImp(private val apiService: ApiService, private val dataBase: AppDa
 //            Log.i("socket", web)
             try {
                 val socket = IO.socket(Util.UrlSocket)
-                socket.emit("Notificacion_movil_web_OT", web)
                 socket.connect()
+                socket.emit("Notificacion_movil_web_OT", web)
             } catch (e: URISyntaxException) {
             }
         }
@@ -565,10 +610,6 @@ class AppRepoImp(private val apiService: ApiService, private val dataBase: AppDa
             val v: List<Ot> = dataBase.otDao().getAllRegistroTask(1)
             if (v.isNotEmpty()) {
                 for (r: Ot in v) {
-                    if (r.fotoCabecera.isNotEmpty()) {
-                        data.add(r.fotoCabecera)
-                    }
-
                     if (r.tipoOrdenId == 3 || r.tipoOrdenId == 4) {
                         if (r.conDesmonte) {
                             val d: List<OtDetalle> =
@@ -580,6 +621,16 @@ class AppRepoImp(private val apiService: ApiService, private val dataBase: AppDa
                                     return@create
                                 }
                             }
+                        }
+                    }
+
+                    if (r.servicioId == 2 || r.servicioId == 4) {
+                        val d: OtDetalle? =
+                            dataBase.otDetalleDao().getOtDetalleViajeIndebido(r.otId)
+                        if (d == null) {
+                            e.onError(Throwable("Nro OT ${r.nroObra} necesita los 3 archivos del viaje indebido."))
+                            e.onComplete()
+                            return@create
                         }
                     }
                 }
@@ -596,7 +647,7 @@ class AppRepoImp(private val apiService: ApiService, private val dataBase: AppDa
                     dataBase.otPhotoDao().getOtPhotoIdTask(p.otDetalleId)
                 if (photos.isNotEmpty()) {
                     for (f: OtPhoto in photos) {
-                        data.add(f.urlPhoto)
+                        data.add(if (f.toPdf) f.urlPdf else f.urlPhoto)
                     }
                 }
             }
@@ -657,6 +708,10 @@ class AppRepoImp(private val apiService: ApiService, private val dataBase: AppDa
                         dataBase.otPhotoDao().insertOtPhotoTask(d)
                     }
                 }
+                val count = dataBase.otPhotoDao().getCountPhoto(id)
+                if (count == 3) {
+                    dataBase.otDetalleDao().updateViajeIndebido(id,  1)
+                }
             }
         }
     }
@@ -675,6 +730,7 @@ class AppRepoImp(private val apiService: ApiService, private val dataBase: AppDa
             val f = dataBase.otPhotoDao().getOtPhotoBajaTensionTask(otId)
             for (p: OtPhoto in f) {
                 Util.deletePhoto(p.urlPhoto, context)
+                Util.deletePhoto(p.urlPdf, context)
             }
             dataBase.otPhotoDao().deletePhotoBajaTension(otId)
         }
@@ -687,6 +743,62 @@ class AppRepoImp(private val apiService: ApiService, private val dataBase: AppDa
             r.estado = 1
             r.conDesmonte = false
             dataBase.otDao().updateOtTask(r)
+        }
+    }
+
+    override fun insertGps(e: OperarioGps): Completable {
+        return Completable.fromAction {
+            dataBase.operarioGpsDao().insertOperarioGpsTask(e)
+        }
+    }
+
+    override fun getSendGps(): Observable<List<OperarioGps>> {
+        return Observable.create {
+            val gps: List<OperarioGps> = dataBase.operarioGpsDao().getOperarioGpsTask()
+            it.onNext(gps)
+            it.onComplete()
+        }
+    }
+
+    override fun saveOperarioGps(e: OperarioGps): Observable<Mensaje> {
+        val json = Gson().toJson(e)
+//        Log.i("TAG", json)
+        val body = RequestBody.create(MediaType.parse("application/json; charset=utf-8"), json)
+        return apiService.saveOperarioGps(body)
+    }
+
+
+    override fun updateEnabledGps(t: Mensaje): Completable {
+        return Completable.fromAction {
+            dataBase.operarioGpsDao().updateEnabledGps(t.codigoBase)
+        }
+    }
+
+    override fun insertBattery(e: OperarioBattery): Completable {
+        return Completable.fromAction {
+            dataBase.operarioBatteryDao().insertOperarioBatteryTask(e)
+        }
+    }
+
+    override fun getSendBattery(): Observable<List<OperarioBattery>> {
+        return Observable.create {
+            val gps: List<OperarioBattery> =
+                dataBase.operarioBatteryDao().getOperarioBatteryTask()
+            it.onNext(gps)
+            it.onComplete()
+        }
+    }
+
+    override fun saveOperarioBattery(e: OperarioBattery): Observable<Mensaje> {
+        val json = Gson().toJson(e)
+//        Log.i("TAG", json)
+        val body = RequestBody.create(MediaType.parse("application/json; charset=utf-8"), json)
+        return apiService.saveOperarioBattery(body)
+    }
+
+    override fun updateEnabledBattery(t: Mensaje): Completable {
+        return Completable.fromAction {
+            dataBase.operarioBatteryDao().updateEnabledBattery(t.codigoBase)
         }
     }
 }

@@ -1,8 +1,8 @@
 package com.dsige.dominion.ui.activities
 
-import android.content.Intent
 import android.os.Bundle
 import android.os.Handler
+import android.os.Looper
 import android.view.View
 import androidx.lifecycle.ViewModelProvider
 import androidx.recyclerview.widget.DefaultItemAnimator
@@ -43,171 +43,16 @@ class PreviewCameraActivity : DaggerAppCompatActivity(), View.OnClickListener {
                 }
                 galery -> finish()
                 else -> {
-                    startActivity(
-                        Intent(this, CameraActivity::class.java)
-                            .putExtra("usuarioId", usuarioId)
-                            .putExtra("id", id)
-                            .putExtra("tipo", tipo)
-                    )
+//                    startActivity(
+//                        Intent(this, CameraActivity::class.java)
+//                            .putExtra("usuarioId", usuarioId)
+//                            .putExtra("id", id)
+//                            .putExtra("tipo", tipo)
+//                    )
                     finish()
                 }
             }
         }
-    }
-
-    @Inject
-    lateinit var viewModelFactory: ViewModelFactory
-    lateinit var otViewModel: OtViewModel
-
-    private var nameImg: String = ""
-    private var usuarioId: Int = 0
-    private var id: Int = 0
-    private var tipo: Int = 0 // 1 -> cabecera 0 -> detalle
-    private var galery: Boolean = false
-
-    lateinit var lista: ArrayList<String>
-
-    override fun onCreate(savedInstanceState: Bundle?) {
-        super.onCreate(savedInstanceState)
-        setContentView(R.layout.activity_preview_camera)
-        val b = intent.extras
-        if (b != null) {
-            usuarioId = b.getInt("usuarioId")
-            galery = b.getBoolean("galery")
-            id = b.getInt("id")
-            tipo = b.getInt("tipo")
-            if (galery) {
-                lista = Gson().fromJson(
-                    b.getString("nameImg")!!,
-                    object : TypeToken<List<String?>?>() {}.type
-                )
-            } else {
-                nameImg = b.getString("nameImg")!!
-            }
-            bindUI()
-        }
-    }
-
-    private fun bindUI() {
-        otViewModel =
-            ViewModelProvider(this, viewModelFactory).get(OtViewModel::class.java)
-
-        fabOk.setOnClickListener(this)
-        imgClose.setOnClickListener(this)
-        if (galery) {
-            Handler().postDelayed({
-                val file = File(Util.getFolder(this), lista[0])
-                Picasso.get().load(file)
-                    .into(imageView, object : Callback {
-                        override fun onError(e: Exception?) {}
-                        override fun onSuccess() {
-                            progressBar.visibility = View.GONE
-                        }
-                    })
-
-                val otPhotoAdapter =
-                    OtMultiPhotoAdapter(object : OnItemClickListener.OtMultiPhotoListener {
-                        override fun onItemClick(s: String, view: View, position: Int) {
-                            val f = File(Util.getFolder(this@PreviewCameraActivity), s)
-                            Picasso.get().load(f)
-                                .into(imageView, object : Callback {
-                                    override fun onError(e: Exception?) {}
-                                    override fun onSuccess() {
-                                        progressBar.visibility = View.GONE
-                                    }
-                                })
-                        }
-                    })
-                recyclerView.itemAnimator = DefaultItemAnimator()
-                recyclerView.layoutManager =
-                    LinearLayoutManager(this, LinearLayoutManager.HORIZONTAL, false)
-                recyclerView.setHasFixedSize(true)
-                recyclerView.adapter = otPhotoAdapter
-                otPhotoAdapter.addItems(lista)
-                recyclerView.visibility = View.VISIBLE
-            }, 200)
-        } else {
-            if (nameImg.isEmpty()) {
-                Handler().postDelayed({
-                    val otPhotoAdapter =
-                        OtPhotoBajaTensionAdapter(object : OnItemClickListener.OtPhotoListener {
-                            override fun onItemClick(o: OtPhoto, view: View, position: Int) {
-                                when (view.id) {
-                                    R.id.imgDelete -> confirmPhotoBajaTension(o)
-                                    else -> {
-                                        val f = File(
-                                            Util.getFolder(this@PreviewCameraActivity), o.urlPhoto
-                                        )
-                                        Picasso.get().load(f)
-                                            .into(imageView, object : Callback {
-                                                override fun onError(e: Exception?) {}
-                                                override fun onSuccess() {
-                                                    progressBar.visibility = View.GONE
-                                                }
-                                            })
-                                    }
-                                }
-                            }
-                        })
-                    recyclerView.itemAnimator = DefaultItemAnimator()
-                    recyclerView.layoutManager =
-                        LinearLayoutManager(this, LinearLayoutManager.HORIZONTAL, false)
-                    recyclerView.setHasFixedSize(true)
-                    recyclerView.adapter = otPhotoAdapter
-                    recyclerView.visibility = View.VISIBLE
-
-                    otViewModel.getOtPhotoBajaTension(id).observe(this, {
-                        if (it.isNotEmpty()) {
-                            val file = File(Util.getFolder(this), it[0].urlPhoto)
-                            Picasso.get().load(file)
-                                .into(imageView, object : Callback {
-                                    override fun onError(e: Exception?) {}
-                                    override fun onSuccess() {
-                                        progressBar.visibility = View.GONE
-                                    }
-                                })
-                        } else {
-                            finish()
-                        }
-                        otPhotoAdapter.addItems(it)
-                    })
-                }, 200)
-            } else {
-                Handler().postDelayed({
-                    val url = Util.UrlFoto + nameImg
-                    Picasso.get().load(url)
-                        .into(imageView, object : Callback {
-                            override fun onError(e: Exception?) {
-                                val f = File(Util.getFolder(this@PreviewCameraActivity), nameImg)
-                                Picasso.get().load(f)
-                                    .into(imageView, object : Callback {
-                                        override fun onError(e: Exception?) {}
-                                        override fun onSuccess() {
-                                            progressBar.visibility = View.GONE
-                                        }
-                                    })
-                            }
-
-                            override fun onSuccess() {
-                                progressBar.visibility = View.GONE
-                            }
-                        })
-                }, 200)
-            }
-        }
-
-
-        if (tipo == 2) {
-            fabOk.visibility = View.GONE
-        }
-
-        otViewModel.mensajeError.observe(this, {
-            Util.toastMensaje(this, it, false)
-        })
-
-        otViewModel.mensajeSuccess.observe(this, {
-            finish()
-        })
     }
 
     private fun formPhoto() {
@@ -216,11 +61,15 @@ class PreviewCameraActivity : DaggerAppCompatActivity(), View.OnClickListener {
             t.otId = id
             t.tipoMaterialId = 24
             t.tipoTrabajoId = 6
-            t.estado = 1
+            t.viajeIndebido = 1
+            t.nombreTipoMaterial = "Archivos de Viaje Indebido"
+            t.estado = 2
 
             val f = OtPhoto()
             f.nombrePhoto = nameImg
             f.urlPhoto = nameImg
+            f.urlPdf = "${nameImg.substring(0, nameImg.length - 4)}.pdf"
+            f.toPdf = true
             f.estado = 1
             f.otId = id
             val fotos = ArrayList<OtPhoto>()
@@ -233,7 +82,7 @@ class PreviewCameraActivity : DaggerAppCompatActivity(), View.OnClickListener {
             f.nombrePhoto = nameImg
             f.urlPhoto = nameImg
             f.estado = 1
-            otViewModel.insertPhoto(f)
+            otViewModel.insertPhoto(f, false)
         }
     }
 
@@ -250,8 +99,10 @@ class PreviewCameraActivity : DaggerAppCompatActivity(), View.OnClickListener {
                 val p = OtPhoto()
                 p.nombrePhoto = d
                 p.urlPhoto = d
+                p.urlPdf = "${d.substring(0, d.length - 4)}.pdf"
                 p.otId = id
                 p.estado = 1
+                p.toPdf = true
                 fotos.add(p)
             }
             t.photos = fotos
@@ -269,6 +120,169 @@ class PreviewCameraActivity : DaggerAppCompatActivity(), View.OnClickListener {
                 }
             otViewModel.insertMultiPhoto(f)
         }
+    }
+
+    @Inject
+    lateinit var viewModelFactory: ViewModelFactory
+    lateinit var otViewModel: OtViewModel
+
+    private var nameImg: String = ""
+    private var usuarioId: Int = 0
+    private var id: Int = 0
+    private var tipo: Int = 0 // 1 -> cabecera 0 -> detalle
+    private var galery: Boolean = false
+
+    private lateinit var lista: ArrayList<String>
+
+    override fun onCreate(savedInstanceState: Bundle?) {
+        super.onCreate(savedInstanceState)
+        setContentView(R.layout.activity_preview_camera)
+        val b = intent.extras
+        if (b != null) {
+            usuarioId = b.getInt("usuarioId")
+            galery = b.getBoolean("galery")
+            id = b.getInt("id")
+            tipo = b.getInt("tipo")
+            if (galery) {
+                lista = Gson().fromJson(
+                    b.getString("nameImg", ""),
+                    object : TypeToken<List<String?>?>() {}.type
+                )
+            } else {
+                nameImg = b.getString("nameImg", "")
+            }
+            bindUI()
+        }
+    }
+
+    private fun bindUI() {
+        otViewModel =
+            ViewModelProvider(this, viewModelFactory).get(OtViewModel::class.java)
+
+        fabOk.setOnClickListener(this)
+        imgClose.setOnClickListener(this)
+        if (galery) {
+            Looper.myLooper()?.let {
+                Handler(it).postDelayed({
+                    val file = File(Util.getFolder(this), lista[0])
+                    Picasso.get().load(file)
+                        .into(imageView, object : Callback {
+                            override fun onError(e: Exception?) {}
+                            override fun onSuccess() {
+                                progressBar.visibility = View.GONE
+                            }
+                        })
+
+                    val otPhotoAdapter =
+                        OtMultiPhotoAdapter(object : OnItemClickListener.OtMultiPhotoListener {
+                            override fun onItemClick(s: String, view: View, position: Int) {
+                                val f = File(Util.getFolder(this@PreviewCameraActivity), s)
+                                Picasso.get().load(f)
+                                    .into(imageView, object : Callback {
+                                        override fun onError(e: Exception?) {}
+                                        override fun onSuccess() {
+                                            progressBar.visibility = View.GONE
+                                        }
+                                    })
+                            }
+                        })
+                    recyclerView.itemAnimator = DefaultItemAnimator()
+                    recyclerView.layoutManager =
+                        LinearLayoutManager(this, LinearLayoutManager.HORIZONTAL, false)
+                    recyclerView.setHasFixedSize(true)
+                    recyclerView.adapter = otPhotoAdapter
+                    otPhotoAdapter.addItems(lista)
+                    recyclerView.visibility = View.VISIBLE
+                }, 500)
+            }
+        } else {
+            if (nameImg.isEmpty()) {
+                Looper.myLooper()?.let { looper ->
+                    Handler(looper).postDelayed({
+                        val otPhotoAdapter =
+                            OtPhotoBajaTensionAdapter(object : OnItemClickListener.OtPhotoListener {
+                                override fun onItemClick(o: OtPhoto, view: View, position: Int) {
+                                    when (view.id) {
+                                        R.id.imgDelete -> confirmPhotoBajaTension(o)
+                                        else -> {
+                                            val f = File(
+                                                Util.getFolder(this@PreviewCameraActivity),
+                                                o.urlPhoto
+                                            )
+                                            Picasso.get().load(f)
+                                                .into(imageView, object : Callback {
+                                                    override fun onError(e: Exception?) {}
+                                                    override fun onSuccess() {
+                                                        progressBar.visibility = View.GONE
+                                                    }
+                                                })
+                                        }
+                                    }
+                                }
+                            })
+                        recyclerView.itemAnimator = DefaultItemAnimator()
+                        recyclerView.layoutManager =
+                            LinearLayoutManager(this, LinearLayoutManager.HORIZONTAL, false)
+                        recyclerView.setHasFixedSize(true)
+                        recyclerView.adapter = otPhotoAdapter
+                        recyclerView.visibility = View.VISIBLE
+
+                        otViewModel.getOtPhotoBajaTension(id).observe(this, {
+                            if (it.isNotEmpty()) {
+                                val file = File(Util.getFolder(this), it[0].urlPhoto)
+                                Picasso.get().load(file)
+                                    .into(imageView, object : Callback {
+                                        override fun onError(e: Exception?) {}
+                                        override fun onSuccess() {
+                                            progressBar.visibility = View.GONE
+                                        }
+                                    })
+                            } else {
+                                finish()
+                            }
+                            otPhotoAdapter.addItems(it)
+                        })
+                    }, 500)
+                }
+            } else {
+                Looper.myLooper()?.let {
+                    Handler(it).postDelayed({
+                        val url = Util.UrlFoto + nameImg
+                        Picasso.get().load(url)
+                            .into(imageView, object : Callback {
+                                override fun onError(e: Exception?) {
+                                    val f =
+                                        File(Util.getFolder(this@PreviewCameraActivity), nameImg)
+                                    Picasso.get().load(f)
+                                        .into(imageView, object : Callback {
+                                            override fun onError(e: Exception?) {}
+                                            override fun onSuccess() {
+                                                progressBar.visibility = View.GONE
+                                            }
+                                        })
+                                }
+
+                                override fun onSuccess() {
+                                    progressBar.visibility = View.GONE
+                                }
+                            })
+                    }, 500)
+                }
+            }
+        }
+
+
+        if (tipo == 2) {
+            fabOk.visibility = View.GONE
+        }
+
+        otViewModel.mensajeError.observe(this, {
+            Util.toastMensaje(this, it, false)
+        })
+
+        otViewModel.mensajeSuccess.observe(this, {
+            finish()
+        })
     }
 
     private fun confirmPhotoBajaTension(o: OtPhoto) {

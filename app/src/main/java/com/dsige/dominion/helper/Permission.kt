@@ -5,6 +5,12 @@ import android.content.Context
 import android.content.pm.PackageManager
 import android.os.Build
 import androidx.core.app.ActivityCompat
+import androidx.work.ExistingPeriodicWorkPolicy
+import androidx.work.PeriodicWorkRequestBuilder
+import androidx.work.WorkManager
+import com.dsige.dominion.data.workManager.BatteryWork
+import com.dsige.dominion.data.workManager.GpsWork
+import java.util.concurrent.TimeUnit
 
 object Permission {
 
@@ -37,5 +43,43 @@ object Permission {
         return true
     }
 
+    fun executeGpsWork(context: Context) {
+//        val downloadConstraints = Constraints.Builder()
+//            .setRequiresCharging(true)
+//            .setRequiredNetworkType(NetworkType.CONNECTED)
+//            .build()
+        val locationWorker =
+            PeriodicWorkRequestBuilder<GpsWork>(15, TimeUnit.MINUTES)
+//                .setConstraints(downloadConstraints)
+                .build()
+        WorkManager
+            .getInstance(context)
+            .enqueueUniquePeriodicWork(
+                "Gps-Work",
+                ExistingPeriodicWorkPolicy.REPLACE,
+                locationWorker
+            )
+    }
+
+    fun closeGpsWork(context: Context) {
+        WorkManager.getInstance(context).cancelAllWorkByTag("Gps-Work")
+    }
+
+    fun executeBatteryWork(context: Context) {
+        val locationWorker =
+            PeriodicWorkRequestBuilder<BatteryWork>(15, TimeUnit.MINUTES)
+                .build()
+        WorkManager
+            .getInstance(context)
+            .enqueueUniquePeriodicWork(
+                "Battery-Work",
+                ExistingPeriodicWorkPolicy.REPLACE,
+                locationWorker
+            )
+    }
+
+    fun closeBatteryWork(context: Context) {
+        WorkManager.getInstance(context).cancelAllWorkByTag("Battery-Work")
+    }
 
 }

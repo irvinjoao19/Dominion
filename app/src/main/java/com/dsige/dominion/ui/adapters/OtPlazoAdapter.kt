@@ -4,7 +4,7 @@ import android.annotation.SuppressLint
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
-import androidx.paging.PagedListAdapter
+import androidx.paging.PagingDataAdapter
 import androidx.recyclerview.widget.DiffUtil
 import androidx.recyclerview.widget.RecyclerView
 import com.dsige.dominion.R
@@ -13,7 +13,7 @@ import com.dsige.dominion.ui.listeners.OnItemClickListener
 import kotlinx.android.synthetic.main.cardview_ot_plazo.view.*
 
 class OtPlazoAdapter(private val listener: OnItemClickListener.OtPlazoListener) :
-    PagedListAdapter<OtPlazo, OtPlazoAdapter.ViewHolder>(diffCallback) {
+    PagingDataAdapter<OtPlazo, OtPlazoAdapter.ViewHolder>(diffCallback) {
 
     override fun onBindViewHolder(holder: ViewHolder, position: Int) {
         val s = getItem(position)
@@ -25,7 +25,7 @@ class OtPlazoAdapter(private val listener: OnItemClickListener.OtPlazoListener) 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): ViewHolder {
         val v =
             LayoutInflater.from(parent.context).inflate(R.layout.cardview_ot_plazo, parent, false)
-        return ViewHolder(v!!)
+        return ViewHolder(v)
     }
 
     inner class ViewHolder(itemView: View) : RecyclerView.ViewHolder(itemView) {
@@ -33,8 +33,8 @@ class OtPlazoAdapter(private val listener: OnItemClickListener.OtPlazoListener) 
             with(itemView) {
                 textView1.text = p.razonSocial
                 textView2.text = String.format("Fuera de Plazo : %s", p.cantidad)
-                imgMap.setOnClickListener { v -> listener.onItemClick(p, v, adapterPosition) }
-                imgList.setOnClickListener { v -> listener.onItemClick(p, v, adapterPosition) }
+                imgMap.setOnClickListener { v -> listener.onItemClick(p, v, bindingAdapterPosition) }
+                imgList.setOnClickListener { v -> listener.onItemClick(p, v, bindingAdapterPosition) }
             }
     }
 

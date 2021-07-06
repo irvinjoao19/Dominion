@@ -1,9 +1,8 @@
 package com.dsige.dominion.data.local.dao
 
 import androidx.lifecycle.LiveData
-import androidx.paging.DataSource
+import androidx.paging.PagingSource
 import androidx.room.*
-import com.dsige.dominion.data.local.model.OtPlazo
 import com.dsige.dominion.data.local.model.OtPlazoDetalle
 
 @Dao
@@ -22,7 +21,7 @@ interface OtPlazoDetalleDao {
     fun deleteOtPlazoDetalleTask(c: OtPlazoDetalle)
 
     @Query("SELECT * FROM OtPlazoDetalle")
-    fun getOtPlazoDetalles(): DataSource.Factory<Int, OtPlazoDetalle>
+    fun getOtPlazoDetalles(): PagingSource<Int, OtPlazoDetalle>
 
     @Query("DELETE FROM OtPlazoDetalle")
     fun deleteAll()

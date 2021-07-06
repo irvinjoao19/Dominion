@@ -1,10 +1,9 @@
 package com.dsige.dominion.data.local.dao
 
 import androidx.lifecycle.LiveData
-import androidx.paging.DataSource
+import androidx.paging.PagingSource
 import androidx.room.*
 import com.dsige.dominion.data.local.model.OtPlazo
-import com.dsige.dominion.data.local.model.Proveedor
 
 @Dao
 interface OtPlazoDao {
@@ -28,5 +27,5 @@ interface OtPlazoDao {
     fun getOtPlazoById(id: Int): LiveData<OtPlazo>
 
     @Query("SELECT * FROM OtPlazo")
-    fun getOtPlazos(): DataSource.Factory<Int, OtPlazo>
+    fun getOtPlazos(): PagingSource<Int, OtPlazo>
 }

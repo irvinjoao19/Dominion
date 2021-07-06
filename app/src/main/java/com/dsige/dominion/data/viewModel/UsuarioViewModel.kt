@@ -1,7 +1,7 @@
 package com.dsige.dominion.data.viewModel
 
 import android.content.Context
-import android.util.Log
+//import android.util.Log
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
@@ -85,8 +85,8 @@ internal constructor(private val roomRepository: AppRepository, private val retr
             })
     }
 
-    fun logout(login: String) {
-        deleteUser(login)
+    fun logout() {
+        deleteUser()
 //        var mensaje = ""
 //        roomRepository.getLogout(login)
 //            .subscribeOn(Schedulers.io())
@@ -121,15 +121,13 @@ internal constructor(private val roomRepository: AppRepository, private val retr
     }
 
 
-    private fun deleteUser(mensaje: String) {
+    private fun deleteUser() {
         roomRepository.deleteSesion()
             .delay(2, TimeUnit.SECONDS)
             .subscribeOn(Schedulers.computation())
             .observeOn(AndroidSchedulers.mainThread())
             .subscribe(object : CompletableObserver {
-                override fun onSubscribe(d: Disposable) {
-                }
-
+                override fun onSubscribe(d: Disposable) {}
                 override fun onComplete() {
                     mensajeSuccess.value = "Close"
                 }
@@ -149,6 +147,7 @@ internal constructor(private val roomRepository: AppRepository, private val retr
                 override fun onError(e: Throwable) {
                     mensajeError.value = e.toString()
                 }
+
                 override fun onComplete() {
                     sync(u, e, p, v)
                 }
@@ -170,7 +169,7 @@ internal constructor(private val roomRepository: AppRepository, private val retr
                             mensajeError.postValue(error!!.Message)
                         } catch (e1: IOException) {
                             e1.printStackTrace()
-                            Log.i("TAG", e1.toString())
+//                            Log.i("TAG", e1.toString())
                         }
                     } else {
                         mensajeError.postValue(e.toString())
@@ -233,7 +232,7 @@ internal constructor(private val roomRepository: AppRepository, private val retr
             .subscribe(object : Observer<String> {
                 override fun onSubscribe(d: Disposable) {}
                 override fun onNext(m: String) {
-                    Log.i("TAG", m)
+//                    Log.i("TAG", m)
                 }
 
                 override fun onError(e: Throwable) {
@@ -244,7 +243,7 @@ internal constructor(private val roomRepository: AppRepository, private val retr
                             mensajeError.postValue(error!!.Message)
                         } catch (e1: IOException) {
                             e1.printStackTrace()
-                            Log.i("TAG", e1.toString())
+//                            Log.i("TAG", e1.toString())
                         }
                     } else {
                         mensajeError.postValue(e.message)
@@ -262,7 +261,7 @@ internal constructor(private val roomRepository: AppRepository, private val retr
         ots.flatMap { observable ->
             Observable.fromIterable(observable).flatMap { a ->
                 val json = Gson().toJson(a)
-                Log.i("TAG", json)
+//                Log.i("TAG", json)
                 val body =
                     RequestBody.create(MediaType.parse("application/json; charset=utf-8"), json)
                 Observable.zip(
@@ -324,7 +323,7 @@ internal constructor(private val roomRepository: AppRepository, private val retr
                 }
 
                 val json = Gson().toJson(a)
-                Log.i("TAG", json)
+//                Log.i("TAG", json)
                 b.setType(MultipartBody.FORM)
                 b.addFormDataPart("data", json)
 

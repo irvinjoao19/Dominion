@@ -1,17 +1,13 @@
 package com.dsige.dominion.ui.activities
 
 import android.Manifest
-import android.annotation.SuppressLint
 import android.content.Context
 import android.content.pm.PackageManager
-import android.graphics.Color
 import android.location.Location
 import android.location.LocationListener
 import android.location.LocationManager
-import android.os.AsyncTask
 import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
-import android.util.Log
 import android.view.View
 import android.widget.RelativeLayout
 import androidx.core.app.ActivityCompat
@@ -21,9 +17,7 @@ import com.dsige.dominion.data.local.model.MapLegs
 import com.dsige.dominion.data.local.model.MapPrincipal
 import com.dsige.dominion.data.local.model.MapRoute
 import com.dsige.dominion.data.local.model.MapStartLocation
-import com.dsige.dominion.helper.DataParser
-import com.dsige.dominion.helper.Gps
-import com.dsige.dominion.helper.Util
+import com.dsige.dominion.helper.*
 import com.google.android.gms.maps.CameraUpdateFactory
 import com.google.android.gms.maps.GoogleMap
 import com.google.android.gms.maps.OnMapReadyCallback
@@ -32,27 +26,19 @@ import com.google.android.gms.maps.model.CameraPosition
 import com.google.android.gms.maps.model.LatLng
 import com.google.android.gms.maps.model.MarkerOptions
 import com.google.android.gms.maps.model.PolylineOptions
-import com.google.gson.Gson
-import org.json.JSONObject
-import java.io.BufferedReader
-import java.io.IOException
-import java.io.InputStream
-import java.io.InputStreamReader
-import java.net.HttpURLConnection
-import java.net.URL
-import java.util.ArrayList
 
-class OtMapActivity : AppCompatActivity(), OnMapReadyCallback, LocationListener {
+class OtMapActivity : AppCompatActivity(), OnMapReadyCallback, LocationListener,
+    TaskLoadedCallback {
 
     lateinit var camera: CameraPosition
-    lateinit var mMap: GoogleMap
-    var mapView: View? = null
+    private lateinit var mMap: GoogleMap
+    private var mapView: View? = null
     lateinit var place1: MarkerOptions
     lateinit var place2: MarkerOptions
     lateinit var locationManager: LocationManager
 
-    private var MIN_DISTANCE_CHANGE_FOR_UPDATES: Int = 10
-    private var MIN_TIME_BW_UPDATES: Int = 5000
+    private var minDistanceChangeForUpdates: Int = 10
+    private var minTimeBwUpdates: Int = 5000
     private var isFirstTime: Boolean = true
 
     private var latitud: String = ""
@@ -122,14 +108,14 @@ class OtMapActivity : AppCompatActivity(), OnMapReadyCallback, LocationListener 
 
             locationManager.requestLocationUpdates(
                 LocationManager.NETWORK_PROVIDER,
-                MIN_TIME_BW_UPDATES.toLong(),
-                MIN_DISTANCE_CHANGE_FOR_UPDATES.toFloat(),
+                minTimeBwUpdates.toLong(),
+                minDistanceChangeForUpdates.toFloat(),
                 this
             )
             locationManager.requestLocationUpdates(
                 LocationManager.GPS_PROVIDER,
-                MIN_TIME_BW_UPDATES.toLong(),
-                MIN_DISTANCE_CHANGE_FOR_UPDATES.toFloat(),
+                minTimeBwUpdates.toLong(),
+                minDistanceChangeForUpdates.toFloat(),
                 this
             )
         } else {
@@ -148,10 +134,10 @@ class OtMapActivity : AppCompatActivity(), OnMapReadyCallback, LocationListener 
     }
 
     private fun getUrl(origin: LatLng, dest: LatLng): String {
-        val str_origin = "origin=" + origin.latitude + "," + origin.longitude
-        val str_dest = "destination=" + dest.latitude + "," + dest.longitude
+        val strOrigin = "origin=" + origin.latitude + "," + origin.longitude
+        val strDest = "destination=" + dest.latitude + "," + dest.longitude
         val mode = "mode=$mode&alternatives=true"
-        val parameters = "$str_origin&$str_dest&$mode"
+        val parameters = "$strOrigin&$strDest&$mode"
         val output = "json"
 
         return String.format(
@@ -167,136 +153,44 @@ class OtMapActivity : AppCompatActivity(), OnMapReadyCallback, LocationListener 
                 MarkerOptions().position(LatLng(location.latitude, location.longitude)).title("YO")
             place2 = MarkerOptions().position(LatLng(latitud.toDouble(), longitud.toDouble()))
                 .title(title)
-
-            FetchURL().execute(getUrl(place1.position, place2.position))
-
+            FetchUrl(getUrl(place1.position, place2.position), "driving", this)
             isFirstTime = false
         }
     }
 
-    override fun onStatusChanged(provider: String?, status: Int, extras: Bundle?) {
+    override fun onStatusChanged(provider: String?, status: Int, extras: Bundle?) {}
+    override fun onProviderEnabled(provider: String) {}
+    override fun onProviderDisabled(provider: String) {}
 
+    override fun onTaskDone(vararg values: Any) {
+        val polyline = mMap.addPolyline(values[0] as PolylineOptions)
+        polyline.isClickable = true
     }
 
-    override fun onProviderEnabled(provider: String?) {    }
-
-    override fun onProviderDisabled(provider: String?) {    }
-
-    @SuppressLint("StaticFieldLeak")
-    private inner class FetchURL : AsyncTask<String, Void, String>() {
-
-        override fun doInBackground(vararg strings: String): String { // For storing data from web service
-            var data = ""
-            try {
-                data = downloadUrl(strings[0])
-            } catch (e: Exception) {
-                Log.d("Background Task", e.toString())
-            }
-            return data
-        }
-
-        override fun onPostExecute(s: String) {
-            super.onPostExecute(s)
-            val map: MapPrincipal = Gson().fromJson(s, MapPrincipal::class.java)
-            val mapRoutes: List<MapRoute> = map.routes
-            if (mapRoutes.isNotEmpty()) {
-                for (r: MapRoute in map.routes) {
-                    val mapLegs: List<MapLegs> = r.legs
-                    if (mapLegs.isNotEmpty()) {
-                        for (m: MapLegs in mapLegs) {
-                            val start: MapStartLocation? = m.start_location
-                            if (start != null) {
-                                val position = LatLng(start.lat, start.lng)
-                                mMap.addMarker(
-                                    MarkerOptions()
-                                        .position(position)
-                                        .title(m.start_address)
-                                        .icon(
-                                            Util.bitmapDescriptorFromVector(
-                                                this@OtMapActivity,
-                                                R.drawable.ic_people
-                                            )
+    override fun onTaskRoutes(values: MapPrincipal) {
+        val mapRoutes: List<MapRoute> = values.routes
+        if (mapRoutes.isNotEmpty()) {
+            for (r: MapRoute in values.routes) {
+                val mapLegs: List<MapLegs> = r.legs
+                if (mapLegs.isNotEmpty()) {
+                    for (m: MapLegs in mapLegs) {
+                        val start: MapStartLocation? = m.start_location
+                        if (start != null) {
+                            val position = LatLng(start.lat, start.lng)
+                            mMap.addMarker(
+                                MarkerOptions()
+                                    .position(position)
+                                    .title(m.start_address)
+                                    .icon(
+                                        Util.bitmapDescriptorFromVector(
+                                            this@OtMapActivity,
+                                            R.drawable.ic_people
                                         )
-                                )
-                            }
+                                    )
+                            )
                         }
                     }
                 }
-            }
-            PointsParser().execute(s)
-        }
-
-        @Throws(IOException::class)
-        private fun downloadUrl(strUrl: String): String {
-            var data = ""
-            var iStream: InputStream? = null
-            var urlConnection: HttpURLConnection? = null
-            try {
-                val url = URL(strUrl)
-                // Creating an http connection to communicate with url
-                urlConnection = url.openConnection() as HttpURLConnection
-                // Connecting to url
-                urlConnection.connect()
-                // Reading data from url
-                iStream = urlConnection.inputStream
-                val br =
-                    BufferedReader(InputStreamReader(iStream!!))
-                val sb = StringBuilder()
-                var line: String?
-                while (br.readLine().also { line = it } != null) {
-                    sb.append(line)
-                }
-                data = sb.toString()
-                br.close()
-            } catch (e: Exception) {
-                Log.d("mylog", "Exception downloading URL: $e")
-            } finally {
-                iStream?.close()
-                urlConnection!!.disconnect()
-            }
-            return data
-        }
-    }
-
-    @SuppressLint("StaticFieldLeak")
-    private inner class PointsParser :
-        AsyncTask<String, Int, List<List<HashMap<String, String>>>>() {
-
-        override fun doInBackground(vararg jsonData: String): List<List<HashMap<String, String>>>? {
-            val jObject: JSONObject
-            var routes: List<List<HashMap<String, String>>>? =
-                null
-            try {
-                jObject = JSONObject(jsonData[0])
-                val parser = DataParser()
-                routes = parser.parse(jObject)
-            } catch (e: java.lang.Exception) {
-                Log.d("mylog", e.toString())
-                e.printStackTrace()
-            }
-            return routes
-        }
-
-        override fun onPostExecute(result: List<List<HashMap<String, String>>>?) {
-            val colorVariable = arrayOf(Color.RED, Color.BLUE, Color.GRAY, Color.GREEN)
-            var points: ArrayList<LatLng>
-            var lineOptions: PolylineOptions?
-            for (i in result!!.indices) {
-                points = ArrayList()
-                lineOptions = PolylineOptions()
-                val path = result[i]
-                for (j in path.indices) {
-                    val point = path[j]
-                    val lat = point["lat"]!!.toDouble()
-                    val lng = point["lng"]!!.toDouble()
-                    val position = LatLng(lat, lng)
-                    points.add(position)
-                }
-                lineOptions.addAll(points)
-                lineOptions.width(7f)
-                lineOptions.color(colorVariable[i])
-                val polyline = mMap.addPolyline(lineOptions)
-                polyline.isClickable = true
             }
         }
     }

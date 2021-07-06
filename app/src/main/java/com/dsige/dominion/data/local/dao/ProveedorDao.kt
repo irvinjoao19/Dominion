@@ -1,7 +1,6 @@
 package com.dsige.dominion.data.local.dao
 
-import androidx.lifecycle.LiveData
-import androidx.paging.DataSource
+import androidx.paging.PagingSource
 import androidx.room.*
 import com.dsige.dominion.data.local.model.Proveedor
 
@@ -21,7 +20,8 @@ interface ProveedorDao {
     fun deleteProveedorTask(c: Proveedor)
 
     @Query("SELECT * FROM Proveedor")
-    fun getProveedores(): DataSource.Factory<Int, Proveedor>
+    fun getProveedores(): PagingSource<Int, Proveedor>
+
 
     @Query("DELETE FROM Proveedor")
     fun deleteAll()

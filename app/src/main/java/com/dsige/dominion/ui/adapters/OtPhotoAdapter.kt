@@ -8,7 +8,6 @@ import com.dsige.dominion.R
 import com.dsige.dominion.data.local.model.OtPhoto
 import com.dsige.dominion.helper.Util
 import com.dsige.dominion.ui.listeners.OnItemClickListener
-import com.squareup.picasso.Callback
 import com.squareup.picasso.Picasso
 import kotlinx.android.synthetic.main.cardview_ot_photo.view.*
 import java.io.File
@@ -47,8 +46,8 @@ class OtPhotoAdapter(private val listener: OnItemClickListener.OtPhotoListener) 
                 val url = Util.UrlFoto + o.urlPhoto
                 Picasso.get().load(url).into(imageViewPhoto)
             }
-            textViewName.text = o.urlPhoto
-            itemView.setOnClickListener { v -> listener.onItemClick(o, v, adapterPosition) }
+            textViewName.text = if (o.toPdf) o.urlPdf else o.urlPhoto
+            itemView.setOnClickListener { v -> listener.onItemClick(o, v, bindingAdapterPosition) }
         }
     }
 }

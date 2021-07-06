@@ -8,6 +8,7 @@ import android.location.LocationListener
 import android.location.LocationManager
 import android.os.Bundle
 import android.os.Handler
+import android.os.Looper
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
@@ -18,7 +19,6 @@ import androidx.appcompat.app.AlertDialog
 import androidx.appcompat.view.ContextThemeWrapper
 import androidx.constraintlayout.widget.ConstraintLayout
 import androidx.core.app.ActivityCompat
-import androidx.lifecycle.Observer
 import androidx.lifecycle.ViewModelProvider
 
 import com.dsige.dominion.R
@@ -91,7 +91,7 @@ class EmpresaMapFragment : DaggerFragment(), OnMapReadyCallback, GoogleMap.OnMar
 
         otViewModel.syncEmpresa(f)
 
-        otViewModel.getEmpresas().observe(viewLifecycleOwner, Observer {
+        otViewModel.getEmpresas().observe(viewLifecycleOwner, {
             mMap.clear()
             for (s: OtReporte in it) {
                 if (s.latitud.isNotEmpty() || s.longitud.isNotEmpty()) {
@@ -101,7 +101,7 @@ class EmpresaMapFragment : DaggerFragment(), OnMapReadyCallback, GoogleMap.OnMar
                             .title(s.otId.toString())
                             .icon(
                                 Util.bitmapDescriptorFromVector(
-                                    context!!, when (s.estado) {
+                                    requireContext(), when (s.estado) {
                                         "Terminado" -> R.drawable.ic_place_blue
                                         else -> R.drawable.ic_place_red
                                     }
@@ -128,12 +128,12 @@ class EmpresaMapFragment : DaggerFragment(), OnMapReadyCallback, GoogleMap.OnMar
     override fun onMapReady(googleMap: GoogleMap) {
         mMap = googleMap
         locationManager =
-            context!!.getSystemService(DaggerAppCompatActivity.LOCATION_SERVICE) as LocationManager
+            requireContext().getSystemService(DaggerAppCompatActivity.LOCATION_SERVICE) as LocationManager
         if (ActivityCompat.checkSelfPermission(
-                context!!,
+                requireContext(),
                 Manifest.permission.ACCESS_FINE_LOCATION
             ) != PackageManager.PERMISSION_GRANTED && ActivityCompat.checkSelfPermission(
-                context!!,
+                requireContext(),
                 Manifest.permission.ACCESS_COARSE_LOCATION
             ) != PackageManager.PERMISSION_GRANTED
         ) {
@@ -159,13 +159,13 @@ class EmpresaMapFragment : DaggerFragment(), OnMapReadyCallback, GoogleMap.OnMar
 
     override fun onMarkerClick(p: Marker): Boolean {
         if (p.title != "YO") {
-            dialogEmpresas(p.title.toInt())
+            dialogEmpresas(p.title!!.toInt())
         }
 
         return false
     }
 
-    override fun onLocationChanged(location: Location?) {
+    override fun onLocationChanged(location: Location) {
         if (isFirstTime) {
             zoomToLocation(location)
         }
@@ -176,13 +176,8 @@ class EmpresaMapFragment : DaggerFragment(), OnMapReadyCallback, GoogleMap.OnMar
 
     }
 
-    override fun onProviderEnabled(p0: String?) {
-
-    }
-
-    override fun onProviderDisabled(p0: String?) {
-
-    }
+    override fun onProviderEnabled(p0: String) {}
+    override fun onProviderDisabled(p0: String) {}
 
     private fun zoomToLocation(location: Location?) {
         if (location != null) {
@@ -199,7 +194,12 @@ class EmpresaMapFragment : DaggerFragment(), OnMapReadyCallback, GoogleMap.OnMar
                     MarkerOptions()
                         .position(LatLng(location.latitude, location.longitude))
                         .title("YO")
-                        .icon(Util.bitmapDescriptorFromVector(context!!, R.drawable.ic_place))
+                        .icon(
+                            Util.bitmapDescriptorFromVector(
+                                requireContext(),
+                                R.drawable.ic_place
+                            )
+                        )
                 )
             }
         }
@@ -226,18 +226,21 @@ class EmpresaMapFragment : DaggerFragment(), OnMapReadyCallback, GoogleMap.OnMar
 
         imageViewClose.setOnClickListener { dialog.dismiss() }
 
-        Handler().postDelayed({
-            otViewModel.getEmpresasById(id)
-                .observe(this, Observer {
-                    textViewTitle.text = it.nombreTipoOrdenTrabajo
-                    textView1.text = it.nombreArea
-                    textView2.text = it.nombreJC
-                    textView3.text = it.direccion
-                    textView4.text = String.format("Nro Orden : %s", it.nroObra)
-                    textView5.text = String.format("Fecha Asignación : %s", it.fechaAsignacion)
-                    linearLayoutLoad.visibility = View.GONE
-                    linearLayoutPrincipal.visibility = View.VISIBLE
-                })
-        }, 800)
+        Looper.myLooper()?.let { looper ->
+            Handler(looper).postDelayed({
+                otViewModel.getEmpresasById(id)
+                    .observe(this, {
+                        textViewTitle.text = it.nombreTipoOrdenTrabajo
+                        textView1.text = it.nombreArea
+                        textView2.text = it.nombreJC
+                        textView3.text = it.direccion
+                        textView4.text = String.format("Nro Orden : %s", it.nroObra)
+                        textView5.text = String.format("Fecha Asignación : %s", it.fechaAsignacion)
+                        linearLayoutLoad.visibility = View.GONE
+                        linearLayoutPrincipal.visibility = View.VISIBLE
+                    })
+            }, 800)
+        }
+
     }
 }

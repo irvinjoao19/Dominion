@@ -15,8 +15,6 @@ import com.dsige.dominion.R
 import com.dsige.dominion.data.viewModel.UsuarioViewModel
 import com.dsige.dominion.helper.Permission
 import com.dsige.dominion.helper.Util
-import com.dsige.dominion.ui.services.GpsService
-import com.dsige.dominion.ui.services.MovilService
 import com.dsige.dominion.data.viewModel.ViewModelFactory
 import com.google.android.material.dialog.MaterialAlertDialogBuilder
 import dagger.android.support.DaggerAppCompatActivity
@@ -28,6 +26,8 @@ class LoginActivity : DaggerAppCompatActivity(), View.OnClickListener {
     override fun onRequestPermissionsResult(
         requestCode: Int, permissions: Array<String>, grantResults: IntArray
     ) {
+        super.onRequestPermissionsResult(requestCode, permissions, grantResults)
+
         var cantidad = 0
 
         when (requestCode) {
@@ -138,8 +138,8 @@ class LoginActivity : DaggerAppCompatActivity(), View.OnClickListener {
     }
 
     private fun goMainActivity() {
-        startService(Intent(this, GpsService::class.java))
-        startService(Intent(this, MovilService::class.java))
+        Permission.executeGpsWork(this)
+        Permission.executeBatteryWork(this)
         startActivity(
             Intent(this, MainActivity::class.java)
                 .setFlags(Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_CLEAR_TASK)

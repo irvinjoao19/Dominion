@@ -54,6 +54,7 @@
     <string name="edit">Editar</string>
     <string name="delete">Eliminar</string>
     <string name="ver">Ver</string>
+    <string name="ver_pdf">Ver Pdf</string>
     <string name="deletePhoto">Eliminar Foto</string>
     <string name="si">SI</string>
     <string name="cancel">Cancelar</string>
@@ -129,4 +130,5 @@
     <string name="close_register">Cerrar Registro</string>
     <string name="pdf">Pdf</string>
     <string name="camara">Galeria</string>
+    <string name="pdf_no_existe">Pdf no existe en el directorio</string>
 </resources>

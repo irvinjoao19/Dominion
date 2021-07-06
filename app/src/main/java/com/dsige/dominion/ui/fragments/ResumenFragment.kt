@@ -12,6 +12,8 @@ import androidx.appcompat.app.AlertDialog
 import androidx.appcompat.view.ContextThemeWrapper
 import androidx.lifecycle.Observer
 import androidx.lifecycle.ViewModelProvider
+import androidx.lifecycle.asFlow
+import androidx.lifecycle.lifecycleScope
 import androidx.recyclerview.widget.DefaultItemAnimator
 import androidx.recyclerview.widget.DividerItemDecoration
 import androidx.recyclerview.widget.LinearLayoutManager
@@ -32,6 +34,9 @@ import com.dsige.dominion.ui.listeners.OnItemClickListener
 import com.dsige.dominion.data.viewModel.ViewModelFactory
 import dagger.android.support.DaggerFragment
 import kotlinx.android.synthetic.main.fragment_resumen.*
+import kotlinx.coroutines.ExperimentalCoroutinesApi
+import kotlinx.coroutines.flow.collectLatest
+import kotlinx.coroutines.launch
 import javax.inject.Inject
 
 private const val ARG_PARAM1 = "param1"
@@ -115,14 +120,15 @@ class ResumenFragment : DaggerFragment(), View.OnClickListener {
         })
 
         recyclerView.itemAnimator = DefaultItemAnimator()
-        recyclerView.layoutManager = LinearLayoutManager(context!!)
+        recyclerView.layoutManager = LinearLayoutManager(requireContext())
         recyclerView.setHasFixedSize(true)
         recyclerView.adapter = proveedorAdapter
 
-        otViewModel.getProveedores()
-            .observe(viewLifecycleOwner, Observer(proveedorAdapter::submitList))
+        otViewModel.getProveedores().observe(viewLifecycleOwner) {
+            proveedorAdapter.submitData(lifecycle, it)
+        }
 
-        otViewModel.mensajeSuccess.observe(viewLifecycleOwner, Observer {
+        otViewModel.mensajeSuccess.observe(viewLifecycleOwner, {
             if (it == "finish") {
                 progressBar.visibility = View.GONE
             } else
@@ -165,7 +171,7 @@ class ResumenFragment : DaggerFragment(), View.OnClickListener {
                         }
                     })
                 recyclerView.adapter = servicioAdapter
-                otViewModel.getServicios().observe(this, Observer {
+                otViewModel.getServicios().observe(this, {
                     servicioAdapter.addItems(it)
                 })
             }
@@ -180,7 +186,7 @@ class ResumenFragment : DaggerFragment(), View.OnClickListener {
                         }
                     })
                 recyclerView.adapter = grupoAdapter
-                otViewModel.getGrupos().observe(this, Observer {
+                otViewModel.getGrupos().observe(this, {
                     grupoAdapter.addItems(it)
                 })
             }

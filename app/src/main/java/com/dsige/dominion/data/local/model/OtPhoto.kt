@@ -11,7 +11,9 @@ open class OtPhoto {
     var otDetalleId: Int = 0
     var nombrePhoto: String = ""
     var urlPhoto: String = ""
+    var urlPdf : String = ""
     var estado: Int = 0
 
-    var otId : Int = 0
+    var otId: Int = 0
+    var toPdf: Boolean = false
 }

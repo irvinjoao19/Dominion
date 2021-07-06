@@ -32,7 +32,7 @@ class MainActivity : DaggerAppCompatActivity(), NavigationView.OnNavigationItemS
 
     @Inject
     lateinit var viewModelFactory: ViewModelFactory
-    lateinit var usuarioViewModel: UsuarioViewModel
+   private lateinit var usuarioViewModel: UsuarioViewModel
     lateinit var builder: AlertDialog.Builder
     private var dialog: AlertDialog? = null
     private var usuarioId: Int = 0
@@ -88,8 +88,6 @@ class MainActivity : DaggerAppCompatActivity(), NavigationView.OnNavigationItemS
                     s2.getItem(1).setIcon(R.drawable.ic_send)
                     s2.add("Cerrar Sesión")
                     s2.getItem(2).setIcon(R.drawable.ic_exit)
-//                    s2.add("Prueba Pdf")
-//                    s2.getItem(3).setIcon(R.drawable.ic_exit)
                     navigationView.invalidate()
                 })
 
@@ -135,9 +133,6 @@ class MainActivity : DaggerAppCompatActivity(), NavigationView.OnNavigationItemS
             "Ubicacion del Personal" -> Util.toastMensaje(this, item.title.toString(), true)
             "Enviar Pendientes" -> dialogFunction(2, "Deseas enviar registros ?")
             "Cerrar Sesión" -> dialogFunction(3, "Deseas Salir ?")
-            "Prueba Pdf" -> changeFragment(
-                PdfFragment.newInstance("", ""), item.title.toString()
-            )
         }
         drawerLayout.closeDrawer(GravityCompat.START)
         return true
@@ -176,14 +171,14 @@ class MainActivity : DaggerAppCompatActivity(), NavigationView.OnNavigationItemS
         supportFragmentManager
             .beginTransaction()
             .replace(
-                R.id.content_frame,
+               R.id.content_frame,
                 MainFragment.newInstance(
                     usuarioId, empresaId, personalId, servicioId, nombreServicio, tipo, nombreTipo
                 )
             )
             .commit()
         supportActionBar!!.title = "Reparación de Veredas"
-//        navigationView.menu.getItem(1).isChecked = true
+        //navigationView.menu.getItem(1).isChecked = true
     }
 
     private fun getUser(u: Usuario) {
@@ -252,7 +247,7 @@ class MainActivity : DaggerAppCompatActivity(), NavigationView.OnNavigationItemS
                     3 -> {
                         logout = "on"
                         load("Cerrando Session")
-                        usuarioViewModel.logout(usuarioId.toString())
+                        usuarioViewModel.logout()
                     }
                 }
                 dialog.dismiss()
