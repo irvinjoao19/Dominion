@@ -55,8 +55,9 @@ open class Ot {
 
     var fechaInicioTrabajo: String = ""
     var fechaFinTrabajo: String = ""
-    var conDesmonte : Boolean = true // 1 -> permite que se pueda guardar la ot sin necesidad de un desmonte
-
+    var conDesmonte: Boolean =
+        true // 1 -> permite que se pueda guardar la ot sin necesidad de un desmonte
+    var urlPdf: String = ""
 
     @Ignore
     var detalles: List<OtDetalle>? = ArrayList()

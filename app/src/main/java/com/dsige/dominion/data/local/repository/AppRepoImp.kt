@@ -15,6 +15,7 @@ import com.github.nkzawa.socketio.client.IO
 import com.google.gson.Gson
 import io.reactivex.Completable
 import io.reactivex.Observable
+import kotlinx.android.synthetic.main.fragment_general.*
 import okhttp3.MediaType
 import okhttp3.RequestBody
 import retrofit2.Call
@@ -363,14 +364,6 @@ class AppRepoImp(private val apiService: ApiService, private val dataBase: AppDa
     override fun deletePhoto(o: OtPhoto, context: Context): Completable {
         return Completable.fromAction {
             Util.deletePhoto(o.urlPhoto, context)
-
-            if (o.toPdf) {
-                dataBase.otDetalleDao().updateViajeIndebido(o.otDetalleId, 2)
-                Util.deletePhoto(o.urlPdf, context)
-            }
-
-
-
             dataBase.otPhotoDao().deleteOtPhotoTask(o)
         }
     }
@@ -397,10 +390,6 @@ class AppRepoImp(private val apiService: ApiService, private val dataBase: AppDa
 
             e.onComplete()
         }
-    }
-
-    override fun sendRegistroOt(body: RequestBody): Observable<Mensaje> {
-        return apiService.sendRegistroOt(body)
     }
 
     override fun updateOt(t: Mensaje): Completable {
@@ -432,6 +421,9 @@ class AppRepoImp(private val apiService: ApiService, private val dataBase: AppDa
                     Util.deletePhoto(p.urlPhoto, context)
                     dataBase.otPhotoDao().deleteOtPhotoTask(p)
                 }
+            }
+            if (o.viajeIndebido == 1) {
+                dataBase.otDao().updateViajeIndebido(o.otId,0)
             }
             dataBase.otDetalleDao().deleteOtDetalleTask(o)
         }
@@ -510,8 +502,7 @@ class AppRepoImp(private val apiService: ApiService, private val dataBase: AppDa
     override fun getOtPlazos(): LiveData<PagingData<OtPlazo>> {
         return Pager(
             PagingConfig(
-                pageSize = 20, enablePlaceholders = true,
-                maxSize = 200
+                pageSize = 20, enablePlaceholders = true, maxSize = 200
             )
         ) { dataBase.otPlazoDao().getOtPlazos() }.liveData
     }
@@ -551,8 +542,7 @@ class AppRepoImp(private val apiService: ApiService, private val dataBase: AppDa
     override fun getOtPlazoDetalles(): LiveData<PagingData<OtPlazoDetalle>> {
         return Pager(
             PagingConfig(
-                pageSize = 20, enablePlaceholders = true,
-                maxSize = 200
+                pageSize = 20, enablePlaceholders = true, maxSize = 200
             )
         ) { dataBase.otPlazoDetalleDao().getOtPlazoDetalles() }.liveData
     }
@@ -584,7 +574,7 @@ class AppRepoImp(private val apiService: ApiService, private val dataBase: AppDa
                         else -> "RECOJO"
                     }
                     n.mensaje = String.format(
-                        "Se ejecuto %s Ot de %s de la Empresa %s y por el Jefe de Cuadrilla %s %s",
+                        "Se ejecutó %s Ot de %s de la Empresa %s y por el Jefe de Cuadrilla %s %s",
                         r.cantidad, tipo, user.nombreEmpresa, user.nombres, user.apellidos
                     )
 
@@ -625,29 +615,30 @@ class AppRepoImp(private val apiService: ApiService, private val dataBase: AppDa
                     }
 
                     if (r.servicioId == 2 || r.servicioId == 4) {
-                        val d: OtDetalle? =
-                            dataBase.otDetalleDao().getOtDetalleViajeIndebido(r.otId)
-                        if (d == null) {
-                            e.onError(Throwable("Nro OT ${r.nroObra} necesita los 3 archivos del viaje indebido."))
+                        if (r.urlPdf.isEmpty()) {
+                            e.onError(Throwable("Nro OT ${r.nroObra} necesita archivo pdf."))
                             e.onComplete()
                             return@create
+                        } else {
+                            data.add(r.urlPdf)
                         }
+//                        val d: OtDetalle? =
+//                            dataBase.otDetalleDao().getOtDetalleViajeIndebido(r.otId)
+//                        if (d == null) {
+//                            e.onError(Throwable("Nro OT ${r.nroObra} necesita minimo 1 foto del viaje indebido."))
+//                            e.onComplete()
+//                            return@create
+//                        }
                     }
                 }
             }
             val ot = dataBase.otDetalleDao().getAllRegistroDetalleActiveTask(1)
-//            if (ot.isEmpty()) {
-//                e.onError(Throwable("Usted no tiene pendientes por enviar"))
-//                e.onComplete()
-//                return@create
-//            }
-
             for (p: OtDetalle in ot) {
                 val photos: List<OtPhoto> =
                     dataBase.otPhotoDao().getOtPhotoIdTask(p.otDetalleId)
                 if (photos.isNotEmpty()) {
                     for (f: OtPhoto in photos) {
-                        data.add(if (f.toPdf) f.urlPdf else f.urlPhoto)
+                        data.add(f.urlPhoto)
                     }
                 }
             }
@@ -679,6 +670,7 @@ class AppRepoImp(private val apiService: ApiService, private val dataBase: AppDa
 
     override fun insertOtPhotoCabecera(t: OtDetalle): Observable<Int> {
         return Observable.create {
+            dataBase.otDao().updateViajeIndebido(t.otId, 1)
             val s = dataBase.otDetalleDao().getMaxIdOtDetalleTask()
             val otDetalleId = if (s != 0) {
                 s + 1
@@ -708,10 +700,6 @@ class AppRepoImp(private val apiService: ApiService, private val dataBase: AppDa
                         dataBase.otPhotoDao().insertOtPhotoTask(d)
                     }
                 }
-                val count = dataBase.otPhotoDao().getCountPhoto(id)
-                if (count == 3) {
-                    dataBase.otDetalleDao().updateViajeIndebido(id,  1)
-                }
             }
         }
     }
@@ -730,8 +718,8 @@ class AppRepoImp(private val apiService: ApiService, private val dataBase: AppDa
             val f = dataBase.otPhotoDao().getOtPhotoBajaTensionTask(otId)
             for (p: OtPhoto in f) {
                 Util.deletePhoto(p.urlPhoto, context)
-                Util.deletePhoto(p.urlPdf, context)
             }
+            dataBase.otDao().updateViajeIndebido(otId,0)
             dataBase.otPhotoDao().deletePhotoBajaTension(otId)
         }
     }
@@ -799,6 +787,13 @@ class AppRepoImp(private val apiService: ApiService, private val dataBase: AppDa
     override fun updateEnabledBattery(t: Mensaje): Completable {
         return Completable.fromAction {
             dataBase.operarioBatteryDao().updateEnabledBattery(t.codigoBase)
+        }
+    }
+
+    override fun updateOtPdf(id: Int, path: String): Completable {
+        return Completable.fromAction {
+            val urlPdf = "${path.substring(0, path.length - 4)}.pdf"
+            dataBase.otDao().updateOtPdf(id, urlPdf)
         }
     }
 }

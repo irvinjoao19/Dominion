@@ -152,13 +152,7 @@ class FormDetailActivity : DaggerAppCompatActivity(), View.OnClickListener, Text
         if (o.estado == 1) {
             popupMenu.menu.add(0, 1, 0, getText(R.string.delete))
         }
-        if (o.toPdf) {
-            popupMenu.menu.add(0, 3, 0, getText(R.string.ver_pdf))
-        } else {
-            popupMenu.menu.add(0, 2, 0, getText(R.string.ver))
-        }
-
-
+        popupMenu.menu.add(0, 2, 0, getText(R.string.ver))
         popupMenu.setOnMenuItemClickListener { item ->
             when (item.itemId) {
                 1 -> confirmDelete(o)
@@ -166,10 +160,6 @@ class FormDetailActivity : DaggerAppCompatActivity(), View.OnClickListener, Text
                     Intent(this, PreviewCameraActivity::class.java)
                         .putExtra("nameImg", o.nombrePhoto)
                         .putExtra("tipo", 2)
-                )
-                3 -> startActivity(
-                    Intent(this, PreviewPdfActivity::class.java)
-                        .putExtra("pdfName", o.urlPdf)
                 )
             }
             false
@@ -294,8 +284,7 @@ class FormDetailActivity : DaggerAppCompatActivity(), View.OnClickListener, Text
         supportActionBar!!.setDisplayHomeAsUpEnabled(true)
         toolbar.setNavigationOnClickListener { finish() }
 
-
-        if(viajeIndebido == 1){
+        if (viajeIndebido == 1) {
             layoutForm.visibility = View.GONE
             fabMenu.visibility = View.GONE
         }

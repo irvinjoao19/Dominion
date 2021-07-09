@@ -46,7 +46,7 @@ class OtPhotoAdapter(private val listener: OnItemClickListener.OtPhotoListener) 
                 val url = Util.UrlFoto + o.urlPhoto
                 Picasso.get().load(url).into(imageViewPhoto)
             }
-            textViewName.text = if (o.toPdf) o.urlPdf else o.urlPhoto
+            textViewName.text = o.urlPhoto
             itemView.setOnClickListener { v -> listener.onItemClick(o, v, bindingAdapterPosition) }
         }
     }

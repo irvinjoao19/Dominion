@@ -131,4 +131,5 @@
     <string name="pdf">Pdf</string>
     <string name="camara">Galeria</string>
     <string name="pdf_no_existe">Pdf no existe en el directorio</string>
+    <string name="generar_pdf">Generar Pdf</string>
 </resources>

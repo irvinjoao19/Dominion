@@ -231,10 +231,7 @@ internal constructor(private val roomRepository: AppRepository, private val retr
             .observeOn(AndroidSchedulers.mainThread())
             .subscribe(object : Observer<String> {
                 override fun onSubscribe(d: Disposable) {}
-                override fun onNext(m: String) {
-//                    Log.i("TAG", m)
-                }
-
+                override fun onNext(m: String) {}
                 override fun onError(e: Throwable) {
                     if (e is HttpException) {
                         val body = e.response().errorBody()
@@ -298,79 +295,12 @@ internal constructor(private val roomRepository: AppRepository, private val retr
             })
     }
 
-    fun sendData(context: Context) {
-        val ots: Observable<List<Ot>> = roomRepository.getSendOt(1)
-        ots.flatMap { observable ->
-            Observable.fromIterable(observable).flatMap { a ->
-                val b = MultipartBody.Builder()
-                val detalles: List<OtDetalle>? = a.detalles
-                if (detalles != null) {
-                    for (d: OtDetalle in detalles) {
-                        for (p: OtPhoto in d.photos) {
-                            if (p.nombrePhoto.isNotEmpty()) {
-                                val file = File(Util.getFolder(context), p.nombrePhoto)
-                                if (file.exists()) {
-                                    b.addFormDataPart(
-                                        "files", file.name,
-                                        RequestBody.create(
-                                            MediaType.parse("multipart/form-data"), file
-                                        )
-                                    )
-                                }
-                            }
-                        }
-                    }
-                }
-
-                val json = Gson().toJson(a)
-//                Log.i("TAG", json)
-                b.setType(MultipartBody.FORM)
-                b.addFormDataPart("data", json)
-
-                val body = b.build()
-                Observable.zip(
-                    Observable.just(a), roomRepository.sendRegistroOt(body), { _, mensaje ->
-                        mensaje
-                    })
-            }
-        }.subscribeOn(Schedulers.io())
-            .delay(1000, TimeUnit.MILLISECONDS)
-            .observeOn(AndroidSchedulers.mainThread())
-            .subscribe(object : Observer<Mensaje> {
-                override fun onSubscribe(d: Disposable) {}
-                override fun onComplete() {
-                    sendSocket()
-                }
-
-                override fun onNext(t: Mensaje) {
-                    updateOt(t)
-                }
-
-                override fun onError(t: Throwable) {
-                    if (t is HttpException) {
-                        val body = t.response().errorBody()
-                        try {
-                            val error = retrofit.errorConverter.convert(body!!)
-                            mensajeError.postValue(error!!.Message)
-                        } catch (e1: IOException) {
-                            e1.printStackTrace()
-                        }
-                    } else {
-                        mensajeError.postValue(t.message)
-                    }
-                }
-            })
-    }
-
-
     private fun sendSocket() {
         roomRepository.sendSocket()
             .subscribeOn(Schedulers.computation())
             .observeOn(AndroidSchedulers.mainThread())
             .subscribe(object : CompletableObserver {
-                override fun onSubscribe(d: Disposable) {
-                }
-
+                override fun onSubscribe(d: Disposable) {}
                 override fun onComplete() {
                     mensajeSuccess.value = "Enviado"
                 }

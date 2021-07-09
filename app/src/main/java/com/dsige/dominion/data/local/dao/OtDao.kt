@@ -70,4 +70,10 @@ interface OtDao {
     @Query("SELECT * FROM Ot WHERE nroObra=:n AND fechaXOt=:f")
     fun getNroOt(n: String, f: String): Boolean
 
+    @Query("UPDATE Ot SET viajeIndebido =:e WHERE otId=:id")
+    fun updateViajeIndebido(id: Int,e:Int)
+
+    @Query("UPDATE Ot SET urlPdf =:path WHERE otId=:id")
+    fun updateOtPdf(id: Int, path: String)
+
 }

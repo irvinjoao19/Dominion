@@ -7,7 +7,6 @@ import com.dsige.dominion.data.local.model.*
 import com.dsige.dominion.helper.Mensaje
 import io.reactivex.Completable
 import io.reactivex.Observable
-import kotlinx.coroutines.flow.Flow
 import okhttp3.RequestBody
 import retrofit2.Call
 
@@ -62,7 +61,6 @@ interface AppRepository {
     fun deletePhoto(o: OtPhoto, context: Context): Completable
 
     fun getSendOt(i: Int): Observable<List<Ot>>
-    fun sendRegistroOt(body: RequestBody): Observable<Mensaje>
     fun updateOt(t: Mensaje): Completable
 
     fun saveGps(body: RequestBody): Call<Mensaje>
@@ -114,9 +112,12 @@ interface AppRepository {
     fun saveOperarioGps(e: OperarioGps): Observable<Mensaje>
     fun updateEnabledGps(t: Mensaje): Completable
 
-    //batterry
+    //battery
     fun insertBattery(e: OperarioBattery): Completable
     fun getSendBattery(): Observable<List<OperarioBattery>>
     fun saveOperarioBattery(e: OperarioBattery): Observable<Mensaje>
     fun updateEnabledBattery(t: Mensaje): Completable
+
+    //pdf
+    fun updateOtPdf(id: Int, path: String): Completable
 }

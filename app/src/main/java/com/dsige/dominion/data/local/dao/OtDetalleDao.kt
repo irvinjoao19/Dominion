@@ -65,9 +65,6 @@ interface OtDetalleDao {
     @Query("SELECT * FROM OtDetalle WHERE otId =:id AND tipoTrabajoId = 7 AND estado = 1")
     fun getAllRegistroDetalleDesmonte(id: Int): List<OtDetalle>
 
-    @Query("SELECT * FROM OtDetalle WHERE otId =:id AND estado = 1")
+    @Query("SELECT * FROM OtDetalle WHERE otId =:id AND viajeIndebido = 1")
     fun getOtDetalleViajeIndebido(id: Int): OtDetalle?
-
-    @Query("UPDATE OtDetalle SET estado =:e WHERE otDetalleId=:id")
-    fun updateViajeIndebido(id: Int,e:Int)
 }

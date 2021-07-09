@@ -41,6 +41,7 @@ import com.dsige.dominion.data.viewModel.ViewModelFactory
 import com.dsige.dominion.helper.Gps
 import com.dsige.dominion.helper.Util
 import com.dsige.dominion.ui.activities.PreviewCameraActivity
+import com.dsige.dominion.ui.activities.PreviewPdfActivity
 import com.dsige.dominion.ui.adapters.DistritoAdapter
 import com.dsige.dominion.ui.listeners.OnItemClickListener
 import com.google.android.material.checkbox.MaterialCheckBox
@@ -75,8 +76,12 @@ class GeneralFragment : DaggerFragment(), View.OnClickListener, TextView.OnEdito
             when (v.id) {
                 R.id.checkViaje -> {
                     if (checked) {
-                        fabCamara.visibility = View.VISIBLE
-                        fabGaleria.visibility = View.VISIBLE
+                        if (t.estado != 0) {
+                            confirmViajeIndebido()
+                            fabCamara.visibility = View.VISIBLE
+                            fabGaleria.visibility = View.VISIBLE
+                        } else
+                            otViewModel.setError("Completar formulario")
                     } else {
                         confirmDeletePhotos()
                     }
@@ -99,14 +104,20 @@ class GeneralFragment : DaggerFragment(), View.OnClickListener, TextView.OnEdito
                 } else
                     otViewModel.setError("Ingrese Nro de Sed")
             }
-
-//            R.id.fabPreviewCamera -> goPreviewPhoto()
             R.id.fabCamara -> if (t.estado != 0) {
                 goCamera()
             } else
                 otViewModel.setError("Completar formulario")
             R.id.fabGaleria -> if (t.estado != 0) {
                 goGallery()
+            } else
+                otViewModel.setError("Completar formulario")
+            R.id.fabPdf -> if (t.estado != 0) {
+                if (urlPdf.isEmpty()) {
+                    goCamaraPdf()
+                } else {
+                    pdfOptions()
+                }
             } else
                 otViewModel.setError("Completar formulario")
         }
@@ -305,6 +316,46 @@ class GeneralFragment : DaggerFragment(), View.OnClickListener, TextView.OnEdito
         dialog.show()
     }
 
+    private fun confirmViajeIndebido() {
+        val options = arrayOf("Camara", "Galeria")
+        MaterialAlertDialogBuilder(requireContext())
+            .setTitle("Opciones para viaje indebido : ")
+            .setItems(options) { dialog, which ->
+                when (which) {
+                    0 -> goCamera()
+                    1 -> goGallery()
+                }
+                dialog.dismiss()
+            }.show()
+    }
+
+    private fun confirmFilePdf() {
+        val nombre = if (servicioId == 2) "Emergencia Baja Tensión" else "Alumbrado Publico"
+        MaterialAlertDialogBuilder(requireContext())
+            .setTitle("Mensaje")
+            .setMessage("$nombre requiere documento.")
+            .setPositiveButton("Generar Pdf") { dialog, _ ->
+                goCamaraPdf()
+                dialog.dismiss()
+            }.show()
+    }
+
+    private fun pdfOptions() {
+        val options = arrayOf("Ver PDF", "Corregir Pdf")
+        MaterialAlertDialogBuilder(requireContext())
+            .setTitle("Seleccione :")
+            .setItems(options) { dialog, which ->
+                when (which) {
+                    0 -> startActivity(
+                        Intent(requireContext(), PreviewPdfActivity::class.java)
+                            .putExtra("pdfName", urlPdf)
+                    )
+                    1 -> goCamaraPdf()
+                }
+                dialog.dismiss()
+            }.show()
+    }
+
     @Inject
     lateinit var viewModelFactory: ViewModelFactory
     lateinit var otViewModel: OtViewModel
@@ -324,6 +375,7 @@ class GeneralFragment : DaggerFragment(), View.OnClickListener, TextView.OnEdito
     private var nameImg: String = ""
     private var direccion: String = ""
     private var distrito: String = ""
+    private var urlPdf: String = ""
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -355,7 +407,7 @@ class GeneralFragment : DaggerFragment(), View.OnClickListener, TextView.OnEdito
         otViewModel =
             ViewModelProvider(this, viewModelFactory).get(OtViewModel::class.java)
 
-        if (servicioId == 2 || servicioId == 4) {
+        if (servicioId == 2) {
             editTextNumero.inputType =
                 InputType.TYPE_CLASS_NUMBER or InputType.TYPE_NUMBER_VARIATION_NORMAL
             layoutSuministro.visibility = View.VISIBLE
@@ -365,11 +417,6 @@ class GeneralFragment : DaggerFragment(), View.OnClickListener, TextView.OnEdito
 
             otViewModel.getCountOtPhotoBajaTension(otId).observe(viewLifecycleOwner, {
                 size = it
-//                if (it > 0) {
-//                    fabPreviewCamera.visibility = View.VISIBLE
-//                } else {
-//                    fabPreviewCamera.visibility = View.GONE
-//                }
                 if (it == maxSize) {
                     fabCamara.visibility = View.INVISIBLE
                     fabGaleria.visibility = View.INVISIBLE
@@ -382,6 +429,12 @@ class GeneralFragment : DaggerFragment(), View.OnClickListener, TextView.OnEdito
             })
         } else {
             editTextNumero.inputType = InputType.TYPE_TEXT_FLAG_CAP_CHARACTERS
+        }
+
+        if (servicioId == 2 || servicioId == 4) {
+            fabPdf.visibility = View.VISIBLE
+            textViewPdf.visibility = View.VISIBLE
+            fabPdf.setOnClickListener(this)
         }
 
         otViewModel.getOtById(otId).observe(viewLifecycleOwner, {
@@ -403,10 +456,16 @@ class GeneralFragment : DaggerFragment(), View.OnClickListener, TextView.OnEdito
                     checkViaje.isChecked = true
                     fabCamara.visibility = View.VISIBLE
                     fabGaleria.visibility = View.VISIBLE
+                } else {
+                    checkViaje.isChecked = false
+                    fabCamara.visibility = View.GONE
+                    fabGaleria.visibility = View.GONE
                 }
+
                 if (it.fechaInicioTrabajo.isEmpty()) {
                     t.fechaInicioTrabajo = Util.getFechaActual()
                 }
+                urlPdf = it.urlPdf
             } else {
                 t.fechaInicioTrabajo = Util.getFechaActual()
             }
@@ -419,6 +478,10 @@ class GeneralFragment : DaggerFragment(), View.OnClickListener, TextView.OnEdito
 
         otViewModel.mensajeSuccess.observe(viewLifecycleOwner, {
             if (it == "Ok") {
+                Util.toastMensaje(requireContext(), "Foto Generado", true)
+                return@observe
+            }
+            if (it == "Ok2") {
                 Util.toastMensaje(requireContext(), "Pdf Generado", true)
                 return@observe
             }
@@ -434,14 +497,12 @@ class GeneralFragment : DaggerFragment(), View.OnClickListener, TextView.OnEdito
 
         otViewModel.mensajeGeneral.observe(viewLifecycleOwner) {
             if (servicioId == 2 || servicioId == 4) {
-                if (checkViaje.isChecked) {
-                    if (size == 0) {
-                        goCamera()
-                    }
-                } else {
-                    viewPager?.currentItem = 1
-                    Util.toastMensaje(requireContext(), it, false)
+                if (urlPdf.isEmpty()) {
+                    confirmFilePdf()
+                    return@observe
                 }
+                viewPager?.currentItem = 1
+                Util.toastMensaje(requireContext(), it, false)
             } else {
                 viewPager?.currentItem = 1
                 Util.toastMensaje(requireContext(), it, false)
@@ -543,6 +604,42 @@ class GeneralFragment : DaggerFragment(), View.OnClickListener, TextView.OnEdito
         }
     }
 
+    private fun goCamaraPdf() {
+        nameImg = Util.getFechaActualForPhoto(usuarioId)
+        Intent(MediaStore.ACTION_IMAGE_CAPTURE).also { takePictureIntent ->
+            takePictureIntent.resolveActivity(requireContext().packageManager)
+                ?.also {
+                    val photoFile: File? = try {
+                        Util.createImageFile(nameImg, requireContext())
+                    } catch (ex: IOException) {
+                        null
+                    }
+                    photoFile?.also {
+                        val uriSavedImage = FileProvider.getUriForFile(
+                            requireContext(),
+                            BuildConfig.APPLICATION_ID + ".fileprovider",
+                            it
+                        )
+                        takePictureIntent.putExtra(
+                            MediaStore.EXTRA_OUTPUT,
+                            uriSavedImage
+                        )
+
+                        if (Build.VERSION.SDK_INT >= 24) {
+                            try {
+                                val m =
+                                    StrictMode::class.java.getMethod("disableDeathOnFileUriExposure")
+                                m.invoke(null)
+                            } catch (e: Exception) {
+                                e.printStackTrace()
+                            }
+                        }
+                        cameraPdfResultLauncher.launch(takePictureIntent)
+                    }
+                }
+        }
+    }
+
     private fun goGallery() {
         otViewModel.setError("Maximo " + (maxSize - size) + " fotos para seleccionar")
         val i = Intent(Intent.ACTION_GET_CONTENT)
@@ -601,7 +698,7 @@ class GeneralFragment : DaggerFragment(), View.OnClickListener, TextView.OnEdito
                                             data = data,
                                             direccion = address.getAddressLine(0).toString(),
                                             distrito = address.locality.toString(),
-                                            toPdf = true
+                                            toPdf = false
                                         )
                                     }
                                 })
@@ -618,13 +715,24 @@ class GeneralFragment : DaggerFragment(), View.OnClickListener, TextView.OnEdito
     private val cameraResultLauncher =
         registerForActivityResult(ActivityResultContracts.StartActivityForResult()) { result ->
             if (result.resultCode == DaggerAppCompatActivity.RESULT_OK) {
-                otViewModel.generatePdfFile(
+                otViewModel.generatePhotoDetail(
                     nameImg = nameImg,
                     context = requireContext(),
                     direccion = direccion,
                     distrito = distrito,
                     id = otId,
-                    toPdf = true
+                    toPdf = false
+                )
+            }
+        }
+
+    private val cameraPdfResultLauncher =
+        registerForActivityResult(ActivityResultContracts.StartActivityForResult()) { result ->
+            if (result.resultCode == DaggerAppCompatActivity.RESULT_OK) {
+                otViewModel.generatePhotoPdf(
+                    nameImg = nameImg,
+                    context = requireContext(),
+                    id = otId
                 )
             }
         }

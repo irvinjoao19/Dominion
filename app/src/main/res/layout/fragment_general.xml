@@ -25,6 +25,7 @@
                 app:layout_constraintEnd_toEndOf="parent"
                 app:layout_constraintStart_toStartOf="parent"
                 app:layout_constraintTop_toTopOf="parent">
+
                 <com.google.android.material.textfield.TextInputEditText
                     android:id="@+id/editTextNumero"
                     android:layout_width="match_parent"
@@ -79,14 +80,14 @@
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_margin="8dp"
+                android:contentDescription="@string/img"
                 android:visibility="gone"
                 app:backgroundTint="@color/colorAccent"
                 app:layout_constraintEnd_toEndOf="parent"
                 app:layout_constraintStart_toEndOf="@+id/layoutSed"
                 app:layout_constraintTop_toBottomOf="@+id/layoutSuministro"
                 app:srcCompat="@drawable/ic_send"
-                app:tint="@color/colorWhite"
-                android:contentDescription="@string/img" />
+                app:tint="@color/colorWhite" />
 
             <com.google.android.material.textfield.TextInputLayout
                 android:id="@+id/layout2"
@@ -123,13 +124,13 @@
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_margin="8dp"
+                android:contentDescription="@string/img"
                 app:backgroundTint="@color/colorAccent"
                 app:layout_constraintEnd_toEndOf="parent"
                 app:layout_constraintStart_toEndOf="@+id/layout2"
                 app:layout_constraintTop_toBottomOf="@+id/layoutSed"
                 app:srcCompat="@drawable/ic_place"
-                app:tint="@color/colorWhite"
-                android:contentDescription="@string/img" />
+                app:tint="@color/colorWhite" />
 
             <com.google.android.material.textfield.TextInputLayout
                 android:id="@+id/layout3"
@@ -174,13 +175,13 @@
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_margin="8dp"
+                android:contentDescription="@string/img"
                 app:backgroundTint="@color/colorAccent"
                 app:layout_constraintEnd_toEndOf="parent"
                 app:layout_constraintStart_toEndOf="@+id/layout4"
                 app:layout_constraintTop_toBottomOf="@+id/layout3"
                 app:srcCompat="@drawable/ic_micro"
-                app:tint="@color/colorWhite"
-                android:contentDescription="@string/img" />
+                app:tint="@color/colorWhite" />
 
             <com.google.android.material.textfield.TextInputLayout
                 android:id="@+id/layout5"
@@ -251,6 +252,31 @@
                 app:layout_constraintStart_toStartOf="parent"
                 app:layout_constraintTop_toBottomOf="@+id/layout5" />
 
+            <TextView
+                android:id="@+id/textViewPdf"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginEnd="16dp"
+                android:text="@string/generar_pdf"
+                android:textStyle="bold"
+                android:visibility="gone"
+                app:layout_constraintBottom_toBottomOf="@id/fabPdf"
+                app:layout_constraintEnd_toStartOf="@+id/fabPdf"
+                app:layout_constraintTop_toTopOf="@id/fabPdf" />
+
+            <com.google.android.material.floatingactionbutton.FloatingActionButton
+                android:id="@+id/fabPdf"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_margin="8dp"
+                android:contentDescription="@string/img"
+                app:backgroundTint="@color/colorAccent"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintStart_toEndOf="@+id/layout5"
+                app:layout_constraintTop_toBottomOf="@+id/checkViaje"
+                app:srcCompat="@drawable/ic_pdf"
+                app:tint="@color/colorWhite" />
+
             <com.google.android.material.floatingactionbutton.ExtendedFloatingActionButton
                 android:id="@+id/fabGenerate"
                 android:layout_width="wrap_content"
@@ -266,7 +292,7 @@
                 app:layout_constraintBottom_toBottomOf="parent"
                 app:layout_constraintEnd_toEndOf="parent"
                 app:layout_constraintStart_toStartOf="parent"
-                app:layout_constraintTop_toBottomOf="@+id/checkViaje" />
+                app:layout_constraintTop_toBottomOf="@+id/fabPdf" />
         </androidx.constraintlayout.widget.ConstraintLayout>
     </androidx.core.widget.NestedScrollView>
 </FrameLayout>

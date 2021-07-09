@@ -29,6 +29,7 @@ import com.google.android.gms.maps.model.BitmapDescriptor
 import com.google.android.gms.maps.model.BitmapDescriptorFactory
 import com.google.android.material.snackbar.Snackbar
 import com.google.android.material.textfield.TextInputEditText
+import io.reactivex.Completable
 import io.reactivex.Observable
 import io.reactivex.Observer
 import io.reactivex.android.schedulers.AndroidSchedulers
@@ -49,7 +50,6 @@ object Util {
         val date = Date()
         @SuppressLint("SimpleDateFormat") val format = SimpleDateFormat("dd/MM/yyyy")
         return format.format(date)
-//        return "05/10/2019"
     }
 
     fun getHora(): String {
@@ -190,9 +190,7 @@ object Util {
                 .delay(1000, TimeUnit.MILLISECONDS)
                 .observeOn(AndroidSchedulers.mainThread())
                 .subscribe(object : Observer<Address> {
-                    override fun onSubscribe(d: Disposable) {
-
-                    }
+                    override fun onSubscribe(d: Disposable) {}
 
                     override fun onNext(address: Address) {
                         input.setText(address.getAddressLine(0).toString())
@@ -290,7 +288,7 @@ object Util {
         }
     }
 
-    fun generatePdfFile(
+    fun generatePhotoDetail(
         nameImg: String, context: Context,
         direccion: String, distrito: String,
         id: Int, toPdf: Boolean
@@ -303,15 +301,13 @@ object Util {
                 t.otId = id
                 t.tipoMaterialId = 24
                 t.tipoTrabajoId = 6
-                t.nombreTipoMaterial = "Archivos de Viaje Indebido"
+                t.nombreTipoMaterial = "Fotos de Viaje Indebido"
                 t.viajeIndebido = 1
-                t.estado = 2
+                t.estado = 1
 
                 val photo = OtPhoto()
                 photo.nombrePhoto = nameImg
                 photo.urlPhoto = nameImg
-                photo.urlPdf = "${nameImg.substring(0, nameImg.length - 4)}.pdf"
-                photo.toPdf = true
                 photo.estado = 1
                 photo.otId = id
                 val fotos = ArrayList<OtPhoto>()
@@ -341,18 +337,21 @@ object Util {
                 photo.nombrePhoto = nameImg
                 photo.urlPhoto = nameImg
                 photo.estado = 1
-
-                if (toPdf) {
-                    photo.urlPdf = "${nameImg.substring(0, nameImg.length - 4)}.pdf"
-                    photo.toPdf = true
-                }
-
                 it.onNext(photo)
                 it.onComplete()
                 return@create
             }
             it.onError(Throwable("No se encontro la foto fisica favor de volver a tomar foto"))
             it.onComplete()
+        }
+    }
+
+    fun generatePhotoPdf(nameImg: String, context: Context): Completable {
+        return Completable.fromAction {
+            val f = File(getFolder(context), nameImg)
+            if (f.exists()) {
+                compressImage(context, f.absolutePath, "", "", true, nameImg)
+            }
         }
     }
 
@@ -482,11 +481,9 @@ object Util {
             paint.getTextBounds(gText, 0, gText.length, bounds)
             val x = 10f
             var y: Float = (scaledBitmap.height - bounds.height() * noOfLines).toFloat()
-
             // Fondo
             val mPaint = Paint()
             mPaint.color = ContextCompat.getColor(context, R.color.transparentBlack)
-
             // Tamaño del Fondo
             val top = scaledBitmap.height - bounds.height() * (noOfLines + 1)
             canvasPaint.drawRect(
@@ -496,7 +493,6 @@ object Util {
                 scaledBitmap.height.toFloat(),
                 mPaint
             )
-
             // Agregando texto
             for (line in gText.split("\n").toTypedArray()) {
                 val txt =
@@ -518,7 +514,6 @@ object Util {
         } catch (e: FileNotFoundException) {
             e.printStackTrace()
         }
-
 
         if (toPdf) {
             generatePdf(context, imagePath)

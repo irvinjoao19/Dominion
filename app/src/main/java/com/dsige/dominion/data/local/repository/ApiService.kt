@@ -30,10 +30,6 @@ interface ApiService {
     fun saveMovil(@Body body: RequestBody): Call<Mensaje>
 
     @Headers("Cache-Control: no-cache")
-    @POST("SaveRegistroNew")
-    fun sendRegistroOt(@Body body: RequestBody): Observable<Mensaje>
-
-    @Headers("Cache-Control: no-cache")
     @POST("Proveedores")
     fun getProveedor(@Body body: RequestBody): Observable<List<Proveedor>>
 
@@ -60,7 +56,7 @@ interface ApiService {
     fun sendOtPhotos(@Body body: RequestBody): Observable<String>
 
     @Headers("Cache-Control: no-cache")
-    @POST("SaveOtNew5")
+    @POST("SaveOtNew6")
     fun sendOt(@Body body: RequestBody): Observable<Mensaje>
 
     @POST("SaveOperarioBattery")

@@ -27,7 +27,6 @@ import kotlinx.android.synthetic.main.fragment_general.*
 import java.io.File
 import javax.inject.Inject
 
-
 class PreviewCameraActivity : DaggerAppCompatActivity(), View.OnClickListener {
 
     override fun onClick(v: View) {
@@ -62,14 +61,12 @@ class PreviewCameraActivity : DaggerAppCompatActivity(), View.OnClickListener {
             t.tipoMaterialId = 24
             t.tipoTrabajoId = 6
             t.viajeIndebido = 1
-            t.nombreTipoMaterial = "Archivos de Viaje Indebido"
-            t.estado = 2
+            t.nombreTipoMaterial = "Fotos de Viaje Indebido"
+            t.estado = 1
 
             val f = OtPhoto()
             f.nombrePhoto = nameImg
             f.urlPhoto = nameImg
-            f.urlPdf = "${nameImg.substring(0, nameImg.length - 4)}.pdf"
-            f.toPdf = true
             f.estado = 1
             f.otId = id
             val fotos = ArrayList<OtPhoto>()
@@ -92,6 +89,7 @@ class PreviewCameraActivity : DaggerAppCompatActivity(), View.OnClickListener {
             t.otId = id
             t.tipoMaterialId = 24
             t.tipoTrabajoId = 6
+            t.viajeIndebido = 1
             t.estado = 1
 
             val fotos = ArrayList<OtPhoto>()
@@ -99,10 +97,8 @@ class PreviewCameraActivity : DaggerAppCompatActivity(), View.OnClickListener {
                 val p = OtPhoto()
                 p.nombrePhoto = d
                 p.urlPhoto = d
-                p.urlPdf = "${d.substring(0, d.length - 4)}.pdf"
                 p.otId = id
                 p.estado = 1
-                p.toPdf = true
                 fotos.add(p)
             }
             t.photos = fotos

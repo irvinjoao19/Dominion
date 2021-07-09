@@ -141,12 +141,12 @@ internal constructor(private val roomRepository: AppRepository, private val retr
             return
         }
 
-        if (t.servicioId == 2 || t.servicioId == 4) {
-            if (t.viajeIndebido == 0) {
-                mensajeError.value = "Viaje Indebido es obligatorio"
-                return
-            }
-        }
+//        if (t.servicioId == 2 || t.servicioId == 4) {
+//            if (t.viajeIndebido == 0) {
+//                mensajeError.value = "Viaje Indebido es obligatorio"
+//                return
+//            }
+//        }
         insertOrUpdateOt(t)
     }
 
@@ -740,7 +740,7 @@ internal constructor(private val roomRepository: AppRepository, private val retr
             })
     }
 
-    fun generatePdfFile(
+    fun generatePhotoDetail(
         nameImg: String,
         context: Context,
         direccion: String,
@@ -748,7 +748,7 @@ internal constructor(private val roomRepository: AppRepository, private val retr
         id: Int,
         toPdf: Boolean
     ) {
-        Util.generatePdfFile(nameImg, context, direccion, distrito, id, toPdf)
+        Util.generatePhotoDetail(nameImg, context, direccion, distrito, id, toPdf)
             .subscribeOn(Schedulers.io())
             .observeOn(AndroidSchedulers.mainThread())
             .subscribe(object : Observer<OtDetalle> {
@@ -757,6 +757,34 @@ internal constructor(private val roomRepository: AppRepository, private val retr
                 override fun onError(e: Throwable) {}
                 override fun onNext(t: OtDetalle) {
                     insertOtPhotoCabecera(t)
+                }
+            })
+    }
+
+    fun generatePhotoPdf(
+        nameImg: String, context: Context, id: Int,
+    ) {
+        Util.generatePhotoPdf(nameImg, context)
+            .subscribeOn(Schedulers.io())
+            .observeOn(AndroidSchedulers.mainThread())
+            .subscribe(object : CompletableObserver {
+                override fun onSubscribe(d: Disposable) {}
+                override fun onError(e: Throwable) {}
+                override fun onComplete() {
+                    updateOtPdf(id, nameImg)
+                }
+            })
+    }
+
+    private fun updateOtPdf(id: Int, path: String) {
+        roomRepository.updateOtPdf(id, path)
+            .subscribeOn(Schedulers.io())
+            .observeOn(AndroidSchedulers.mainThread())
+            .subscribe(object : CompletableObserver {
+                override fun onSubscribe(d: Disposable) {}
+                override fun onError(e: Throwable) {}
+                override fun onComplete() {
+                    mensajeSuccess.value = "Ok2"
                 }
             })
     }
