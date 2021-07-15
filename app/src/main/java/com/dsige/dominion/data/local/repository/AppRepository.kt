@@ -44,6 +44,7 @@ interface AppRepository {
     fun insertOrUpdateOt(t: Ot): Completable
     fun getOtById(otId: Int): LiveData<Ot>
     fun getOtDetalleById(otId: Int, tipo: Int): LiveData<PagingData<OtDetalle>>
+    fun getOtDetalleByIdSize(otId: Int, tipo: Int): LiveData<Int>
     fun getOtPhotoById(id: Int): LiveData<List<OtPhoto>>
 
     fun getDistritos(): LiveData<List<Distrito>>
@@ -62,9 +63,6 @@ interface AppRepository {
 
     fun getSendOt(i: Int): Observable<List<Ot>>
     fun updateOt(t: Mensaje): Completable
-
-    fun saveGps(body: RequestBody): Call<Mensaje>
-    fun saveMovil(body: RequestBody): Call<Mensaje>
 
     fun deleteOtDetalle(o: OtDetalle, context: Context): Completable
 
@@ -120,4 +118,5 @@ interface AppRepository {
 
     //pdf
     fun updateOtPdf(id: Int, path: String): Completable
+
 }

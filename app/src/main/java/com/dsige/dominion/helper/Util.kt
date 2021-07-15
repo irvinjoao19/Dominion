@@ -350,7 +350,8 @@ object Util {
         return Completable.fromAction {
             val f = File(getFolder(context), nameImg)
             if (f.exists()) {
-                compressImage(context, f.absolutePath, "", "", true, nameImg)
+                generatePdf(context,nameImg)
+//                compressImage(context, f.absolutePath, "", "", true, nameImg)
             }
         }
     }
@@ -543,18 +544,40 @@ object Util {
 
     private fun generatePdf(context: Context, nameImg: String) {
         val file = File(getFolder(context), nameImg)
-        val bitmap = BitmapFactory.decodeFile(file.absolutePath)
+        var bitmap = BitmapFactory.decodeFile(file.absolutePath)
 
-        val ancho = bitmap.width + (bitmap.width * 0.05)
-        val alto = bitmap.height + (bitmap.height * 0.05)
+        val exif: ExifInterface
+        try {
+            exif = ExifInterface(file.absolutePath)
+            val orientation = exif.getAttributeInt(
+                ExifInterface.TAG_ORIENTATION, 0
+            )
+//            Log.d("EXIF", "Exif: $orientation")
+            val matrix = Matrix()
+            when (orientation) {
+                6 -> matrix.postRotate(90f)
+                3 -> matrix.postRotate(180f)
+                8 -> matrix.postRotate(270f)
+            }
+            bitmap = Bitmap.createBitmap(
+                bitmap, 0, 0,
+                bitmap.width, bitmap.height, matrix,
+                true
+            )
+        } catch (e: IOException) {
+            e.printStackTrace()
+        }
+
+//        val ancho = bitmap.width + (bitmap.width * 0.05)
+//        val alto = bitmap.height + (bitmap.height * 0.05)
         val pdfDocument = PdfDocument()
-        val myPageInfo = PdfDocument.PageInfo.Builder(ancho.toInt(), alto.toInt(), 1).create()
+        val myPageInfo = PdfDocument.PageInfo.Builder(bitmap.width, bitmap.height, 1).create()
         val page = pdfDocument.startPage(myPageInfo)
 
-        val left = (ancho / 2 - ancho * 0.05 / 2) * 0.05
-        val top = (alto / 2 - alto * 0.05 / 2) * 0.05
+//        val left = (ancho / 2 - ancho * 0.05 / 2) * 0.05
+//        val top = (alto / 2 - alto * 0.05 / 2) * 0.05
 
-        page.canvas.drawBitmap(bitmap, left.toFloat(), top.toFloat(), Paint())
+        page.canvas.drawBitmap(bitmap, 0f, 0f, Paint())
         pdfDocument.finishPage(page)
 
         val filePdf = "${nameImg.substring(0, nameImg.length - 4)}.pdf"

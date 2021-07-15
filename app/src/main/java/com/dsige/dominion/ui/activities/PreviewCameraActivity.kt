@@ -160,6 +160,7 @@ class PreviewCameraActivity : DaggerAppCompatActivity(), View.OnClickListener {
         if (galery) {
             Looper.myLooper()?.let {
                 Handler(it).postDelayed({
+                    textTile.text = lista[0]
                     val file = File(Util.getFolder(this), lista[0])
                     Picasso.get().load(file)
                         .into(imageView, object : Callback {
@@ -172,6 +173,7 @@ class PreviewCameraActivity : DaggerAppCompatActivity(), View.OnClickListener {
                     val otPhotoAdapter =
                         OtMultiPhotoAdapter(object : OnItemClickListener.OtMultiPhotoListener {
                             override fun onItemClick(s: String, view: View, position: Int) {
+                                textTile.text = s
                                 val f = File(Util.getFolder(this@PreviewCameraActivity), s)
                                 Picasso.get().load(f)
                                     .into(imageView, object : Callback {
@@ -201,6 +203,7 @@ class PreviewCameraActivity : DaggerAppCompatActivity(), View.OnClickListener {
                                     when (view.id) {
                                         R.id.imgDelete -> confirmPhotoBajaTension(o)
                                         else -> {
+                                            textTile.text = o.urlPhoto
                                             val f = File(
                                                 Util.getFolder(this@PreviewCameraActivity),
                                                 o.urlPhoto
@@ -225,6 +228,7 @@ class PreviewCameraActivity : DaggerAppCompatActivity(), View.OnClickListener {
 
                         otViewModel.getOtPhotoBajaTension(id).observe(this, {
                             if (it.isNotEmpty()) {
+                                textTile.text = it[0].urlPhoto
                                 val file = File(Util.getFolder(this), it[0].urlPhoto)
                                 Picasso.get().load(file)
                                     .into(imageView, object : Callback {
@@ -241,6 +245,7 @@ class PreviewCameraActivity : DaggerAppCompatActivity(), View.OnClickListener {
                     }, 500)
                 }
             } else {
+                textTile.text = nameImg
                 Looper.myLooper()?.let {
                     Handler(it).postDelayed({
                         val url = Util.UrlFoto + nameImg
@@ -282,7 +287,7 @@ class PreviewCameraActivity : DaggerAppCompatActivity(), View.OnClickListener {
     }
 
     private fun confirmPhotoBajaTension(o: OtPhoto) {
-        val dialog = MaterialAlertDialogBuilder(this)
+        MaterialAlertDialogBuilder(this)
             .setTitle("Mensaje")
             .setMessage("Deseas eliminar esta foto ?")
             .setPositiveButton("SI") { dialog, _ ->
@@ -291,7 +296,6 @@ class PreviewCameraActivity : DaggerAppCompatActivity(), View.OnClickListener {
             }
             .setNegativeButton("NO") { dialog, _ ->
                 dialog.cancel()
-            }
-        dialog.show()
+            }.show()
     }
 }

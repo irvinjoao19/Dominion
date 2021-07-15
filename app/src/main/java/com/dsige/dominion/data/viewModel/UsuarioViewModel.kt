@@ -87,37 +87,6 @@ internal constructor(private val roomRepository: AppRepository, private val retr
 
     fun logout() {
         deleteUser()
-//        var mensaje = ""
-//        roomRepository.getLogout(login)
-//            .subscribeOn(Schedulers.io())
-//            .observeOn(AndroidSchedulers.mainThread())
-//            .subscribe(object : Observer<Mensaje> {
-//                override fun onSubscribe(d: Disposable) {
-//
-//                }
-//
-//                override fun onNext(m: Mensaje) {
-//                    mensaje = m.mensaje
-//                }
-//
-//                override fun onError(t: Throwable) {
-//                    if (t is HttpException) {
-//                        val body = t.response().errorBody()
-//                        try {
-//                            val error = retrofit.errorConverter.convert(body!!)
-//                            mensajeError.postValue(error.Message)
-//                        } catch (e1: IOException) {
-//                            e1.printStackTrace()
-//                        }
-//                    } else {
-//                        mensajeError.postValue(t.message)
-//                    }
-//                }
-//
-//                override fun onComplete() {
-//                    deleteUser(mensaje)
-//                }
-//            })
     }
 
 
@@ -196,7 +165,6 @@ internal constructor(private val roomRepository: AppRepository, private val retr
                 override fun onComplete() {
                     mensajeSuccess.value = "Sincronización Completa"
                 }
-
             })
     }
 
@@ -258,7 +226,6 @@ internal constructor(private val roomRepository: AppRepository, private val retr
         ots.flatMap { observable ->
             Observable.fromIterable(observable).flatMap { a ->
                 val json = Gson().toJson(a)
-//                Log.i("TAG", json)
                 val body =
                     RequestBody.create(MediaType.parse("application/json; charset=utf-8"), json)
                 Observable.zip(

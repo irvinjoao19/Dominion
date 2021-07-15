@@ -301,6 +301,10 @@ class AppRepoImp(private val apiService: ApiService, private val dataBase: AppDa
         ) { dataBase.otDetalleDao().getOtDetalleById(otId, tipo) }.liveData
     }
 
+    override fun getOtDetalleByIdSize(otId: Int, tipo: Int): LiveData<Int> {
+        return dataBase.otDetalleDao().getOtDetalleByIdSize(otId, tipo)
+    }
+
     override fun getOtPhotoById(id: Int): LiveData<List<OtPhoto>> {
         return dataBase.otPhotoDao().getOtPhotoById(id)
     }
@@ -405,14 +409,6 @@ class AppRepoImp(private val apiService: ApiService, private val dataBase: AppDa
         }
     }
 
-    override fun saveGps(body: RequestBody): Call<Mensaje> {
-        return apiService.saveGps(body)
-    }
-
-    override fun saveMovil(body: RequestBody): Call<Mensaje> {
-        return apiService.saveMovil(body)
-    }
-
     override fun deleteOtDetalle(o: OtDetalle, context: Context): Completable {
         return Completable.fromAction {
             val photos: List<OtPhoto> = dataBase.otPhotoDao().getOtPhotoIdTask(o.otDetalleId)
@@ -423,7 +419,7 @@ class AppRepoImp(private val apiService: ApiService, private val dataBase: AppDa
                 }
             }
             if (o.viajeIndebido == 1) {
-                dataBase.otDao().updateViajeIndebido(o.otId,0)
+                dataBase.otDao().updateViajeIndebido(o.otId, 0)
             }
             dataBase.otDetalleDao().deleteOtDetalleTask(o)
         }
@@ -600,19 +596,18 @@ class AppRepoImp(private val apiService: ApiService, private val dataBase: AppDa
             val v: List<Ot> = dataBase.otDao().getAllRegistroTask(1)
             if (v.isNotEmpty()) {
                 for (r: Ot in v) {
-                    if (r.tipoOrdenId == 3 || r.tipoOrdenId == 4) {
-                        if (r.conDesmonte) {
-                            val d: List<OtDetalle> =
-                                dataBase.otDetalleDao().getAllRegistroDetalleDesmonte(r.otId)
-                            if (d.isNotEmpty()) {
-                                if (d.isEmpty()) {
-                                    e.onError(Throwable("Es obligatorio registrar un desmonte para cada ot"))
-                                    e.onComplete()
-                                    return@create
-                                }
-                            }
-                        }
+//                    if (r.tipoOrdenId == 3 || r.tipoOrdenId == 4) {
+//                        if (r.conDesmonte) {
+                    val d: List<OtDetalle> =
+                        dataBase.otDetalleDao().getAllRegistroDetalleDesmonte(r.otId)
+
+                    if (d.isEmpty()) {
+                        e.onError(Throwable("Es obligatorio registrar un desmonte para cada ot"))
+                        e.onComplete()
+                        return@create
                     }
+//                        }
+//                    }
 
                     if (r.servicioId == 2 || r.servicioId == 4) {
                         if (r.urlPdf.isEmpty()) {
@@ -719,7 +714,7 @@ class AppRepoImp(private val apiService: ApiService, private val dataBase: AppDa
             for (p: OtPhoto in f) {
                 Util.deletePhoto(p.urlPhoto, context)
             }
-            dataBase.otDao().updateViajeIndebido(otId,0)
+            dataBase.otDao().updateViajeIndebido(otId, 0)
             dataBase.otPhotoDao().deletePhotoBajaTension(otId)
         }
     }

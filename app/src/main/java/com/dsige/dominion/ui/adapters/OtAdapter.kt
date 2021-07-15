@@ -25,7 +25,7 @@ class OtAdapter(private val listener: OnItemClickListener.OtListener) :
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): ViewHolder {
         val v =
             LayoutInflater.from(parent.context).inflate(R.layout.cardview_ot, parent, false)
-        return ViewHolder(v!!)
+        return ViewHolder(v)
     }
 
     inner class ViewHolder(itemView: View) : RecyclerView.ViewHolder(itemView) {

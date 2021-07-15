@@ -160,7 +160,7 @@ class MedidasFragment : DaggerFragment(), View.OnClickListener {
     }
 
     private fun confirmDelete(o: OtDetalle) {
-        val dialog = MaterialAlertDialogBuilder(requireContext())
+        MaterialAlertDialogBuilder(requireContext())
             .setTitle("Mensaje")
             .setMessage("Se eliminaran las fotos que estan incluidas en esta medida ?")
             .setPositiveButton("Eliminar") { dialog, _ ->
@@ -169,8 +169,7 @@ class MedidasFragment : DaggerFragment(), View.OnClickListener {
             }
             .setNegativeButton("Cancelar") { dialog, _ ->
                 dialog.cancel()
-            }
-        dialog.show()
+            }.show()
     }
 
     companion object {

@@ -1,7 +1,6 @@
 package com.dsige.dominion.data.local.dao
 
 import androidx.lifecycle.LiveData
-import androidx.paging.DataSource
 import androidx.paging.PagingSource
 import androidx.room.*
 import com.dsige.dominion.data.local.model.Ot
@@ -22,19 +21,19 @@ interface OtDao {
     @Delete
     fun deleteOtTask(c: Ot)
 
-    @Query("SELECT * FROM Ot GROUP BY distritoId,direccion,nroObra")
+    @Query("SELECT * FROM Ot GROUP BY nroObra")
     fun getOts(): PagingSource<Int, Ot>
 
-    @Query("SELECT * FROM Ot WHERE tipoOrdenId=:t AND estadoId =:e AND direccion LIKE :s GROUP BY distritoId,direccion,nroObra")
+    @Query("SELECT * FROM Ot WHERE tipoOrdenId=:t AND estadoId =:e AND direccion LIKE :s")
     fun getOts(t: Int, e: Int, s: String): PagingSource<Int, Ot>
 
-    @Query("SELECT * FROM Ot WHERE tipoOrdenId=:t AND estadoId =:e AND servicioId =:sId AND direccion LIKE :s GROUP BY distritoId,direccion,nroObra")
+    @Query("SELECT * FROM Ot WHERE tipoOrdenId=:t AND estadoId =:e AND servicioId =:sId AND direccion LIKE :s")
     fun getOts(t: Int, e: Int, sId: Int, s: String): PagingSource<Int, Ot>
 
-    @Query("SELECT * FROM Ot WHERE tipoOrdenId=:t AND estadoId =:e AND servicioId =:s GROUP BY distritoId,direccion,nroObra")
+    @Query("SELECT * FROM Ot WHERE tipoOrdenId=:t AND estadoId =:e AND servicioId =:s")
     fun getOts(t: Int, e: Int, s: Int): PagingSource<Int, Ot>
 
-    @Query("SELECT * FROM Ot WHERE tipoOrdenId=:t AND estadoId =:e GROUP BY distritoId,direccion,nroObra")
+    @Query("SELECT * FROM Ot WHERE tipoOrdenId=:t AND estadoId =:e")
     fun getOts(t: Int, e: Int): PagingSource<Int, Ot>
 
     @Query("DELETE FROM Ot")

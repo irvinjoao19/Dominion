@@ -4,6 +4,7 @@ import android.annotation.SuppressLint
 import android.app.AlertDialog
 import android.content.Intent
 import android.os.Bundle
+import android.util.Log
 import android.view.KeyEvent
 import android.view.LayoutInflater
 import android.view.View
@@ -12,7 +13,6 @@ import android.widget.ProgressBar
 import android.widget.TextView
 import androidx.appcompat.view.ContextThemeWrapper
 import androidx.appcompat.widget.PopupMenu
-import androidx.lifecycle.Observer
 import androidx.lifecycle.ViewModelProvider
 import androidx.recyclerview.widget.DefaultItemAnimator
 import androidx.recyclerview.widget.DividerItemDecoration
@@ -34,7 +34,6 @@ import com.dsige.dominion.data.viewModel.ViewModelFactory
 import com.google.gson.Gson
 import dagger.android.support.DaggerFragment
 import kotlinx.android.synthetic.main.fragment_main.*
-import kotlinx.coroutines.flow.collectLatest
 import javax.inject.Inject
 
 private const val ARG_PARAM1 = "param1"
@@ -166,7 +165,7 @@ class MainFragment : DaggerFragment(), View.OnClickListener, TextView.OnEditorAc
         recyclerView.setHasFixedSize(true)
         recyclerView.adapter = otAdapter
 
-        otViewModel.getOts().observe(viewLifecycleOwner){
+        otViewModel.getOts().observe(viewLifecycleOwner) {
             otAdapter.submitData(lifecycle, it)
         }
 

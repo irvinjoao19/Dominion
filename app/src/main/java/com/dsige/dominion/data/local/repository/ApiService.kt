@@ -21,13 +21,13 @@ interface ApiService {
     @POST("Sync")
     fun getSync(@Body body: RequestBody): Observable<Sync>
 
-    @Headers("Cache-Control: no-cache")
-    @POST("SaveGps")
-    fun saveGps(@Body body: RequestBody): Call<Mensaje>
-
-    @Headers("Cache-Control: no-cache")
-    @POST("SaveMovil")
-    fun saveMovil(@Body body: RequestBody): Call<Mensaje>
+//    @Headers("Cache-Control: no-cache")
+//    @POST("SaveGps")
+//    fun saveGps(@Body body: RequestBody): Call<Mensaje>
+//
+//    @Headers("Cache-Control: no-cache")
+//    @POST("SaveMovil")
+//    fun saveMovil(@Body body: RequestBody): Call<Mensaje>
 
     @Headers("Cache-Control: no-cache")
     @POST("Proveedores")
@@ -49,8 +49,6 @@ interface ApiService {
     @POST("OtPlazoDetalle")
     fun getOtPlazoDetalle(@Body body: RequestBody): Observable<List<OtPlazoDetalle>>
 
-
-    // nuevo
     @Headers("Cache-Control: no-cache")
     @POST("SaveOtPhotos")
     fun sendOtPhotos(@Body body: RequestBody): Observable<String>

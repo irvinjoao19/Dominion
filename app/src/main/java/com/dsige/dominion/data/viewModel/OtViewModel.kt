@@ -132,7 +132,7 @@ internal constructor(private val roomRepository: AppRepository, private val retr
         }
 
         if (t.descripcionOt.isEmpty()) {
-            mensajeError.value = "Ingresar Descripcón"
+            mensajeError.value = "Ingresar Descripción"
             return
         }
 
@@ -172,6 +172,10 @@ internal constructor(private val roomRepository: AppRepository, private val retr
 
     fun getOtDetalleById(otId: Int, tipo: Int): LiveData<PagingData<OtDetalle>> {
         return roomRepository.getOtDetalleById(otId, tipo)
+    }
+
+    fun getOtDetalleByIdSize(otId: Int, tipo: Int): LiveData<Int> {
+        return roomRepository.getOtDetalleByIdSize(otId, tipo)
     }
 
     fun getOtPhotoById(id: Int): LiveData<List<OtPhoto>> {
@@ -306,17 +310,11 @@ internal constructor(private val roomRepository: AppRepository, private val retr
             .subscribeOn(Schedulers.io())
             .observeOn(AndroidSchedulers.mainThread())
             .subscribe(object : CompletableObserver {
+                override fun onSubscribe(d: Disposable) {}
+                override fun onError(e: Throwable) {}
                 override fun onComplete() {
                     mensajeSuccess.value = "load"
                     syncProveedor(f)
-                }
-
-                override fun onSubscribe(d: Disposable) {
-
-                }
-
-                override fun onError(e: Throwable) {
-
                 }
             })
     }
@@ -327,12 +325,9 @@ internal constructor(private val roomRepository: AppRepository, private val retr
             .subscribeOn(Schedulers.io())
             .observeOn(AndroidSchedulers.mainThread())
             .subscribe(object : Observer<List<Proveedor>> {
+                override fun onSubscribe(d: Disposable) {}
                 override fun onComplete() {
                     mensajeSuccess.value = "finish"
-                }
-
-                override fun onSubscribe(d: Disposable) {
-
                 }
 
                 override fun onNext(t: List<Proveedor>) {
@@ -350,17 +345,9 @@ internal constructor(private val roomRepository: AppRepository, private val retr
             .subscribeOn(Schedulers.io())
             .observeOn(AndroidSchedulers.mainThread())
             .subscribe(object : CompletableObserver {
-                override fun onComplete() {
-
-                }
-
-                override fun onSubscribe(d: Disposable) {
-
-                }
-
-                override fun onError(e: Throwable) {
-
-                }
+                override fun onComplete() {}
+                override fun onSubscribe(d: Disposable) {}
+                override fun onError(e: Throwable) {}
             })
     }
 
@@ -376,12 +363,9 @@ internal constructor(private val roomRepository: AppRepository, private val retr
             .subscribeOn(Schedulers.io())
             .observeOn(AndroidSchedulers.mainThread())
             .subscribe(object : Observer<List<OtReporte>> {
+                override fun onSubscribe(d: Disposable) {}
                 override fun onComplete() {
                     mensajeSuccess.value = "finish"
-                }
-
-                override fun onSubscribe(d: Disposable) {
-
                 }
 
                 override fun onNext(t: List<OtReporte>) {
@@ -399,17 +383,9 @@ internal constructor(private val roomRepository: AppRepository, private val retr
             .subscribeOn(Schedulers.io())
             .observeOn(AndroidSchedulers.mainThread())
             .subscribe(object : CompletableObserver {
-                override fun onComplete() {
-
-                }
-
-                override fun onSubscribe(d: Disposable) {
-
-                }
-
-                override fun onError(e: Throwable) {
-
-                }
+                override fun onComplete() {}
+                override fun onSubscribe(d: Disposable) {}
+                override fun onError(e: Throwable) {}
             })
     }
 
@@ -429,12 +405,9 @@ internal constructor(private val roomRepository: AppRepository, private val retr
             .subscribeOn(Schedulers.io())
             .observeOn(AndroidSchedulers.mainThread())
             .subscribe(object : Observer<List<JefeCuadrilla>> {
+                override fun onSubscribe(d: Disposable) {}
                 override fun onComplete() {
                     mensajeSuccess.value = "finish"
-                }
-
-                override fun onSubscribe(d: Disposable) {
-
                 }
 
                 override fun onNext(t: List<JefeCuadrilla>) {
@@ -452,17 +425,9 @@ internal constructor(private val roomRepository: AppRepository, private val retr
             .subscribeOn(Schedulers.io())
             .observeOn(AndroidSchedulers.mainThread())
             .subscribe(object : CompletableObserver {
-                override fun onComplete() {
-
-                }
-
-                override fun onSubscribe(d: Disposable) {
-
-                }
-
-                override fun onError(e: Throwable) {
-
-                }
+                override fun onComplete() {}
+                override fun onSubscribe(d: Disposable) {}
+                override fun onError(e: Throwable) {}
             })
     }
 
@@ -485,6 +450,8 @@ internal constructor(private val roomRepository: AppRepository, private val retr
             .subscribeOn(Schedulers.io())
             .observeOn(AndroidSchedulers.mainThread())
             .subscribe(object : CompletableObserver {
+                override fun onSubscribe(d: Disposable) {}
+                override fun onError(e: Throwable) {}
                 override fun onComplete() {
                     mensajeSuccess.value = "load"
                     roomRepository.getOtPlazo(f)
@@ -492,12 +459,9 @@ internal constructor(private val roomRepository: AppRepository, private val retr
                         .subscribeOn(Schedulers.io())
                         .observeOn(AndroidSchedulers.mainThread())
                         .subscribe(object : Observer<List<OtPlazo>> {
+                            override fun onSubscribe(d: Disposable) {}
                             override fun onComplete() {
                                 mensajeSuccess.value = "finish"
-                            }
-
-                            override fun onSubscribe(d: Disposable) {
-
                             }
 
                             override fun onNext(t: List<OtPlazo>) {
@@ -520,14 +484,6 @@ internal constructor(private val roomRepository: AppRepository, private val retr
                             }
                         })
                 }
-
-                override fun onSubscribe(d: Disposable) {
-
-                }
-
-                override fun onError(e: Throwable) {
-
-                }
             })
     }
 
@@ -536,18 +492,9 @@ internal constructor(private val roomRepository: AppRepository, private val retr
             .subscribeOn(Schedulers.io())
             .observeOn(AndroidSchedulers.mainThread())
             .subscribe(object : CompletableObserver {
-                override fun onComplete() {
-
-                }
-
-                override fun onSubscribe(d: Disposable) {
-
-                }
-
-                override fun onError(e: Throwable) {
-
-                }
-
+                override fun onComplete() {}
+                override fun onSubscribe(d: Disposable) {}
+                override fun onError(e: Throwable) {}
             })
     }
 
@@ -559,6 +506,8 @@ internal constructor(private val roomRepository: AppRepository, private val retr
             .subscribeOn(Schedulers.io())
             .observeOn(AndroidSchedulers.mainThread())
             .subscribe(object : CompletableObserver {
+                override fun onSubscribe(d: Disposable) {}
+                override fun onError(e: Throwable) {}
                 override fun onComplete() {
                     roomRepository.getOtPlazoDetalle(f)
                         .delay(2000, TimeUnit.MILLISECONDS)
@@ -590,11 +539,6 @@ internal constructor(private val roomRepository: AppRepository, private val retr
                             }
                         })
                 }
-
-                override fun onSubscribe(d: Disposable) {}
-
-                override fun onError(e: Throwable) {}
-
             })
     }
 

@@ -29,6 +29,9 @@ interface OtDetalleDao {
     @Query("SELECT * FROM OtDetalle WHERE otId =:id AND tipoTrabajoId =:tipo")
     fun getOtDetalleById(id: Int, tipo: Int): PagingSource<Int, OtDetalle>
 
+    @Query("SELECT COUNT(*) FROM OtDetalle WHERE otId =:id AND tipoTrabajoId =:tipo")
+    fun getOtDetalleByIdSize(id: Int, tipo: Int): LiveData<Int>
+
     @Query("SELECT * FROM OtDetalle WHERE otDetalleId =:id")
     fun getOtDetalleIdTask(id: Int): OtDetalle?
 

@@ -158,9 +158,11 @@ class DesmonteFragment : DaggerFragment(), View.OnClickListener {
         otViewModel.getOtDetalleById(otId, 7)
             .observe(viewLifecycleOwner, {
                 otDetalleAdapter.submitData(lifecycle, it)
-                size = otDetalleAdapter.itemCount
-//                size = it.
             })
+
+        otViewModel.getOtDetalleByIdSize(otId, 7).observe(viewLifecycleOwner, {
+            size = it
+        })
 
         otViewModel.mensajeError.observe(viewLifecycleOwner) {
             Util.toastMensaje(requireContext(), it, false)
@@ -194,19 +196,24 @@ class DesmonteFragment : DaggerFragment(), View.OnClickListener {
     private fun confirmClose() {
         if (estado != 0) {
             val msj = when (size) {
-                0 -> "Esta seguro de cerrar el trabajo sin datos de desmonte ?"
-                else -> "Deseas cerrar trabajo ?"
+                0 -> arrayOf("Falta Ingresar datos de Desmonte", "Entendido")
+                else -> arrayOf("Deseas cerrar trabajo ?", "Cerrar")
             }
-            MaterialAlertDialogBuilder(requireContext())
+            val alert = MaterialAlertDialogBuilder(requireContext())
                 .setTitle("Mensaje")
-                .setMessage(msj)
-                .setPositiveButton("Cerrar") { dialog, _ ->
-                    otViewModel.cerrarTrabajo(otId)
+                .setMessage(msj[0])
+                .setPositiveButton(msj[1]) { dialog, _ ->
+                    if (size > 0) {
+                        otViewModel.cerrarTrabajo(otId)
+                    }
                     dialog.dismiss()
                 }
-                .setNegativeButton("No") { dialog, _ ->
+            if (size > 0) {
+                alert.setNegativeButton("No") { dialog, _ ->
                     dialog.cancel()
-                }.show()
+                }
+            }
+            alert.show()
         } else {
             viewPager?.currentItem = 0
             otViewModel.setError("Completar primer formulario")
